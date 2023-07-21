@@ -3,6 +3,7 @@
     <style name="Base.Theme.Wallhaven" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="layoutTint">#FFFFFF</item>
     </style>
 
     <style name="Theme.Wallhaven" parent="Base.Theme.Wallhaven" />

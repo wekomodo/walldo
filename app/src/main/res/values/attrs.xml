@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="Wallhaven">
+        <attr name="textColor" format="color"/>
+        <attr name="introColor" format="color"/>
+        <attr name="textColorInverse" format="color"/>
+        <attr name="navItemColor" format="color"/>
+        <attr name="navBackground" format="color"/>
+        <attr name="layoutTint" format="color"/>
+    </declare-styleable>
+</resources>

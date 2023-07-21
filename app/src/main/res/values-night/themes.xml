@@ -3,5 +3,6 @@
     <style name="Base.Theme.Wallhaven" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your dark theme here. -->
         <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <item name="layoutTint">#000000</item>
     </style>
 </resources>
