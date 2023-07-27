@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">wallhaven</string>
+    <string name="title_activity_homescreen">Homescreen</string>
 </resources>

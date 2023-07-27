@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.enigmaticdevs.wallhaven.main.MainRepository
 import com.enigmaticdevs.wallhaven.response.Wallpaper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -24,9 +23,9 @@ class MainViewModel @Inject constructor(
     private val _wallpaperList = MutableLiveData<Wallpaper?>()
     val wallpaperList : LiveData<Wallpaper?>  = _wallpaperList
 
-    fun getWallpapers(query : String) {
+    fun getWallpapers(query: String,sorting: String,purity : String,category : String,topRange : String,page : Int) {
        viewModelScope.launch {
-           val response = repository.getWallpapers(query)
+           val response = repository.getWallpapers(query,sorting,purity,category,topRange,page)
            _wallpaperList.postValue(response)
        }
         }
