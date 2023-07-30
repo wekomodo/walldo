@@ -23,9 +23,9 @@ class MainViewModel @Inject constructor(
     private val _wallpaperList = MutableLiveData<Wallpaper?>()
     val wallpaperList : LiveData<Wallpaper?>  = _wallpaperList
 
-    fun getWallpapers(query: String,sorting: String,purity : String,category : String,topRange : String,page : Int) {
+    fun listWallpapers(sorting: String,purity : String,category : String,topRange : String,page : Int) {
        viewModelScope.launch {
-           val response = repository.getWallpapers(query,sorting,purity,category,topRange,page)
+           val response = repository.getWallpapers(sorting,purity,category,topRange,page)
            _wallpaperList.postValue(response)
        }
         }

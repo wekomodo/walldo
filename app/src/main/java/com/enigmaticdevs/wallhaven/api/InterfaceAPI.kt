@@ -11,8 +11,7 @@ import retrofit2.http.Query
 interface InterfaceAPI {
 
     @GET("search")
-    suspend fun listSearchWallpapers(
-        @Query("q") query: String,
+    suspend fun listWallpapers(
         @Query("sorting") sorting : String,
         @Query("purity") purity : String,
         @Query("categories") category: String,

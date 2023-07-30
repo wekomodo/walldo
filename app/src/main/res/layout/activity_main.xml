@@ -4,14 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
-    android:background="?layoutTint">
+    tools:context=".MainActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?layoutTint"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -36,7 +34,7 @@
             android:layout_height="24sp"
             android:layout_gravity="end|center"
             android:background="?selectableItemBackgroundBorderless"
-            android:layout_marginRight="24sp"
+            android:layout_marginEnd="24sp"
             app:srcCompat="@drawable/ic_search"
             app:tint="?colorSecondary" />
     </androidx.appcompat.widget.Toolbar>
@@ -46,18 +44,21 @@
         android:layout_height="0dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="6dp"
+        style="?attr/materialCardViewFilledStyle"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="6sp"
-        android:background="?selectableItemBackground"
-        app:cardBackgroundColor="?layoutTint"
         app:cardCornerRadius="10sp"
         app:layout_constraintBottom_toTopOf="@+id/materialCardView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
-        <androidx.viewpager2.widget.ViewPager2
+        <!--<androidx.viewpager2.widget.ViewPager2
             android:id="@+id/fragmentContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />-->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerview"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </com.google.android.material.card.MaterialCardView>
@@ -68,6 +69,7 @@
         android:layout_height="80sp"
         android:layout_margin="8sp"
         app:cardCornerRadius="10sp"
+        style="?attr/materialCardViewFilledStyle"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
