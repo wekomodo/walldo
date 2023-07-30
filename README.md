@@ -8,9 +8,9 @@ An Android based on wallhaven.cc API, using dagger,mvvm & dynamic colors library
 
 ## Screenshots
 <div style="display:flex;">
-<img alt="App image" src="images/daily.jpg" width="30%">
-<img alt="App image" src="images/weekly.jpg" width="30%">
-<img alt="App image" src="images/monthly.jpg" width="30%">
+<img alt="App image" src="walldo1.jpg" width="30%">
+<img alt="App image" src="walldo2.jpg" width="30%">
+<img alt="App image" src="walldo3.jpg" width="30%">
 </div>
 
 ## Links
