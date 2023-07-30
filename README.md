@@ -1,5 +1,5 @@
 # Walldo- Walls from wallhaven (Android App)<br />
-![App Logo](https://github.com/Fewrie/Zodiac-Horoscopes/blob/master/images/constellation.png "Icon")
+![App Logo](https://github.com/wekomodo/walldo/blob/master/images/unnamed.jpg "Icon")
 
 ## Description & Features
 An Android based on wallhaven.cc API, using dagger,mvvm & dynamic colors library, gradually upgrading to kotlin
@@ -8,9 +8,9 @@ An Android based on wallhaven.cc API, using dagger,mvvm & dynamic colors library
 
 ## Screenshots
 <div style="display:flex;">
-<img alt="App image" src="walldo1.jpg" width="30%">
-<img alt="App image" src="walldo2.jpg" width="30%">
-<img alt="App image" src="walldo3.jpg" width="30%">
+<img alt="App image" src="images/walldo1.jpg" width="30%">
+<img alt="App image" src="images/walldo2.jpg" width="30%">
+<img alt="App image" src="images/walldo3.jpg" width="30%">
 </div>
 
 ## Links
