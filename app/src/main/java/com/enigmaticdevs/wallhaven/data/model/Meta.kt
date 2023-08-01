@@ -1,4 +1,4 @@
-package com.enigmaticdevs.wallhaven.response
+package com.enigmaticdevs.wallhaven.data.model
 
 data class Meta(
     val current_page: Int,

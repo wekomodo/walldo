@@ -5,15 +5,16 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.enigmaticdevs.wallhaven.databinding.ActivityMainBinding
-import com.enigmaticdevs.wallhaven.main.MainViewModel
-import com.enigmaticdevs.wallhaven.response.Data
-import com.enigmaticdevs.wallhaven.response.Wallpaper
+import com.enigmaticdevs.wallhaven.domain.viewmodel.MainViewModel
+import com.enigmaticdevs.wallhaven.data.model.Data
 import com.enigmaticdevs.wallhaven.ui.adapters.WallpaperAdapter
 import dagger.hilt.android.AndroidEntryPoint
-import okhttp3.internal.notify
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -27,10 +28,26 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         wallpaperList = ArrayList()
-        imagesViewModel.listWallpapers("toplist","111","111","1y",1)
-        imagesViewModel.wallpaperList.observe(this){response ->
+        imagesViewModel.getWallpaperBySort("toplist","111","111","1y","","",1)
+       // imagesViewModel.getSearchWallpapers("","toplist","111","111","1y","","",1)
+        lifecycleScope.launch {
+            imagesViewModel.wallpaperList.collectLatest{response ->
+                if(response != null){
+                    wallpaperList = response.data as MutableList<Data>
+                    initRecyclerView()
+                }
+                else{
+                    Toast.makeText(this@MainActivity,"Failed",Toast.LENGTH_SHORT).show()
+                    return@collectLatest
+                }
+                Log.d("data",response.toString())
+            }
+        }
+
+/*
+        imagesViewModel.wallpaperSearchList.observe(this){response ->
             if(response == null){
-                 Toast.makeText(this@MainActivity,"Failed",Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MainActivity,"Failed",Toast.LENGTH_SHORT).show()
                 return@observe
             }
             else{
@@ -39,7 +56,7 @@ class MainActivity : AppCompatActivity() {
 
             }
             Log.d("data",response.toString())
-        }
+        }*/
 
     }
 

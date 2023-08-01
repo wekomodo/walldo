@@ -1,8 +1,8 @@
-package com.enigmaticdevs.wallhaven.api
+package com.enigmaticdevs.wallhaven.data.remote
 
-import com.enigmaticdevs.wallhaven.response.AuthenticateAPIkey
-import com.enigmaticdevs.wallhaven.response.Data
-import com.enigmaticdevs.wallhaven.response.Wallpaper
+import com.enigmaticdevs.wallhaven.data.model.AuthenticateAPIkey
+import com.enigmaticdevs.wallhaven.data.model.Data
+import com.enigmaticdevs.wallhaven.data.model.Wallpaper
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -11,16 +11,19 @@ import retrofit2.http.Query
 interface InterfaceAPI {
 
     @GET("search")
-    suspend fun listWallpapers(
+    suspend fun getWallpaperBySort(
         @Query("sorting") sorting : String,
         @Query("purity") purity : String,
         @Query("categories") category: String,
         @Query("topRange")  topRange : String,
+        @Query("ratios") ratio: String,
+        @Query("atleast") resolution: String,
         @Query("page") page: Int
     ): Response<Wallpaper>
 
     @GET("search")
-    suspend fun listWallpaperBySort(
+    suspend fun getSearchWallpapers(
+        @Query("q") query: String,
         @Query("sorting") sorting: String,
         @Query("purity") purity : String,
         @Query("categories") category: String,
@@ -31,7 +34,7 @@ interface InterfaceAPI {
     ): Response<Wallpaper>
 
     @GET("w/{id}")
-    suspend fun getImageDetails(
+    suspend fun getWallpaper(
         @Path("id") id: String,
     ): Response<Data>
 

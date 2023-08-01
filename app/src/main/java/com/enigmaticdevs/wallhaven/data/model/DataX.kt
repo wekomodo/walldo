@@ -1,4 +1,4 @@
-package com.enigmaticdevs.wallhaven.response
+package com.enigmaticdevs.wallhaven.data.model
 
 data class DataX(
     val aspect_ratios: List<String>,

@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.enigmaticdevs.wallhaven.databinding.ItemPhotoBinding
-import com.enigmaticdevs.wallhaven.response.Data
+import com.enigmaticdevs.wallhaven.data.model.Data
 import com.enigmaticdevs.wallhaven.util.AspectRatioImageView
 import com.enigmaticdevs.wallhaven.util.setAspectRatio
 

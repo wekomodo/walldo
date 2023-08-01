@@ -30,5 +30,6 @@
         <item name="colorSurfaceInverse">@color/md_theme_dark_inverseSurface</item>
         <item name="colorPrimaryInverse">@color/md_theme_dark_inversePrimary</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:statusBarColor">@color/md_theme_dark_inverseOnSurface</item>
     </style>
 </resources>

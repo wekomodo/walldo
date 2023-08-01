@@ -1,4 +1,4 @@
-package com.enigmaticdevs.wallhaven.api
+package com.enigmaticdevs.wallhaven.data.remote
 
 import okhttp3.Interceptor
 import okhttp3.Response

@@ -1,18 +1,14 @@
 package com.enigmaticdevs.wallhaven.di
 
-import android.content.Context
-import com.enigmaticdevs.wallhaven.api.InterfaceAPI
-import com.enigmaticdevs.wallhaven.api.MyInterceptor
-import com.enigmaticdevs.wallhaven.main.MainRepository
+import com.enigmaticdevs.wallhaven.data.remote.InterfaceAPI
+import com.enigmaticdevs.wallhaven.domain.repository.MainRepository
 import com.enigmaticdevs.wallhaven.util.DispatcherProvider
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
