@@ -53,12 +53,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
-        <!--<androidx.viewpager2.widget.ViewPager2
+        <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/fragmentContainer"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />-->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerview"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </com.google.android.material.card.MaterialCardView>
@@ -157,6 +153,7 @@
                 android:background="?selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true"
+                android:contentDescription="recentsButton"
                 app:cardCornerRadius="100sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -192,7 +189,7 @@
                         android:layout_gravity="right|center"
                         android:layout_marginEnd="16dp"
                         android:fontFamily="@font/gordita_bold"
-                        android:text="Popular"
+                        android:text="Recent"
                         android:textColor="#8EA2F4"
                         android:visibility="gone"
                         app:layout_constraintBottom_toBottomOf="parent"
