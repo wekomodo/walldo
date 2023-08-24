@@ -42,38 +42,13 @@ class RecentFragment : Fragment(){
         wallpaperList = ArrayList()
         val params = Params("date_added","111","111","1y","","")
         imagesViewModel.getWallpaperRecent(params,1)
+        initRecyclerView()
         lifecycleScope.launch {
-            imagesViewModel.wallpaperListRecent.collectLatest{response ->
-                when(response.status){
-                    Status.SUCCESS -> {
-                        wallpaperList = response.data?.data as MutableList<Data>
-                        Log.d("data",wallpaperList.toString())
-                        initRecyclerView()
-                    }
-                    Status.ERROR ->
-                        Toast.makeText(context,"Failed", Toast.LENGTH_SHORT).show()
-                    else ->{
-                    }
-                }
 
+            imagesViewModel.RecentList(params).collectLatest{
+                itemAdapter.submitData(it)
             }
         }
-
-        // MutableLiveData Example
-        /*
-                imagesViewModel.getSearchWallpapers("","toplist","111","111","1y","","",1)
-                imagesViewModel.wallpaperSearchList.observe(this){response ->
-                    if(response == null){
-                        Toast.makeText(this@MainActivity,"Failed",Toast.LENGTH_SHORT).show()
-                        return@observe
-                    }
-                    else{
-                        wallpaperList = response.data as MutableList<Data>
-                        initRecyclerView()
-
-                    }
-                    Log.d("data",response.toString())
-                }*/
 
         return view
     }
@@ -85,7 +60,7 @@ class RecentFragment : Fragment(){
             StaggeredGridLayoutManager.VERTICAL
         )
         recyclerView.layoutManager = staggeredGridLayoutManager
-        itemAdapter = WallpaperAdapter(wallpaperList, context)
+        itemAdapter = WallpaperAdapter(context)
         recyclerView.adapter = itemAdapter
     }
 }

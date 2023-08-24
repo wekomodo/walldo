@@ -3,8 +3,11 @@ package com.enigmaticdevs.wallhaven.ui.adapters
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.paging.PagingDataAdapter
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.enigmaticdevs.wallhaven.databinding.ItemPhotoBinding
@@ -13,8 +16,20 @@ import com.enigmaticdevs.wallhaven.util.AspectRatioImageView
 import com.enigmaticdevs.wallhaven.util.setAspectRatio
 
 class WallpaperAdapter(
-    private val wallpaper: MutableList<Data>,
-    private val context : Context ) : RecyclerView.Adapter<WallpaperAdapter.ViewHolder>() {
+    private val context : Context ) : PagingDataAdapter<Data,WallpaperAdapter.ViewHolder>(diffCallback) {
+    companion object{
+        val diffCallback = object : DiffUtil.ItemCallback<Data>(){
+            override fun areItemsTheSame(oldItem: Data, newItem: Data): Boolean {
+                return oldItem.id == newItem.id
+            }
+
+            override fun areContentsTheSame(oldItem: Data, newItem: Data): Boolean {
+                return oldItem == newItem
+            }
+
+        }
+    }
+
     class ViewHolder(binding : ItemPhotoBinding) : RecyclerView.ViewHolder(binding.root) {
         val photo: AspectRatioImageView = binding.photo
     }
@@ -28,16 +43,12 @@ class WallpaperAdapter(
         val vh = ViewHolder(inflatedView)
         return vh
     }
-
-    override fun getItemCount(): Int {
-        return wallpaper.size
-    }
-
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.photo.setAspectRatio(wallpaper[position].dimension_x, wallpaper[position].dimension_y)
+       val currentItem = getItem(position)!!
+        holder.photo.setAspectRatio(currentItem.dimension_x, currentItem.dimension_y)
         Glide.with(context)
-            .load(wallpaper[position].thumbs.original)
-            .placeholder(ColorDrawable(Color.parseColor(wallpaper[position].colors[(0..4).random()])))
+            .load(currentItem.thumbs.original)
+            .placeholder(ColorDrawable(Color.parseColor(currentItem.colors[(0..4).random()])))
             .into(holder.photo)
     }
 }

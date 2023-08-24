@@ -4,9 +4,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.cachedIn
 import com.enigmaticdevs.wallhaven.data.model.Data
 import com.enigmaticdevs.wallhaven.data.model.Params
 import com.enigmaticdevs.wallhaven.data.model.Wallpaper
+import com.enigmaticdevs.wallhaven.domain.PagingData
 import com.enigmaticdevs.wallhaven.domain.repository.MainRepository
 import com.enigmaticdevs.wallhaven.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,6 +24,15 @@ class MainViewModel @Inject constructor(
     private  val repository: MainRepository,
    // private val dispatchers : DispatcherProvider
 ) : ViewModel() {
+
+    fun Popularlist(params: Params) = Pager(PagingConfig(pageSize = 1)){
+        PagingData(repository, params)
+    }.flow.cachedIn(viewModelScope)
+
+    fun RecentList(params: Params) = Pager(PagingConfig(pageSize = 1)){
+        PagingData(repository, params)
+    }.flow.cachedIn(viewModelScope)
+
     private val _wallpaperListPopular = MutableStateFlow<Resource<Wallpaper?>>(Resource.Loading())
     val wallpaperListPopular   = _wallpaperListPopular.asStateFlow()
 

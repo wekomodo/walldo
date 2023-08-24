@@ -42,9 +42,13 @@ class PopularFragment : Fragment(){
         binding = FragmentPopularBinding.bind(view)
         wallpaperList = ArrayList()
         val params = Params("toplist","111","111","1y","","")
-        imagesViewModel.getWallpaperPopular(params,1)
+        initRecyclerView()
         lifecycleScope.launch {
-            imagesViewModel.wallpaperListPopular.collectLatest{response ->
+
+            imagesViewModel.Popularlist(params).collectLatest{
+                               itemAdapter.submitData(it)
+            }
+            /*imagesViewModel.wallpaperListPopular.collectLatest{response ->
                 when(response.status){
                     Status.SUCCESS -> {
                         wallpaperList = response.data?.data as MutableList<Data>
@@ -57,7 +61,7 @@ class PopularFragment : Fragment(){
                     }
                 }
 
-            }
+            }*/
         }
 
         // MutableLiveData Example
@@ -86,7 +90,7 @@ class PopularFragment : Fragment(){
             StaggeredGridLayoutManager.VERTICAL
         )
         recyclerView.layoutManager = staggeredGridLayoutManager
-        itemAdapter = WallpaperAdapter(wallpaperList, context)
+        itemAdapter = WallpaperAdapter(context)
         recyclerView.adapter = itemAdapter
     }
 }
