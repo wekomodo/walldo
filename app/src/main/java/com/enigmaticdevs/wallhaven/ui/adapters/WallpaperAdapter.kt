@@ -1,6 +1,7 @@
 package com.enigmaticdevs.wallhaven.ui.adapters
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.util.Log
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.enigmaticdevs.wallhaven.databinding.ItemPhotoBinding
 import com.enigmaticdevs.wallhaven.data.model.Data
+import com.enigmaticdevs.wallhaven.ui.activities.WallpaperDetails
 import com.enigmaticdevs.wallhaven.util.AspectRatioImageView
 import com.enigmaticdevs.wallhaven.util.setAspectRatio
 
@@ -41,6 +43,10 @@ class WallpaperAdapter(
             false
         )
         val vh = ViewHolder(inflatedView)
+        vh.photo.setOnClickListener{
+            val intent = Intent(context,WallpaperDetails::class.java)
+            context.startActivity(intent)
+        }
         return vh
     }
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {

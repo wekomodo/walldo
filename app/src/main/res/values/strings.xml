@@ -1,4 +1,13 @@
 <resources>
     <string name="app_name">wallhaven</string>
     <string name="title_activity_homescreen">Homescreen</string>
+    <string name="open_nav">open nav</string>
+    <string name="close_nav">close nav</string>
+    <string name="settings">Settings</string>
+    <string name="auto_wallpaper">Auto Wallpaper</string>
+    <string name="favorites">Favorites</string>
+    <string name="upgrade">Upgrade</string>
+    <string name="about_me">About Me</string>
+    <string name="support_me">Support me</string>
+    <string name="options">Options</string>
 </resources>

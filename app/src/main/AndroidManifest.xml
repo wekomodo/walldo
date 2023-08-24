@@ -17,12 +17,13 @@
         android:theme="@style/Theme.Wallhaven"
         tools:targetApi="31">
         <activity
+            android:name=".ui.activities.WallpaperDetails"
+            android:exported="false" />
+        <activity
             android:name=".composeui.Homescreen"
             android:exported="true"
             android:label="@string/title_activity_homescreen"
-            android:theme="@style/Theme.Wallhaven" >
-
-        </activity>
+            android:theme="@style/Theme.Wallhaven"></activity>
         <activity
             android:name=".MainActivity"
             android:exported="true">
