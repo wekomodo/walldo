@@ -11,7 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.enigmaticdevs.wallhaven.R
-import com.enigmaticdevs.wallhaven.data.model.Data
+import com.enigmaticdevs.wallhaven.data.model.Wallpaper
 import com.enigmaticdevs.wallhaven.data.model.Params
 import com.enigmaticdevs.wallhaven.databinding.FragmentRecentBinding
 import com.enigmaticdevs.wallhaven.domain.viewmodel.MainViewModel
@@ -21,11 +21,11 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class RecentFragment : Fragment(){
-    private lateinit var context : Context
+class RecentFragment : Fragment() {
+    private lateinit var context: Context
     private val imagesViewModel: MainViewModel by viewModels()
-    private lateinit var binding : FragmentRecentBinding
-    private lateinit var wallpaperList : MutableList<Data>
+    private lateinit var binding: FragmentRecentBinding
+    private lateinit var wallpaperList: MutableList<Wallpaper>
     private lateinit var recyclerView: RecyclerView
     private lateinit var itemAdapter: WallpaperAdapter
     override fun onCreateView(
@@ -33,15 +33,15 @@ class RecentFragment : Fragment(){
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_recent,container,false)
+        val view = inflater.inflate(R.layout.fragment_recent, container, false)
         context = requireActivity()
         binding = FragmentRecentBinding.bind(view)
         wallpaperList = ArrayList()
-        val params = Params("date_added","111","111","1y","","")
+        val params = Params("date_added", "111", "111", "1y", "", "")
         initRecyclerView()
         lifecycleScope.launch {
 
-            imagesViewModel.recentList(params).collectLatest{
+            imagesViewModel.recentList(params).collectLatest {
                 itemAdapter.submitData(it)
             }
         }
@@ -51,7 +51,7 @@ class RecentFragment : Fragment(){
 
     private fun initRecyclerView() {
         recyclerView = binding.recyclerview
-        val  staggeredGridLayoutManager = StaggeredGridLayoutManager(
+        val staggeredGridLayoutManager = StaggeredGridLayoutManager(
             2,
             StaggeredGridLayoutManager.VERTICAL
         )

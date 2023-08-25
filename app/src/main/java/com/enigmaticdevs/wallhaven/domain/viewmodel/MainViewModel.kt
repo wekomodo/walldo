@@ -7,8 +7,8 @@ import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
 import com.enigmaticdevs.wallhaven.data.model.Params
 import com.enigmaticdevs.wallhaven.data.model.Photo
-import com.enigmaticdevs.wallhaven.data.model.Wallpaper
-import com.enigmaticdevs.wallhaven.domain.PagingData
+import com.enigmaticdevs.wallhaven.data.model.Wallpapers
+import com.enigmaticdevs.wallhaven.domain.PagingSource
 import com.enigmaticdevs.wallhaven.domain.repository.MainRepository
 import com.enigmaticdevs.wallhaven.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,15 +24,15 @@ class MainViewModel @Inject constructor(
 ) : ViewModel() {
 
     fun popularList(params: Params) = Pager(PagingConfig(pageSize = 1)){
-        PagingData(repository, params)
+        PagingSource(repository, params)
     }.flow.cachedIn(viewModelScope)
 
     fun recentList(params: Params) = Pager(PagingConfig(pageSize = 1)){
-        PagingData(repository, params)
+        PagingSource(repository, params)
     }.flow.cachedIn(viewModelScope)
 
-    private val _wallpaperSearchList = MutableStateFlow<Resource<Wallpaper?>>(Resource.Loading())
-    val wallpaperSearchList  = _wallpaperSearchList.asStateFlow()
+    private val _wallpapersSearchList = MutableStateFlow<Resource<Wallpapers?>>(Resource.Loading())
+    val wallpaperSearchList  = _wallpapersSearchList.asStateFlow()
 
     private val _wallpaper = MutableStateFlow<Resource<Photo?>>(Resource.Loading())
     val wallpaper  = _wallpaper.asStateFlow()
@@ -44,9 +44,9 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             val response = repository.getSearchWallpapers(query,params,page)
             if(response!=null)
-                _wallpaperSearchList.value = Resource.Success(response)
+                _wallpapersSearchList.value = Resource.Success(response)
             else
-                _wallpaperSearchList.value = Resource.Error("Failed")
+                _wallpapersSearchList.value = Resource.Error("Failed")
         }
     }
 

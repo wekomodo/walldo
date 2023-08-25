@@ -50,14 +50,14 @@ class WallpaperDetails : AppCompatActivity() {
     }
 
     private fun loadImage(wallpaper: Photo) {
-        binding.wallpaperDetailAvatarUsername.text = wallpaper.data.uploader.username
+        binding.wallpaperDetailAvatarUsername.text = wallpaper.wallpaper.uploader.username
         Glide.with(this)
-            .load(wallpaper.data.path)
-            .placeholder(ColorDrawable(Color.parseColor(wallpaper.data.colors[(0..4).random()])))
+            .load(wallpaper.wallpaper.path)
+            .placeholder(ColorDrawable(Color.parseColor(wallpaper.wallpaper.colors[(0..4).random()])))
             .into(binding.wallpaperDetailImage)
         Glide.with(this)
-            .load(wallpaper.data.uploader.avatar.`128px`)
-            .placeholder(ColorDrawable(Color.parseColor(wallpaper.data.colors[(0..4).random()])))
+            .load(wallpaper.wallpaper.uploader.avatar.`128px`)
+            .placeholder(ColorDrawable(Color.parseColor(wallpaper.wallpaper.colors[(0..4).random()])))
             .into(binding.wallpaperDetailAvatarImage)
     }
 }

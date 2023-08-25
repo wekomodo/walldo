@@ -2,7 +2,7 @@ package com.enigmaticdevs.wallhaven.data.remote
 
 import com.enigmaticdevs.wallhaven.data.model.AuthenticateAPIkey
 import com.enigmaticdevs.wallhaven.data.model.Photo
-import com.enigmaticdevs.wallhaven.data.model.Wallpaper
+import com.enigmaticdevs.wallhaven.data.model.Wallpapers
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -19,7 +19,7 @@ interface InterfaceAPI {
         @Query("ratios") ratio: String,
         @Query("atleast") resolution: String,
         @Query("page") page: Int
-    ): Response<Wallpaper>
+    ): Response<Wallpapers>
 
     @GET("search")
     suspend fun getSearchWallpapers(
@@ -31,7 +31,7 @@ interface InterfaceAPI {
         @Query("ratios") ratio: String,
         @Query("atleast") resolution: String,
         @Query("page") page: Int
-    ): Response<Wallpaper>
+    ): Response<Wallpapers>
 
     @GET("w/{id}")
     suspend fun getWallpaper(

@@ -50,6 +50,7 @@ class MainActivity : AppCompatActivity() {
                     val intent = Intent(this, Settings::class.java)
                     startActivity(intent)
                 }
+
                 else -> {
                     Toast.makeText(this, "Item 2", Toast.LENGTH_SHORT).show()
                 }
@@ -57,7 +58,7 @@ class MainActivity : AppCompatActivity() {
             binding.drawerLayout.closeDrawer(GravityCompat.START)
             return@setNavigationItemSelectedListener true
         }
-        // onBackPressed override to check if navdrawer is open or not. If open then close it first.
+        // onBackPressed override to check if navDrawer is open or not. If open then close it first.
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
@@ -73,13 +74,14 @@ class MainActivity : AppCompatActivity() {
         adapter.addFragment(PopularFragment(), "Popular")
         adapter.addFragment(RecentFragment(), "Recent")
         binding.fragmentContainer.adapter = adapter
-        binding.popularButton.setOnClickListener{
+        binding.popularButton.setOnClickListener {
             binding.fragmentContainer.currentItem = 0
         }
-        binding.recentsButton.setOnClickListener{
+        binding.recentsButton.setOnClickListener {
             binding.fragmentContainer.currentItem = 1
         }
-        binding.fragmentContainer.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+        binding.fragmentContainer.registerOnPageChangeCallback(object :
+            ViewPager2.OnPageChangeCallback() {
 
             override fun onPageScrolled(
                 position: Int,
@@ -87,13 +89,12 @@ class MainActivity : AppCompatActivity() {
                 positionOffsetPixels: Int
             ) {
             }
+
             override fun onPageSelected(position: Int) {
-                if(position == 0)
-                {
+                if (position == 0) {
                     binding.popularButtonText.visibility = View.VISIBLE
                     binding.recentButtonText.visibility = View.GONE
-                }
-                else {
+                } else {
                     binding.recentButtonText.visibility = View.VISIBLE
                     binding.popularButtonText.visibility = View.GONE
                 }
