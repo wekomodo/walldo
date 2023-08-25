@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:title="@string/options">
         <menu>
@@ -7,18 +8,18 @@
                 android:id="@+id/nav_favorites"
                 android:icon="@drawable/ic_favorite"
                 android:title="@string/favorites"
-                android:checkable="true"/>
+                app:showAsAction="ifRoom"/>
             <item
                 android:id="@+id/nav_autowallpaper"
                 android:icon="@drawable/ic_auto_wallpaper"
                 android:title="@string/auto_wallpaper"
-                android:checkable="true"/>
+                app:showAsAction="ifRoom"/>
 
             <item
                 android:id="@+id/nav_settings"
                 android:icon="@drawable/ic_settings"
                 android:title="@string/settings"
-                android:checkable="true"/>
+                app:showAsAction="ifRoom"/>
         </menu>
     </item>
     <item
@@ -28,12 +29,12 @@
             android:id="@+id/nav_upgrade"
             android:icon="@drawable/ic_upgrade"
             android:title="@string/upgrade"
-            android:checkable="true"/>
+            app:showAsAction="ifRoom"/>
         <item
             android:id="@+id/nav_aboutMe"
             android:icon="@drawable/ic_about_me"
             android:title="@string/about_me"
-            android:checkable="true"/>
+            app:showAsAction="ifRoom"/>
         </menu>
     </item>
 </menu>

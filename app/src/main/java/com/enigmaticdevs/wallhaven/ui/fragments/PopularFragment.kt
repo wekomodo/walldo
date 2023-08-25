@@ -2,14 +2,18 @@ package com.enigmaticdevs.wallhaven.ui.fragments
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.paging.LoadState
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.bumptech.glide.load.engine.Engine.LoadStatus
 import com.enigmaticdevs.wallhaven.R
 import com.enigmaticdevs.wallhaven.data.model.Data
 import com.enigmaticdevs.wallhaven.data.model.Params
@@ -40,12 +44,19 @@ class PopularFragment : Fragment(){
         wallpaperList = ArrayList()
         val params = Params("toplist","111","111","1y","","")
         initRecyclerView()
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
 
             imagesViewModel.popularList(params).collectLatest{
-                               itemAdapter.submitData(it)
-            }
 
+                               itemAdapter.submitData(it)
+
+            }
+            itemAdapter.loadStateFlow.collectLatest {
+                if(it.refresh is LoadState.Error)
+                    Toast.makeText(context,it.toString(),Toast.LENGTH_SHORT).show()
+                else
+                    Toast.makeText(context,it.toString(),Toast.LENGTH_SHORT).show()
+            }
 
             /*imagesViewModel.wallpaperListPopular.collectLatest{response ->
                 when(response.status){

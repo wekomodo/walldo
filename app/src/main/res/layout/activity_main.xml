@@ -3,7 +3,6 @@
 <androidx.drawerlayout.widget.DrawerLayout android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
     tools:context=".MainActivity"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
@@ -18,6 +17,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="?attr/actionBarSize"
+        android:fitsSystemWindows="true"
         android:theme="?attr/actionBarTheme"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -31,9 +31,8 @@
             android:layout_gravity="center"
             android:fontFamily="@font/gordita_bold"
             android:text="@string/app_name"
-            android:textSize="32sp"
-            tools:layout_editor_absoluteX="121dp"
-            tools:layout_editor_absoluteY="8dp" />
+            android:textSize="28sp"
+             />
 
         <ImageView
             android:id="@+id/search_view"

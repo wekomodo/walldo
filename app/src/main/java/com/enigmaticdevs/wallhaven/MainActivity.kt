@@ -1,16 +1,16 @@
 package com.enigmaticdevs.wallhaven
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.viewpager2.widget.ViewPager2
 import com.enigmaticdevs.wallhaven.databinding.ActivityMainBinding
-import com.enigmaticdevs.wallhaven.domain.viewmodel.MainViewModel
+import com.enigmaticdevs.wallhaven.ui.settings.Settings
 import com.enigmaticdevs.wallhaven.ui.adapters.ViewPagerFragmentAdapter
 import com.enigmaticdevs.wallhaven.ui.fragments.PopularFragment
 import com.enigmaticdevs.wallhaven.ui.fragments.RecentFragment
@@ -45,8 +45,11 @@ class MainActivity : AppCompatActivity() {
         // navigation for drawer items
         binding.navigationView.setNavigationItemSelectedListener {
             when (it.itemId) {
-                R.id.nav_settings -> Toast.makeText(this, "Item 1", Toast.LENGTH_SHORT).show()
                 R.id.nav_autowallpaper -> Toast.makeText(this, "Item 2", Toast.LENGTH_SHORT).show()
+                R.id.nav_settings -> {
+                    val intent = Intent(this, Settings::class.java)
+                    startActivity(intent)
+                }
                 else -> {
                     Toast.makeText(this, "Item 2", Toast.LENGTH_SHORT).show()
                 }

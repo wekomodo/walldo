@@ -1,11 +1,13 @@
 package com.enigmaticdevs.wallhaven.di
 
+import android.content.Context
 import com.enigmaticdevs.wallhaven.data.remote.InterfaceAPI
 import com.enigmaticdevs.wallhaven.domain.repository.MainRepository
 import com.enigmaticdevs.wallhaven.util.DispatcherProvider
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -27,6 +29,11 @@ object AppModule {
         .build()
         .create(InterfaceAPI::class.java)
 
+  /*  @Singleton
+    @Provides
+    fun providesSharedPreferences(@ApplicationContext  context : Context){
+
+    }*/
     @Singleton
     @Provides
     fun provideMainRepository(api : InterfaceAPI) : MainRepository = MainRepository(api)

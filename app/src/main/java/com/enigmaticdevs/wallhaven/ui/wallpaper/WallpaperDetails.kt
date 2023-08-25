@@ -1,4 +1,4 @@
-package com.enigmaticdevs.wallhaven.ui.activities
+package com.enigmaticdevs.wallhaven.ui.wallpaper
 
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -38,19 +38,15 @@ class WallpaperDetails : AppCompatActivity() {
                         wallpaper = response.data as Photo
                         loadImage(wallpaper)
                     }
-                    Status.ERROR ->
-                        Toast.makeText(this@WallpaperDetails,"Failed", Toast.LENGTH_SHORT).show()
-                    else ->{
-
-                    }
+                    Status.ERROR -> Toast.makeText(this@WallpaperDetails,"Failed", Toast.LENGTH_SHORT).show()
+                    else ->{}
                     }
             }
-
-
         }
 
-
-
+        binding.toolbar3.setNavigationOnClickListener{
+            finish()
+        }
     }
 
     private fun loadImage(wallpaper: Photo) {

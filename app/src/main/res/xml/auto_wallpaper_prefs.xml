@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="auto_wallpaper"
+            android:title="Auto Wallpaper"
+            android:summaryOff="Turn On"
+            android:summaryOn="Turn Off"/>
+        <Preference
+            android:icon="@drawable/ic_info"
+            android:summary="Random wallpaper with your specified conditions"
+            app:allowDividerAbove="true" />
+        <PreferenceCategory android:title="Conditions"
+            app:dependency="auto_wallpaper">
+
+            <CheckBoxPreference
+                android:defaultValue="false"
+                android:key="only_on_wifi"
+                android:title="On Wifi"
+                android:summary="When connected to a WiFi network"/>
+            <CheckBoxPreference
+                android:defaultValue="false"
+                android:key="only_on_charging"
+                android:title="Charging"
+                android:summary="When connected to a power source"/>
+            <CheckBoxPreference
+                android:defaultValue="false"
+                android:key="only_when_idle"
+                android:title="Idle"
+                android:summary="When device is idle"/>
+            <ListPreference
+                android:defaultValue="15"
+                android:entries="@array/auto_wall_time_entries"
+                android:entryValues="@array/auto_wall_time_values"
+                android:key="auto_wall_interval"
+                android:title="Interval"
+                android:summary="Change wallpaper after interval"/>
+        </PreferenceCategory>
+        <PreferenceCategory android:title="Source">
+
+            <ListPreference
+                android:icon="@drawable/ic_compare"
+                android:defaultValue="random"
+                android:entries="@array/source_entries"
+                android:entryValues="@array/source_values"
+                android:key="wallpaper_source"
+                android:title="Wallpaper Source" />
+        </PreferenceCategory>
+        <PreferenceCategory android:title="Options">
+            <CheckBoxPreference
+                android:defaultValue="false"
+                android:key="device_orientation_fix"
+                android:title="Device Orientation Fix"
+                android:summary="Will check if the device is in landscape mode, then reschedule the AutoWallpaper"/>
+            <ListPreference
+                android:key="auto_wall_screen"
+                android:title="Select Screen"
+                android:entries="@array/auto_wall_screen_entries"
+                android:entryValues="@array/auto_wall_screen_values"
+                android:defaultValue="both"
+                android:summary="%s"
+                />
+        </PreferenceCategory>
+    <PreferenceCategory android:title="History">
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="auto_wallpaper_history_switch"
+            android:summaryOff="Turn On"
+            android:summaryOn="Turn Off"
+            android:title="Auto Wallpaper History" />
+    </PreferenceCategory>
+    <Preference
+            android:dependency="auto_wallpaper_history_switch"
+            app:key="auto_wallpaper_history"
+            android:title="History"
+            android:summary="View previously set wallpapers"
+            app:allowDividerAbove="true" />
+</PreferenceScreen>

@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.enigmaticdevs.wallhaven.data.model.Data
 import com.enigmaticdevs.wallhaven.databinding.ItemPhotoBinding
-import com.enigmaticdevs.wallhaven.ui.activities.WallpaperDetails
+import com.enigmaticdevs.wallhaven.ui.wallpaper.WallpaperDetails
 import com.enigmaticdevs.wallhaven.util.AspectRatioImageView
 import com.enigmaticdevs.wallhaven.util.setAspectRatio
 
@@ -43,7 +43,7 @@ class WallpaperAdapter(
         )
         val vh = ViewHolder(inflatedView)
         vh.photo.setOnClickListener{
-            val intent = Intent(context,WallpaperDetails::class.java)
+            val intent = Intent(context, WallpaperDetails::class.java)
             intent.putExtra("imageId",getItem(vh.absoluteAdapterPosition)?.id)
             context.startActivity(intent)
         }

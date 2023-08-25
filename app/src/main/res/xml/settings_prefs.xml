@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory android:title="General">
+
+        <ListPreference
+            android:defaultValue="default"
+            android:icon="@drawable/ic_theme"
+            android:key="darkmode"
+            android:title="Theme"
+            android:entries="@array/theme_entries"
+            android:entryValues="@array/theme_values"
+            android:summary="%s"
+            />
+        <Preference
+            android:defaultValue=""
+            android:key="api_key"
+            app:allowDividerAbove="true"
+            app:icon="@drawable/ic_api_key"
+            app:summary="API key can be found on wallhaven.cc by logging in,if it doesnt work try restarting app"
+            app:title="API key" />
+        <ListPreference
+            android:key="filter_resolution"
+            app:title="Resolution Filter"
+            app:icon="@drawable/ic_resolution"
+            app:allowDividerAbove="true"
+            android:entries="@array/resolution_entries"
+            android:entryValues="@array/resolution_values"
+            android:defaultValue=""
+            app:summary="Only greater than your chosen resolution will be shown"
+            />
+        <MultiSelectListPreference
+            android:defaultValue="@array/ratio_default"
+            android:key="filter_ratio"
+            android:entries="@array/ratio_entries"
+            android:entryValues="@array/ratio_values"
+            app:allowDividerAbove="true"
+            app:icon="@drawable/ic_ratio"
+            app:summary="Selected ratios will be used"
+            app:title="Ratio Filter"/>
+        <PreferenceCategory android:title="Categories">
+            <SwitchPreference
+                android:defaultValue="false"
+                android:key="general_category"
+                android:summary="Basically most of the walls"
+                android:title="General"
+                app:defaultValue="true" />
+            <SwitchPreference
+                android:defaultValue="false"
+                android:key="anime_category"
+                android:summaryOff="turn on weeb mode"
+                android:summaryOn="turn off weeb mode"
+                android:title="Anime"
+                app:defaultValue="true" />
+            <SwitchPreference
+                android:defaultValue="false"
+                android:key="people_category"
+                android:summary="Homosapeins"
+                android:title="People" />
+        </PreferenceCategory>
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:icon="@drawable/ic_purity"
+        android:summary=" NSFW wont work until you put an API key"
+        android:title="Purity Filter">
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="purity_sfw"
+            android:summary="Legs crossed"
+            android:title="SFW" />
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="purity_sketchy"
+            android:summary="shady corner in the dark"
+            android:title="SKETCHY" />
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="purity_nsfw"
+            android:summary="Legs wide open"
+            android:title="NSFW" />
+    </PreferenceCategory>
+</androidx.preference.PreferenceScreen>

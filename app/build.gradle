@@ -85,6 +85,8 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:4.15.1'
     //paging3
     implementation("androidx.paging:paging-runtime-ktx:3.2.0")
-    //zoomedphotoview
+    //zoomedPhotoView
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
+    //androidx preferences
+    implementation 'androidx.preference:preference-ktx:1.2.1'
 }

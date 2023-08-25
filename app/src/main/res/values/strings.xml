@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">wallhaven</string>
+    <string name="app_name">Walldo</string>
     <string name="title_activity_homescreen">Homescreen</string>
     <string name="open_nav">open nav</string>
     <string name="close_nav">close nav</string>
@@ -15,4 +15,135 @@
     <string name="download">Download</string>
     <string name="set_as_wallpaper">Set as wallpaper</string>
     <string name="search">Search</string>
+    <string name="enter_api_key">Enter API key</string>
+
+
+    <string-array name="theme_entries">
+        <item name="light">Light</item>
+        <item name="dark">Dark</item>
+        <item name="default">System default</item>
+    </string-array>
+    <string-array name="theme_values">
+        <item name="light">light</item>
+        <item name="dark">dark</item>
+        <item name="default">default</item>
+    </string-array>
+    <string-array name="source_entries">
+        <item name="random">Random</item>
+        <item name="toplist">TopList</item>
+        <item name="hot">Hot</item>
+        <item name="favorite">Favorite</item>
+    </string-array>
+    <string-array name="source_values">
+        <item name="random">random</item>
+        <item name="toplist">toplist</item>
+        <item name="hot">hot</item>
+        <item name="favorite">favorite</item>
+    </string-array>
+    <string-array name="auto_wall_time_entries">
+        <item>15 minutes</item>
+        <item>30 minutes</item>
+        <item>1 hour</item>
+        <item>3 hour</item>
+        <item>6 hour</item>
+        <item>12 hour</item>
+        <item>24 hour</item>
+        <item>48 hour</item>
+        <item>1 week</item>
+    </string-array>
+    <string-array name="auto_wall_time_values">
+        <item>15</item>
+        <item>30</item>
+        <item>60</item>
+        <item>180</item>
+        <item>360</item>
+        <item>720</item>
+        <item>1440</item>
+        <item>2880</item>
+        <item>10080</item>
+    </string-array>
+    <string-array name="resolution_entries">
+        <item name="3840x1600">3840x1600 (Ultrawide)</item>
+        <item name="3440x1440">3440x1440 (Ultrawide)</item>
+        <item name="2560x1080">2560x1080 (Ultrawide)</item>
+        <item name="3840x2400">3840x2400 (16:10)</item>
+        <item name="2560x1600">2560x1600 (16:10)</item>
+        <item name="1920x1200">1920x1200 (16:10)</item>
+        <item name="1600x1000">1600x1000 (16:10)</item>
+        <item name="1280x800">1280x800 (16:10)</item>
+        <item name="3840x2160">3840x2160 (16:9)</item>
+        <item name="2560x1440">2560x1440 (16:9)</item>
+        <item name="1920x1080">1920x1080 (16:9)</item>
+        <item name="1600x900">1600x900 (16:9)</item>
+        <item name="1280x720">1280x720 (16:9)</item>
+        <item name="3840x2880">3840x2880 (4:3)</item>
+        <item name="2560x1920">2560x1920 (4:3)</item>
+        <item name="1920x1440">1920x1440 (4:3)</item>
+        <item name="1600x1200">1600x1200 (4:3)</item>
+        <item name="1280x960">1280x960 (4:3)</item>
+        <item name="3840x3072">3840x3072 (5:4)</item>
+        <item name="2560x2048">2560x2048 (5:4)</item>
+        <item name="1920x1536">1920x1536 (5:4)</item>
+        <item name="1600x1280">1600x1280 (5:4)</item>
+        <item name="1280x1024">1280x1024 (5:4)</item>
+        <item name="empty">None</item>
+    </string-array>
+    <string-array name="resolution_values">
+        <item name="3840x1600">3840x1600</item>
+        <item name="3440x1440">3440x1440</item>
+        <item name="2560x1080">2560x1080</item>
+        <item name="3840x2400">3840x2400</item>
+        <item name="2560x1600">2560x1600</item>
+        <item name="1920x1200">1920x1200</item>
+        <item name="1600x1000">1600x1000</item>
+        <item name="1280x800">1280x800</item>
+        <item name="3840x2160">3840x2160</item>
+        <item name="2560x1440">2560x1440</item>
+        <item name="1920x1080">1920x1080</item>
+        <item name="1600x900">1600x900</item>
+        <item name="1280x720">1280x720</item>
+        <item name="3840x2880">3840x2880</item>
+        <item name="2560x1920">2560x1920</item>
+        <item name="1920x1440">1920x1440</item>
+        <item name="1600x1200">1600x1200</item>
+        <item name="1280x960">1280x960</item>
+        <item name="3840x3072">3840x3072</item>
+        <item name="2560x2048">2560x2048</item>
+        <item name="1920x1536">1920x1536</item>
+        <item name="1600x1280">1600x1280</item>
+        <item name="1280x1024">1280x1024</item>
+        <item name="empty">""</item>
+    </string-array>
+
+    <string-array name="ratio_entries">
+        <item name="9x16">9x16 (portrait)</item>
+        <item name="10x16">10x16 (portrait)</item>
+        <item name="9x18">9x18 (portrait)</item>
+        <item name="16x9">16x9 (Wide)</item>
+        <item name="16x10">16x10 (Wide)</item>
+        <item name="21x9">21x9 (Ultra wide)</item>
+        <item name="32x9">32x9 (Ultra wide)</item>
+        <item name="32x9">48x9 (Ultra wide)</item>
+    </string-array>
+    <string-array name="ratio_values">
+        <item name="9x16">9x16</item>
+        <item name="10x16">10x16</item>
+        <item name="9x18">9x18</item>
+        <item name="16x9">16x9</item>
+        <item name="16x10">16x10</item>
+        <item name="21x9">21x9</item>
+        <item name="32x9">32x9</item>
+        <item name="32x9">48x9</item>
+    </string-array>
+    <string-array name="ratio_default" />
+    <string-array name="auto_wall_screen_entries">
+        <item name="Home">Home Screen</item>
+        <item name="Lock">Lock Screen</item>
+        <item name="both">Home Screen &amp; Lock Screen</item>
+    </string-array>
+    <string-array name="auto_wall_screen_values">
+        <item name="Home">home</item>
+        <item name="Lock">lock</item>
+        <item name="both">both</item>
+    </string-array>
 </resources>
