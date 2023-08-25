@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <!-- Base application theme. -->
     <style name="Base.Theme.Wallhaven" parent="Theme.Material3.DynamicColors.DayNight">
         <!-- Customize your dark theme here. -->
@@ -30,6 +30,6 @@
         <item name="colorSurfaceInverse">@color/md_theme_dark_inverseSurface</item>
         <item name="colorPrimaryInverse">@color/md_theme_dark_inversePrimary</item>
         <item name="windowNoTitle">true</item>
-        <item name="android:statusBarColor">@color/md_theme_dark_inverseOnSurface</item>
+        <item name="android:windowTranslucentStatus">true</item>
     </style>
 </resources>

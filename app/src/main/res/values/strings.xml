@@ -10,4 +10,9 @@
     <string name="about_me">About Me</string>
     <string name="support_me">Support me</string>
     <string name="options">Options</string>
+    <string name="info">Info</string>
+    <string name="share">Share</string>
+    <string name="download">Download</string>
+    <string name="set_as_wallpaper">Set as wallpaper</string>
+    <string name="search">Search</string>
 </resources>

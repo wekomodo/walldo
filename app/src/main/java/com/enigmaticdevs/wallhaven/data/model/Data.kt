@@ -18,5 +18,9 @@ data class Data(
     val source: String,
     val thumbs: Thumbs,
     val url: String,
-    val views: Int
+    val views: Int,
+    val tags : List<Tag>,
+    val uploader : Uploader,
+
+
 )

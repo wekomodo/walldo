@@ -1,9 +1,10 @@
 package com.enigmaticdevs.wallhaven.domain.repository
 
-import com.enigmaticdevs.wallhaven.data.remote.InterfaceAPI
-import com.enigmaticdevs.wallhaven.data.model.Data
+import android.util.Log
 import com.enigmaticdevs.wallhaven.data.model.Params
+import com.enigmaticdevs.wallhaven.data.model.Photo
 import com.enigmaticdevs.wallhaven.data.model.Wallpaper
+import com.enigmaticdevs.wallhaven.data.remote.InterfaceAPI
 import javax.inject.Inject
 
 class MainRepository @Inject constructor(
@@ -35,13 +36,14 @@ class MainRepository @Inject constructor(
         }
 
     }
-    suspend fun getWallpaper(id : String) : Data?{
+    suspend fun getWallpaper(id : String) : Photo?{
         val response = api.getWallpaper(id)
+        Log.d("response",response.toString())
         val result = response.body()
-        return if(response.isSuccessful && result !=null ){
-            response.body()
-        } else {
+        return if(response.isSuccessful && result !=null )
+            result
+        else
             null
-        }
+
     }
 }

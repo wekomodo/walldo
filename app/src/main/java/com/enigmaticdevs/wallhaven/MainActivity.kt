@@ -18,7 +18,6 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-    private val imagesViewModel: MainViewModel by viewModels()
     private lateinit var binding: ActivityMainBinding
 
 
@@ -34,6 +33,7 @@ class MainActivity : AppCompatActivity() {
     private fun initNavDrawer(binding: ActivityMainBinding) {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.title = ""
+        // added a toggle to the toolbar to
         val toggle = ActionBarDrawerToggle(
             this,
             binding.drawerLayout,
@@ -42,6 +42,7 @@ class MainActivity : AppCompatActivity() {
             R.string.close_nav
         )
         toggle.syncState()
+        // navigation for drawer items
         binding.navigationView.setNavigationItemSelectedListener {
             when (it.itemId) {
                 R.id.nav_settings -> Toast.makeText(this, "Item 1", Toast.LENGTH_SHORT).show()
@@ -53,6 +54,7 @@ class MainActivity : AppCompatActivity() {
             binding.drawerLayout.closeDrawer(GravityCompat.START)
             return@setNavigationItemSelectedListener true
         }
+        // onBackPressed override to check if navdrawer is open or not. If open then close it first.
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {

@@ -4,15 +4,14 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.enigmaticdevs.wallhaven.databinding.ItemPhotoBinding
 import com.enigmaticdevs.wallhaven.data.model.Data
+import com.enigmaticdevs.wallhaven.databinding.ItemPhotoBinding
 import com.enigmaticdevs.wallhaven.ui.activities.WallpaperDetails
 import com.enigmaticdevs.wallhaven.util.AspectRatioImageView
 import com.enigmaticdevs.wallhaven.util.setAspectRatio
@@ -45,6 +44,7 @@ class WallpaperAdapter(
         val vh = ViewHolder(inflatedView)
         vh.photo.setOnClickListener{
             val intent = Intent(context,WallpaperDetails::class.java)
+            intent.putExtra("imageId",getItem(vh.absoluteAdapterPosition)?.id)
             context.startActivity(intent)
         }
         return vh

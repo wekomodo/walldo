@@ -1,7 +1,7 @@
 package com.enigmaticdevs.wallhaven.data.remote
 
 import com.enigmaticdevs.wallhaven.data.model.AuthenticateAPIkey
-import com.enigmaticdevs.wallhaven.data.model.Data
+import com.enigmaticdevs.wallhaven.data.model.Photo
 import com.enigmaticdevs.wallhaven.data.model.Wallpaper
 import retrofit2.Response
 import retrofit2.http.GET
@@ -36,7 +36,7 @@ interface InterfaceAPI {
     @GET("w/{id}")
     suspend fun getWallpaper(
         @Path("id") id: String,
-    ): Response<Data>
+    ): Response<Photo>
 
     @GET("settings")
     suspend fun authenticateApiKey(

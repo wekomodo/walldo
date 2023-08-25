@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:fontFamily="@font/gordita_bold"
-            android:text="Walldo"
+            android:text="@string/app_name"
             android:textSize="32sp"
             tools:layout_editor_absoluteX="121dp"
             tools:layout_editor_absoluteY="8dp" />
@@ -43,6 +43,7 @@
             android:background="?selectableItemBackgroundBorderless"
             android:layout_marginEnd="24sp"
             app:srcCompat="@drawable/ic_search"
+            android:contentDescription="@string/search"
             app:tint="?colorSecondary" />
     </androidx.appcompat.widget.Toolbar>
 
@@ -105,7 +106,8 @@
                 app:layout_constraintEnd_toStartOf="@+id/recents_button"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toTopOf="parent"
+                app:strokeColor="@android:color/transparent">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/popular_button_layout"
@@ -134,7 +136,7 @@
                         android:id="@+id/popular_button_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="right|center"
+                        android:layout_gravity="end|center"
                         android:layout_marginEnd="16dp"
                         android:fontFamily="@font/gordita_bold"
                         android:text="Popular"
@@ -159,14 +161,15 @@
                 android:layout_marginBottom="8sp"
                 android:background="?selectableItemBackground"
                 android:clickable="true"
-                android:focusable="true"
                 android:contentDescription="recentsButton"
+                android:focusable="true"
                 app:cardCornerRadius="100sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toEndOf="@+id/popular_button"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toTopOf="parent"
+                app:strokeColor="@android:color/transparent">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -193,7 +196,7 @@
                         android:id="@+id/recent_button_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="right|center"
+                        android:layout_gravity="end|center"
                         android:layout_marginEnd="16dp"
                         android:fontFamily="@font/gordita_bold"
                         android:text="Recent"

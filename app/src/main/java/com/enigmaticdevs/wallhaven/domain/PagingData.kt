@@ -1,7 +1,5 @@
 package com.enigmaticdevs.wallhaven.domain
 
-import android.util.Log
-import android.widget.Toast
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.enigmaticdevs.wallhaven.data.model.Data
@@ -22,7 +20,6 @@ class PagingData(val respository : MainRepository,val params : Params) : PagingS
             val data = response!!.data
             val responseData = mutableListOf<Data>()
             responseData.addAll(data)
-            Log.d("we're in paginatioon", data.toString())
             return LoadResult.Page(
                 data = data,
                 prevKey = null, // Only paging forward.
