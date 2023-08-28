@@ -14,6 +14,7 @@ import com.enigmaticdevs.wallhaven.ui.settings.Settings
 import com.enigmaticdevs.wallhaven.ui.adapters.ViewPagerFragmentAdapter
 import com.enigmaticdevs.wallhaven.ui.fragments.PopularFragment
 import com.enigmaticdevs.wallhaven.ui.fragments.RecentFragment
+import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -63,18 +64,25 @@ class MainActivity : AppCompatActivity() {
             override fun handleOnBackPressed() {
                 if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
                     binding.drawerLayout.closeDrawer(GravityCompat.START)
-                } else
-                    onBackPressedDispatcher.onBackPressed()
+                } else {
+                    finish()
+                }
             }
         })
     }
 
     private fun initFragmentAdapter(binding: ActivityMainBinding) {
+        val tabNames = arrayOf("Popular","Recent")
+        binding.tabLayout.tabRippleColor = null
         val adapter = ViewPagerFragmentAdapter(this)
-        adapter.addFragment(PopularFragment(), "Popular")
-        adapter.addFragment(RecentFragment(), "Recent")
+        adapter.addFragment(PopularFragment(), tabNames[0])
+        adapter.addFragment(RecentFragment(), tabNames[1])
         binding.fragmentContainer.adapter = adapter
-        binding.popularButton.setOnClickListener {
+        TabLayoutMediator(binding.tabLayout, binding.fragmentContainer) { tab, position ->
+            tab.text = tabNames[position]
+            binding.fragmentContainer.setCurrentItem(tab.position, true)
+        }.attach()
+  /*      binding.popularButton.setOnClickListener {
             binding.fragmentContainer.currentItem = 0
         }
         binding.recentsButton.setOnClickListener {
@@ -99,7 +107,7 @@ class MainActivity : AppCompatActivity() {
                     binding.popularButtonText.visibility = View.GONE
                 }
             }
-        })
+        })*/
     }
 
 

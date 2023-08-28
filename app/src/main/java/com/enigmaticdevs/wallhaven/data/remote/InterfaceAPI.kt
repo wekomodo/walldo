@@ -35,7 +35,7 @@ interface InterfaceAPI {
 
     @GET("w/{id}")
     suspend fun getWallpaper(
-        @Path("id") id: String,
+        @Path("id") id: String
     ): Response<Photo>
 
     @GET("settings")

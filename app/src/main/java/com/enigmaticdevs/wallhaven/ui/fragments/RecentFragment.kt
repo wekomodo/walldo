@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.paging.LoadState
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.enigmaticdevs.wallhaven.R
@@ -15,6 +16,7 @@ import com.enigmaticdevs.wallhaven.data.model.Wallpaper
 import com.enigmaticdevs.wallhaven.data.model.Params
 import com.enigmaticdevs.wallhaven.databinding.FragmentRecentBinding
 import com.enigmaticdevs.wallhaven.domain.viewmodel.MainViewModel
+import com.enigmaticdevs.wallhaven.ui.adapters.LoadMoreAdapter
 import com.enigmaticdevs.wallhaven.ui.adapters.WallpaperAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -37,17 +39,36 @@ class RecentFragment : Fragment() {
         context = requireActivity()
         binding = FragmentRecentBinding.bind(view)
         wallpaperList = ArrayList()
-        val params = Params("date_added", "111", "111", "1y", "", "")
+        val params = Params("date_added", "100", "111", "1y", "", "")
         initRecyclerView()
-        lifecycleScope.launch {
+        loadData(params)
+        initErrorHandling()
+        binding.retryLoading.setOnClickListener {
+            loadData(params)
+        }
+        return view
+    }
 
+    private fun loadData(params: Params) {
+        viewLifecycleOwner.lifecycleScope.launch {
             imagesViewModel.recentList(params).collectLatest {
                 itemAdapter.submitData(it)
             }
         }
-
-        return view
     }
+
+    private fun initErrorHandling() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            itemAdapter.loadStateFlow.collect {
+                val state = it.refresh
+                if (state is LoadState.Error)
+                    binding.failedToLoad.visibility = View.VISIBLE
+                if (state is LoadState.Loading)
+                    binding.failedToLoad.visibility = View.GONE
+            }
+        }
+    }
+
 
     private fun initRecyclerView() {
         recyclerView = binding.recyclerview
@@ -57,6 +78,10 @@ class RecentFragment : Fragment() {
         )
         recyclerView.layoutManager = staggeredGridLayoutManager
         itemAdapter = WallpaperAdapter(context)
-        recyclerView.adapter = itemAdapter
+        recyclerView.adapter = itemAdapter.withLoadStateFooter(
+            LoadMoreAdapter{
+                itemAdapter.retry()
+            }
+        )
     }
 }

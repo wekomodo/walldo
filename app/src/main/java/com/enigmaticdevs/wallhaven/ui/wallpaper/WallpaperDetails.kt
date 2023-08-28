@@ -22,7 +22,7 @@ class WallpaperDetails : AppCompatActivity() {
     private val imageViewModel : MainViewModel by viewModels()
     private lateinit var imageId : String
     private lateinit var binding: ActivityWallpaperDetailsBinding
-    private lateinit var wallpaper : Photo
+    private lateinit var photo : Photo
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,8 +35,9 @@ class WallpaperDetails : AppCompatActivity() {
             imageViewModel.wallpaper.collectLatest {response ->
                 when(response.status){
                     Status.SUCCESS -> {
-                        wallpaper = response.data as Photo
-                        loadImage(wallpaper)
+                        photo = response.data as Photo
+                        Log.d("photo",response.data.toString())
+                        loadImage(photo)
                     }
                     Status.ERROR -> Toast.makeText(this@WallpaperDetails,"Failed", Toast.LENGTH_SHORT).show()
                     else ->{}
@@ -49,15 +50,18 @@ class WallpaperDetails : AppCompatActivity() {
         }
     }
 
-    private fun loadImage(wallpaper: Photo) {
-        binding.wallpaperDetailAvatarUsername.text = wallpaper.wallpaper.uploader.username
-        Glide.with(this)
-            .load(wallpaper.wallpaper.path)
-            .placeholder(ColorDrawable(Color.parseColor(wallpaper.wallpaper.colors[(0..4).random()])))
-            .into(binding.wallpaperDetailImage)
-        Glide.with(this)
-            .load(wallpaper.wallpaper.uploader.avatar.`128px`)
-            .placeholder(ColorDrawable(Color.parseColor(wallpaper.wallpaper.colors[(0..4).random()])))
-            .into(binding.wallpaperDetailAvatarImage)
+    private fun loadImage(photo: Photo) {
+        photo?.let{ wallpaper ->
+            binding.wallpaperDetailAvatarUsername.text = wallpaper.data.uploader.username
+            Glide.with(this)
+                .load(wallpaper.data.path)
+                .placeholder(ColorDrawable(Color.parseColor(wallpaper.data.colors[(0..4).random()])))
+                .into(binding.wallpaperDetailImage)
+            Glide.with(this)
+                .load(wallpaper.data.uploader.avatar.`128px`)
+                .placeholder(ColorDrawable(Color.parseColor(wallpaper.data.colors[(0..4).random()])))
+                .into(binding.wallpaperDetailAvatarImage)
+        }
+
     }
 }

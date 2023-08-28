@@ -89,4 +89,6 @@ dependencies {
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
     //androidx preferences
     implementation 'androidx.preference:preference-ktx:1.2.1'
+    // Lottie
+    implementation 'com.airbnb.android:lottie:6.0.0'
 }

@@ -16,6 +16,10 @@
     <string name="set_as_wallpaper">Set as wallpaper</string>
     <string name="search">Search</string>
     <string name="enter_api_key">Enter API key</string>
+    <string name="refresh">Refresh</string>
+    <string name="some_error_occurred">Some error occurred</string>
+    <string name="popular">Popular</string>
+    <string name="recent">Recent</string>
 
 
     <string-array name="theme_entries">

@@ -38,7 +38,6 @@ class WallpaperAdapter(
 
     inner class ViewHolder(binding: ItemPhotoBinding) : RecyclerView.ViewHolder(binding.root) {
         val photo: AspectRatioImageView = binding.photo
-
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

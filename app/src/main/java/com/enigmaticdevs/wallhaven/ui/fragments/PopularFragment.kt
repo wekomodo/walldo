@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.paging.LoadState
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.enigmaticdevs.wallhaven.R
@@ -16,8 +17,10 @@ import com.enigmaticdevs.wallhaven.data.model.Wallpaper
 import com.enigmaticdevs.wallhaven.data.model.Params
 import com.enigmaticdevs.wallhaven.databinding.FragmentPopularBinding
 import com.enigmaticdevs.wallhaven.domain.viewmodel.MainViewModel
+import com.enigmaticdevs.wallhaven.ui.adapters.LoadMoreAdapter
 import com.enigmaticdevs.wallhaven.ui.adapters.WallpaperAdapter
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -39,52 +42,38 @@ class PopularFragment : Fragment() {
         context = requireActivity()
         binding = FragmentPopularBinding.bind(view)
         wallpaperList = ArrayList()
-        val params = Params("toplist", "111", "111", "1y", "", "")
+        val params = Params("toplist", "100", "111", "1y", "", "")
         initRecyclerView()
+        loadData(params)
+        initErrorHandling()
+        binding.retryLoading.setOnClickListener {
+            loadData(params)
+        }
+
+        return view
+    }
+
+
+    private fun loadData(params: Params) {
         viewLifecycleOwner.lifecycleScope.launch {
-
             imagesViewModel.popularList(params).collectLatest {
-
                 itemAdapter.submitData(it)
 
             }
-            itemAdapter.loadStateFlow.collectLatest {
-                Toast.makeText(context, it.toString(), Toast.LENGTH_SHORT).show()
-            }
-
-            /*imagesViewModel.wallpaperListPopular.collectLatest{response ->
-                when(response.status){
-                    Status.SUCCESS -> {
-                        wallpaperList = response.data?.data as MutableList<Data>
-                        Log.d("data",wallpaperList.toString())
-                        initRecyclerView()
-                    }
-                    Status.ERROR ->
-                        Toast.makeText(context,"Failed", Toast.LENGTH_SHORT).show()
-                    else ->{
-                    }
-                }
-
-            }*/
         }
+    }
 
-        // MutableLiveData Example
-        /*
-                imagesViewModel.getSearchWallpapers("","toplist","111","111","1y","","",1)
-                imagesViewModel.wallpaperSearchList.observe(this){response ->
-                    if(response == null){
-                        Toast.makeText(this@MainActivity,"Failed",Toast.LENGTH_SHORT).show()
-                        return@observe
-                    }
-                    else{
-                        wallpaperList = response.data as MutableList<Data>
-                        initRecyclerView()
+    private fun initErrorHandling() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            itemAdapter.loadStateFlow.collect {
+                val state = it.refresh
+                if (state is LoadState.Error)
+                    binding.failedToLoad.visibility = View.VISIBLE
+                if (state is LoadState.Loading)
+                    binding.failedToLoad.visibility = View.GONE
 
-                    }
-                    Log.d("data",response.toString())
-                }*/
-
-        return view
+            }
+        }
     }
 
     private fun initRecyclerView() {
@@ -95,6 +84,10 @@ class PopularFragment : Fragment() {
         )
         recyclerView.layoutManager = staggeredGridLayoutManager
         itemAdapter = WallpaperAdapter(context)
-        recyclerView.adapter = itemAdapter
+        recyclerView.adapter = itemAdapter.withLoadStateFooter(
+            LoadMoreAdapter{
+                itemAdapter.retry()
+            }
+        )
     }
 }
