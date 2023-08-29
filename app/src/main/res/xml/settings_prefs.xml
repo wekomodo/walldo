@@ -41,7 +41,7 @@
             app:title="Ratio Filter"/>
         <PreferenceCategory android:title="Categories">
             <SwitchPreference
-                android:defaultValue="false"
+                android:defaultValue="true"
                 android:key="general_category"
                 android:summary="Basically most of the walls"
                 android:title="General"
@@ -49,10 +49,10 @@
             <SwitchPreference
                 android:defaultValue="false"
                 android:key="anime_category"
-                android:summaryOff="turn on weeb mode"
-                android:summaryOn="turn off weeb mode"
+                android:summaryOff="weeb mode off"
+                android:summaryOn="weeb mode on"
                 android:title="Anime"
-                app:defaultValue="true" />
+                 />
             <SwitchPreference
                 android:defaultValue="false"
                 android:key="people_category"

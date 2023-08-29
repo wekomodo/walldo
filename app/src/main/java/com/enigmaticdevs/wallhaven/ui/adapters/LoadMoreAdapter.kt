@@ -7,6 +7,7 @@ import androidx.core.view.isVisible
 import androidx.paging.LoadState
 import androidx.paging.LoadStateAdapter
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.enigmaticdevs.wallhaven.databinding.LoadMoreBinding
 
 class LoadMoreAdapter(private val retry: () -> Unit) :
@@ -21,6 +22,9 @@ class LoadMoreAdapter(private val retry: () -> Unit) :
 
     override fun onBindViewHolder(holder: ViewHolder, loadState: LoadState) {
         holder.setData(loadState)
+        //this code fixes the view that appears in grid because we're using StaggeredGridLayout
+        val layoutParams = holder.itemView.layoutParams as StaggeredGridLayoutManager.LayoutParams
+        layoutParams.isFullSpan = true
     }
 
     inner class ViewHolder(retry: () -> Unit) : RecyclerView.ViewHolder(binding.root) {
@@ -33,8 +37,9 @@ class LoadMoreAdapter(private val retry: () -> Unit) :
             binding.apply {
                 prgBarLoadMore.isVisible = state is LoadState.Loading
                 btnLoadMoreRetry.isVisible = state is LoadState.Error
-                if(state is LoadState.Loading)
-                btnLoadMoreRetry.visibility = View.GONE
+                //looks self explanatory
+                if (state is LoadState.Loading)
+                    btnLoadMoreRetry.visibility = View.GONE
 
             }
         }

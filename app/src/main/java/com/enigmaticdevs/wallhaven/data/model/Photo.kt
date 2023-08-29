@@ -1,5 +1,8 @@
 package com.enigmaticdevs.wallhaven.data.model
 
-data class Photo(
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class Photo (
     val data : Wallpaper
-)
+) : java.io.Serializable

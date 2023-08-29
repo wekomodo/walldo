@@ -26,13 +26,14 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        initNavDrawer(binding)
+        initNavDrawer()
         binding.fragmentContainer.offscreenPageLimit = 2
-        initFragmentAdapter(binding)
+        initFragmentAdapter()
     }
 
-    private fun initNavDrawer(binding: ActivityMainBinding) {
+    private fun initNavDrawer() {
         setSupportActionBar(binding.toolbar)
+        //remove title from toolbar
         supportActionBar?.title = ""
         // added a toggle to the toolbar to
         val toggle = ActionBarDrawerToggle(
@@ -71,43 +72,49 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    private fun initFragmentAdapter(binding: ActivityMainBinding) {
-        val tabNames = arrayOf("Popular","Recent")
-        binding.tabLayout.tabRippleColor = null
-        val adapter = ViewPagerFragmentAdapter(this)
-        adapter.addFragment(PopularFragment(), tabNames[0])
-        adapter.addFragment(RecentFragment(), tabNames[1])
-        binding.fragmentContainer.adapter = adapter
-        TabLayoutMediator(binding.tabLayout, binding.fragmentContainer) { tab, position ->
-            tab.text = tabNames[position]
-            binding.fragmentContainer.setCurrentItem(tab.position, true)
-        }.attach()
-  /*      binding.popularButton.setOnClickListener {
-            binding.fragmentContainer.currentItem = 0
+    private fun initFragmentAdapter() {
+        val tabNames = arrayOf("Popular", "Recent")
+        val adapter = ViewPagerFragmentAdapter(this).apply {
+            addFragment(PopularFragment(), tabNames[0])
+            addFragment(RecentFragment(), tabNames[1])
         }
-        binding.recentsButton.setOnClickListener {
-            binding.fragmentContainer.currentItem = 1
+        binding.apply {
+           // tabLayout.tabRippleColor = null
+            fragmentContainer.adapter = adapter
+            TabLayoutMediator(tabLayout, fragmentContainer) { tab, position ->
+                tab.text = tabNames[position]
+                binding.fragmentContainer.setCurrentItem(tab.position, true)
+            }.attach()
         }
-        binding.fragmentContainer.registerOnPageChangeCallback(object :
-            ViewPager2.OnPageChangeCallback() {
 
-            override fun onPageScrolled(
-                position: Int,
-                positionOffset: Float,
-                positionOffsetPixels: Int
-            ) {
-            }
 
-            override fun onPageSelected(position: Int) {
-                if (position == 0) {
-                    binding.popularButtonText.visibility = View.VISIBLE
-                    binding.recentButtonText.visibility = View.GONE
-                } else {
-                    binding.recentButtonText.visibility = View.VISIBLE
-                    binding.popularButtonText.visibility = View.GONE
-                }
-            }
-        })*/
+        // backup layout using bottom nav bar
+        /*      binding.popularButton.setOnClickListener {
+                  binding.fragmentContainer.currentItem = 0
+              }
+              binding.recentsButton.setOnClickListener {
+                  binding.fragmentContainer.currentItem = 1
+              }
+              binding.fragmentContainer.registerOnPageChangeCallback(object :
+                  ViewPager2.OnPageChangeCallback() {
+
+                  override fun onPageScrolled(
+                      position: Int,
+                      positionOffset: Float,
+                      positionOffsetPixels: Int
+                  ) {
+                  }
+
+                  override fun onPageSelected(position: Int) {
+                      if (position == 0) {
+                          binding.popularButtonText.visibility = View.VISIBLE
+                          binding.recentButtonText.visibility = View.GONE
+                      } else {
+                          binding.recentButtonText.visibility = View.VISIBLE
+                          binding.popularButtonText.visibility = View.GONE
+                      }
+                  }
+              })*/
     }
 
 

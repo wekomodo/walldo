@@ -49,7 +49,6 @@ class PopularFragment : Fragment() {
         binding.retryLoading.setOnClickListener {
             loadData(params)
         }
-
         return view
     }
 
@@ -58,7 +57,6 @@ class PopularFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             imagesViewModel.popularList(params).collectLatest {
                 itemAdapter.submitData(it)
-
             }
         }
     }
@@ -67,10 +65,13 @@ class PopularFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             itemAdapter.loadStateFlow.collect {
                 val state = it.refresh
-                if (state is LoadState.Error)
-                    binding.failedToLoad.visibility = View.VISIBLE
-                if (state is LoadState.Loading)
-                    binding.failedToLoad.visibility = View.GONE
+                binding.apply {
+                    if (state is LoadState.Error)
+                        failedToLoad.visibility = View.VISIBLE
+                    if (state is LoadState.Loading)
+                        failedToLoad.visibility = View.GONE
+                }
+
 
             }
         }
@@ -82,12 +83,10 @@ class PopularFragment : Fragment() {
             2,
             StaggeredGridLayoutManager.VERTICAL
         )
+
         recyclerView.layoutManager = staggeredGridLayoutManager
         itemAdapter = WallpaperAdapter(context)
-        recyclerView.adapter = itemAdapter.withLoadStateFooter(
-            LoadMoreAdapter{
-                itemAdapter.retry()
-            }
-        )
+        val footerAdapter = LoadMoreAdapter { itemAdapter.retry() }
+        recyclerView.adapter = itemAdapter.withLoadStateFooter(footerAdapter)
     }
 }
