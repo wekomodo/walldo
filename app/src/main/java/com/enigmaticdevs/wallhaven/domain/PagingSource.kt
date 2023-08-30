@@ -7,7 +7,12 @@ import com.enigmaticdevs.wallhaven.data.model.Params
 import com.enigmaticdevs.wallhaven.domain.repository.MainRepository
 import retrofit2.HttpException
 
-class PagingSource(val respository : MainRepository, val params : Params) : PagingSource<Int, Wallpaper>() {
+class PagingSource(
+    val respository: MainRepository,
+    val sorting: String,
+    val topRange: String,
+    val params: Params
+) : PagingSource<Int, Wallpaper>() {
     override fun getRefreshKey(state: PagingState<Int, Wallpaper>): Int? {
         return null
     }
@@ -16,7 +21,7 @@ class PagingSource(val respository : MainRepository, val params : Params) : Pagi
       return  try {
             // Start refresh at page 1 if undefined.
             val currentPage = params.key ?: 1
-            val response = respository.getWallpaperBySort(this.params,currentPage)
+            val response = respository.getWallpaperBySort(sorting,topRange,this.params,currentPage)
           if(response!=null) {
               val data = response.data
               val responseData = mutableListOf<Wallpaper>()

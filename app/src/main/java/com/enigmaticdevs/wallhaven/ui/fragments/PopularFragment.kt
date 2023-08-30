@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -20,7 +19,6 @@ import com.enigmaticdevs.wallhaven.domain.viewmodel.MainViewModel
 import com.enigmaticdevs.wallhaven.ui.adapters.LoadMoreAdapter
 import com.enigmaticdevs.wallhaven.ui.adapters.WallpaperAdapter
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -33,6 +31,9 @@ class PopularFragment : Fragment() {
     private lateinit var wallpaperList: MutableList<Wallpaper>
     private lateinit var recyclerView: RecyclerView
     private lateinit var itemAdapter: WallpaperAdapter
+    private lateinit var params : Params
+    private var topRange = "1y"
+    private var sorting = "toplist"
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -42,20 +43,20 @@ class PopularFragment : Fragment() {
         context = requireActivity()
         binding = FragmentPopularBinding.bind(view)
         wallpaperList = ArrayList()
-        val params = Params("toplist", "100", "111", "1y", "", "")
+        params = Params( "100", "111", "", "")
         initRecyclerView()
-        loadData(params)
+        loadData()
         initErrorHandling()
         binding.retryLoading.setOnClickListener {
-            loadData(params)
+            loadData()
         }
         return view
     }
 
 
-    private fun loadData(params: Params) {
+    private fun loadData() {
         viewLifecycleOwner.lifecycleScope.launch {
-            imagesViewModel.popularList(params).collectLatest {
+            imagesViewModel.popularList(sorting,topRange,params).collectLatest {
                 itemAdapter.submitData(it)
             }
         }
@@ -71,8 +72,6 @@ class PopularFragment : Fragment() {
                     if (state is LoadState.Loading)
                         failedToLoad.visibility = View.GONE
                 }
-
-
             }
         }
     }

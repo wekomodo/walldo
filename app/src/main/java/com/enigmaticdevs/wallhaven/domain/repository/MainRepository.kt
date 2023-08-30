@@ -11,9 +11,11 @@ class MainRepository @Inject constructor(
     private val api : InterfaceAPI
 ) {
      suspend fun getWallpaperBySort(
+         sorting : String,
+         topRange : String,
          params : Params,
          page : Int): Wallpapers? {
-            val response = api.getWallpaperBySort(params.sorting,params.purity,params.category, params.topRange,params.ratio,params.resolution,page)
+            val response = api.getWallpaperBySort(sorting,params.purity,params.category,topRange,params.ratio,params.resolution,page)
             val result = response.body()
          return if(response.isSuccessful && result !=null ){
              response.body()
@@ -25,9 +27,11 @@ class MainRepository @Inject constructor(
 
     suspend fun getSearchWallpapers(
         query: String,
+        sorting : String,
+        topRange : String,
         params : Params,
         page : Int): Wallpapers? {
-        val response = api.getSearchWallpapers(query,params.sorting,params.purity,params.category, params.topRange,params.ratio,params.resolution,page)
+        val response = api.getSearchWallpapers(query,sorting,params.purity,params.category,topRange,params.ratio,params.resolution,page)
         val result = response.body()
         return if(response.isSuccessful && result !=null ){
             response.body()

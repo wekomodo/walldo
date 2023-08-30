@@ -23,12 +23,12 @@ class MainViewModel @Inject constructor(
    // private val dispatchers : DispatcherProvider
 ) : ViewModel() {
 
-    fun popularList(params: Params) = Pager(PagingConfig(pageSize = 1)){
-        PagingSource(repository, params)
+    fun popularList(sorting : String,topRange : String,params: Params) = Pager(PagingConfig(pageSize = 1)){
+        PagingSource(repository, sorting,topRange, params)
     }.flow.cachedIn(viewModelScope)
 
-    fun recentList(params: Params) = Pager(PagingConfig(pageSize = 1)){
-        PagingSource(repository, params)
+    fun recentList(sorting : String,topRange : String,params: Params) = Pager(PagingConfig(pageSize = 1)){
+        PagingSource(repository,sorting,topRange,params)
     }.flow.cachedIn(viewModelScope)
 
     private val _wallpapersSearchList = MutableStateFlow<Resource<Wallpapers?>>(Resource.Loading())
@@ -39,10 +39,12 @@ class MainViewModel @Inject constructor(
 
     fun getSearchWallpapers(
         query : String,
+        sorting : String,
+        topRange : String,
         params: Params,
         page : Int) {
         viewModelScope.launch {
-            val response = repository.getSearchWallpapers(query,params,page)
+            val response = repository.getSearchWallpapers(query,sorting,topRange,params,page)
             if(response!=null)
                 _wallpapersSearchList.value = Resource.Success(response)
             else

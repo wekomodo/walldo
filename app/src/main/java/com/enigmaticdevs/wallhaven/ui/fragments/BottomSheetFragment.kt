@@ -53,7 +53,6 @@ class BottomSheetFragment : BottomSheetDialogFragment() {
                     bindData(color2, color2Text, colors[2])
                     bindData(color3, color3Text, colors[3])
                     bindData(color4, color4Text, colors[4])
-
                 }
                 infoImageId.setOnClickListener {
                     copyColor(binding.infoImageId.text.toString())

@@ -30,6 +30,10 @@ class RecentFragment : Fragment() {
     private lateinit var wallpaperList: MutableList<Wallpaper>
     private lateinit var recyclerView: RecyclerView
     private lateinit var itemAdapter: WallpaperAdapter
+    private lateinit var params : Params
+    private var topRange = "1y"
+    private var sorting = "date_added"
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -39,19 +43,19 @@ class RecentFragment : Fragment() {
         context = requireActivity()
         binding = FragmentRecentBinding.bind(view)
         wallpaperList = ArrayList()
-        val params = Params("date_added", "100", "111", "1y", "", "")
+        params = Params( "100", "111",  "", "")
         initRecyclerView()
-        loadData(params)
+        loadData()
         initErrorHandling()
         binding.retryLoading.setOnClickListener {
-            loadData(params)
+            loadData()
         }
         return view
     }
 
-    private fun loadData(params: Params) {
+    private fun loadData() {
         viewLifecycleOwner.lifecycleScope.launch {
-            imagesViewModel.recentList(params).collectLatest {
+            imagesViewModel.recentList(sorting,topRange,params).collectLatest {
                 itemAdapter.submitData(it)
             }
         }
