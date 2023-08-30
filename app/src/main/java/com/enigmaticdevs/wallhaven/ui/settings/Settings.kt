@@ -5,6 +5,10 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.LayoutInflater
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
@@ -12,7 +16,10 @@ import com.enigmaticdevs.wallhaven.R
 import com.enigmaticdevs.wallhaven.databinding.ActivitySettingsBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
+import dagger.hilt.android.AndroidEntryPoint
 
+
+@AndroidEntryPoint
 class Settings : AppCompatActivity() {
     private lateinit var binding: ActivitySettingsBinding
     private lateinit var preferences: SharedPreferences
@@ -30,29 +37,34 @@ class Settings : AppCompatActivity() {
         setContentView(binding.root)
     }
 
+    private suspend fun update(key : String, value : String) {
+        val dataStoreKey = stringPreferencesKey(key)
+
+    }
+
     private val mPrefsListener =
-        SharedPreferences.OnSharedPreferenceChangeListener { preference, key ->{
-            /*if (key == "darkmode") {
-                when (preference.getString("darkmode", "default")) {
-                    "light" -> {
-                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                    }
+        SharedPreferences.OnSharedPreferenceChangeListener { preference, key ->
+                if (key == "theme") {
+                    when (preference.getString("theme", "default")) {
+                        "light" -> {
+                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                        }
 
-                    "dark" -> {
+                        "dark" -> {
+                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                        }
+
+                        "default" -> {
+                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+                        }
+                    }
+                  /*  val isNightModeOn = preference.getBoolean("theme", false)
+                    if (isNightModeOn)
                         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                    }
-
-                    "default" -> {
-                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-                    }
-                }*/
-                /* val isNightModeOn = preference.getBoolean("darkmode", false)
-                 if(isNightModeOn)
-                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                 else
-                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)*/
+                    else
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)*/
+                }
             }
-        }
 
     class SettingsFragment : PreferenceFragmentCompat() {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {

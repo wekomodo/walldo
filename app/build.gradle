@@ -92,4 +92,6 @@ dependencies {
     implementation 'androidx.preference:preference-ktx:1.2.1'
     // Lottie
     implementation 'com.airbnb.android:lottie:6.0.0'
+    //dataStore
+    implementation "androidx.datastore:datastore-preferences:1.0.0"
 }

@@ -43,14 +43,12 @@
     </string-array>
     <string-array name="source_entries">
         <item name="random">Random</item>
-        <item name="toplist">TopList</item>
-        <item name="hot">Hot</item>
+        <item name="toplist">Popular</item>
         <item name="favorite">Favorite</item>
     </string-array>
     <string-array name="source_values">
         <item name="random">random</item>
-        <item name="toplist">toplist</item>
-        <item name="hot">hot</item>
+        <item name="toplist">Popular</item>
         <item name="favorite">favorite</item>
     </string-array>
     <string-array name="auto_wall_time_entries">
@@ -76,9 +74,9 @@
         <item>10080</item>
     </string-array>
     <string-array name="resolution_entries">
-        <item name="3840x1600">3840x1600 (Ultrawide)</item>
-        <item name="3440x1440">3440x1440 (Ultrawide)</item>
-        <item name="2560x1080">2560x1080 (Ultrawide)</item>
+        <item name="3840x1600">3840x1600 (Ultra wide)</item>
+        <item name="3440x1440">3440x1440 (Ultra wide)</item>
+        <item name="2560x1080">2560x1080 (Ultra wide)</item>
         <item name="3840x2400">3840x2400 (16:10)</item>
         <item name="2560x1600">2560x1600 (16:10)</item>
         <item name="1920x1200">1920x1200 (16:10)</item>

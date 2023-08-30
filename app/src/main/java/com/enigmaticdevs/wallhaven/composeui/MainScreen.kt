@@ -39,7 +39,6 @@ fun MainScreen(){
                colors = TopAppBarDefaults.smallTopAppBarColors(
                    containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
                ),
-
            )
         },
         content ={

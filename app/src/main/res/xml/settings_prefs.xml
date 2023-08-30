@@ -7,7 +7,7 @@
         <ListPreference
             android:defaultValue="default"
             android:icon="@drawable/ic_theme"
-            android:key="darkmode"
+            android:key="theme"
             android:title="Theme"
             android:entries="@array/theme_entries"
             android:entryValues="@array/theme_values"

@@ -52,7 +52,6 @@ class MainActivity : AppCompatActivity() {
                     val intent = Intent(this, Settings::class.java)
                     startActivity(intent)
                 }
-
                 else -> {
                     Toast.makeText(this, "Item 2", Toast.LENGTH_SHORT).show()
                 }

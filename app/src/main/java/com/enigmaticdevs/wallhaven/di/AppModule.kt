@@ -2,6 +2,7 @@ package com.enigmaticdevs.wallhaven.di
 
 import android.content.Context
 import com.enigmaticdevs.wallhaven.data.remote.InterfaceAPI
+import com.enigmaticdevs.wallhaven.domain.repository.DataStoreRepository
 import com.enigmaticdevs.wallhaven.domain.repository.MainRepository
 import com.enigmaticdevs.wallhaven.util.DispatcherProvider
 import dagger.Module
@@ -17,26 +18,27 @@ import javax.inject.Singleton
 
 
 private const val BASE_URL = "https://wallhaven.cc/api/v1/"
+
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
     @Singleton
     @Provides
-    fun provideApi() : InterfaceAPI = Retrofit.Builder()
+    fun provideApi(): InterfaceAPI = Retrofit.Builder()
         .baseUrl(BASE_URL)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
         .create(InterfaceAPI::class.java)
 
-  /*  @Singleton
-    @Provides
-    fun providesSharedPreferences(@ApplicationContext  context : Context){
-
-    }*/
     @Singleton
     @Provides
-    fun provideMainRepository(api : InterfaceAPI) : MainRepository = MainRepository(api)
+    fun provideDataStoreRepository(@ApplicationContext context: Context)= DataStoreRepository(context)
+
+
+    @Singleton
+    @Provides
+    fun provideMainRepository(api: InterfaceAPI): MainRepository = MainRepository(api)
 
     @Singleton
     @Provides
@@ -51,3 +53,4 @@ object AppModule {
             get() = Dispatchers.Unconfined
     }
 }
+
