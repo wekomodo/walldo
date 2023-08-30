@@ -3,7 +3,6 @@ package com.enigmaticdevs.wallhaven.ui.fragments
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Build
@@ -15,7 +14,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.cardview.widget.CardView
-
 import com.enigmaticdevs.wallhaven.R
 import com.enigmaticdevs.wallhaven.data.model.Photo
 import com.enigmaticdevs.wallhaven.databinding.BottomsheetFragmentBinding
