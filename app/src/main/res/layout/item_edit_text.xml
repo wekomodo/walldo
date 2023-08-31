@@ -19,7 +19,7 @@
         app:boxCornerRadiusTopStart="10sp"
         app:boxStrokeWidth="0dp"
         app:boxStrokeWidthFocused="0dp"
-        app:endIconMode="clear_text"
+        app:endIconMode="password_toggle"
         app:endIconTint="?colorSecondary"
         app:hintAnimationEnabled="true"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -32,8 +32,9 @@
             android:id="@+id/api_key_edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text"
             android:hint="@string/enter_api_key"
+            android:inputType="text"
+            android:password="true"
             android:singleLine="true" />
     </com.google.android.material.textfield.TextInputLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

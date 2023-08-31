@@ -2,7 +2,6 @@ package com.enigmaticdevs.wallhaven.ui.settings
 
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
@@ -21,7 +20,6 @@ import com.enigmaticdevs.wallhaven.domain.viewmodel.MainViewModel
 import com.enigmaticdevs.wallhaven.util.Status
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 
@@ -38,7 +36,8 @@ class Settings : AppCompatActivity() {
         }
         preferences = PreferenceManager.getDefaultSharedPreferences(this)
         preferences.registerOnSharedPreferenceChangeListener(mPrefsListener)
-        supportFragmentManager.beginTransaction().replace(R.id.settings, SettingsFragment()).commit()
+        supportFragmentManager.beginTransaction().replace(R.id.settings, SettingsFragment())
+            .commit()
         setContentView(binding.root)
     }
 
@@ -76,7 +75,6 @@ class Settings : AppCompatActivity() {
             super.onViewCreated(view, savedInstanceState)
             launchAPIkeyObserver()
             launchThemeObserver()
-
         }
 
         private fun launchThemeObserver() {
@@ -115,18 +113,12 @@ class Settings : AppCompatActivity() {
                 mainViewModel.apiKey.collect {
                     when (it.status) {
                         Status.SUCCESS -> {
-                            Toast.makeText(context, "Valid API key", Toast.LENGTH_SHORT)
-                                .show()
+                            Toast.makeText(context, "Valid API key", Toast.LENGTH_SHORT).show()
                             dataStoreViewModel.saveAPIkey(apiKey)
                         }
 
                         Status.ERROR -> {
-                            Toast.makeText(
-                                context,
-                                "Invalid API key",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            return@collect
+                            Toast.makeText(context, "Invalid API key", Toast.LENGTH_SHORT).show()
                         }
 
                         else -> {}

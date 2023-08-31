@@ -1,5 +1,6 @@
 package com.enigmaticdevs.wallhaven.ui.fragments
 
+import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -19,6 +20,7 @@ import com.enigmaticdevs.wallhaven.data.model.Photo
 import com.enigmaticdevs.wallhaven.databinding.BottomsheetFragmentBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.chip.Chip
+import kotlinx.serialization.Serializable
 
 
 class BottomSheetFragment : BottomSheetDialogFragment() {
@@ -33,9 +35,9 @@ class BottomSheetFragment : BottomSheetDialogFragment() {
     ): View? {
         val view = inflater.inflate(R.layout.bottomsheet_fragment, container, false)
         binding = BottomsheetFragmentBinding.bind(view)
-        val photo: Photo = requireArguments().getSerializable(
-            "wallpaperInfo"
-        ) as Photo
+        val photo  = getSerializable()
+       /* val photo: Photo = requireArguments().getSerializable(
+            "wallpaperInfo", Photo::class.java)  as Photo*/
         photo.let { wallpaper ->
             binding.apply {
                 infoImageId.text = wallpaper.data.id
@@ -75,6 +77,14 @@ class BottomSheetFragment : BottomSheetDialogFragment() {
             }
         }
         return view
+    }
+
+    private fun getSerializable(): Photo
+    {
+        return if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            requireArguments().getSerializable("wallpaperInfo",Photo::class.java) as Photo
+        else
+            requireArguments().getSerializable("wallpaperInfo") as Photo
     }
 
     private fun bindData(cardColor: CardView, colorText: TextView, color: String) {
