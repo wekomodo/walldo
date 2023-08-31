@@ -4,10 +4,13 @@ package com.enigmaticdevs.wallhaven.domain.repository
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.enigmaticdevs.wallhaven.data.model.Params
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
+import java.io.IOException
 import javax.inject.Inject
 
 
@@ -16,10 +19,10 @@ class DataStoreRepository @Inject constructor(
 ) {
     companion object {
         val api_Key = stringPreferencesKey("api_key")
-        val purity = stringPreferencesKey("api_key")
-        val category = stringPreferencesKey("api_key")
-        val ratio = stringPreferencesKey("api_key")
-        val resolution = stringPreferencesKey("api_key")
+        val purity = stringPreferencesKey("purity")
+        val category = stringPreferencesKey("category")
+        val ratio = stringPreferencesKey("ratio")
+        val resolution = stringPreferencesKey("resolution")
     }
 
     suspend fun saveAPIkey(key: String) {
@@ -34,12 +37,17 @@ class DataStoreRepository @Inject constructor(
             it[category] = params.category
             it[ratio] = params.ratio
             it[resolution] = params.resolution
-
         }
     }
 
     fun  getAPIkey() : Flow<String> {
-        return dataStore.data.map {
+        return dataStore.data.catch { exception ->
+            if (exception is IOException) {
+                emit(emptyPreferences())
+            } else {
+                throw exception
+            }
+        }.map{
             it[api_Key].toString()
         }
     }
