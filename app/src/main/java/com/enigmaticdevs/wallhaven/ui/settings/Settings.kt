@@ -4,6 +4,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -37,8 +38,7 @@ class Settings : AppCompatActivity() {
         }
         preferences = PreferenceManager.getDefaultSharedPreferences(this)
         preferences.registerOnSharedPreferenceChangeListener(mPrefsListener)
-        supportFragmentManager.beginTransaction().replace(R.id.settings, SettingsFragment())
-            .commit()
+        supportFragmentManager.beginTransaction().replace(R.id.settings, SettingsFragment()).commit()
         setContentView(binding.root)
     }
 
@@ -70,6 +70,18 @@ class Settings : AppCompatActivity() {
     class SettingsFragment : PreferenceFragmentCompat() {
         private val dataStoreViewModel: DataStoreViewModel by viewModels()
         private val mainViewModel: MainViewModel by viewModels()
+        private var apiKey = ""
+
+        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+            super.onViewCreated(view, savedInstanceState)
+            launchAPIkeyObserver()
+            launchThemeObserver()
+
+        }
+
+        private fun launchThemeObserver() {
+        }
+
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.settings_prefs, rootKey)
         }
@@ -83,41 +95,44 @@ class Settings : AppCompatActivity() {
                 dataStoreViewModel.getAPIkey()
                 dataStoreViewModel.apiKey.observe(viewLifecycleOwner) {
                     binding.apiKeyEditText.setText(it)
-                    Log.d("api_key", it)
                 }
                 MaterialAlertDialogBuilder(requireContext())
                     .setTitle("Enter API key")
                     .setView(view)
                     .setPositiveButton("Save") { _, _ ->
-                        val apiKey = binding.apiKeyEditText.text.toString()
-                        mainViewModel.authenticateAPIkey(key)
-                        viewLifecycleOwner.lifecycleScope.launch {
-                            mainViewModel.apIkey.collectLatest {
-                                when (it.status) {
-                                    Status.SUCCESS -> {
-                                        Toast.makeText(context, "Valid API key", Toast.LENGTH_SHORT)
-                                            .show()
-                                        dataStoreViewModel.saveAPIkey(apiKey)
-                                    }
-
-                                    Status.ERROR -> {
-                                        Toast.makeText(
-                                            context,
-                                            "Invalid API key",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
-
-                                    else -> {}
-                                }
-                            }
-                        }
+                        apiKey = binding.apiKeyEditText.text.toString()
+                        mainViewModel.authenticateAPIkey(apiKey)
                     }
                     .setNegativeButton("Reset") { _, _ ->
                         dataStoreViewModel.saveAPIkey("")
                     }.show()
             }
             return super.onPreferenceTreeClick(preference)
+        }
+
+        private fun launchAPIkeyObserver() {
+            viewLifecycleOwner.lifecycleScope.launch {
+                mainViewModel.apiKey.collect {
+                    when (it.status) {
+                        Status.SUCCESS -> {
+                            Toast.makeText(context, "Valid API key", Toast.LENGTH_SHORT)
+                                .show()
+                            dataStoreViewModel.saveAPIkey(apiKey)
+                        }
+
+                        Status.ERROR -> {
+                            Toast.makeText(
+                                context,
+                                "Invalid API key",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            return@collect
+                        }
+
+                        else -> {}
+                    }
+                }
+            }
         }
     }
 }

@@ -26,7 +26,6 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private  val repository: MainRepository,
-    private val dataStoreRepository: DataStoreRepository,
     private val dispatchers : DispatcherProvider
 ) : ViewModel() {
 
@@ -45,7 +44,7 @@ class MainViewModel @Inject constructor(
     val wallpaper  = _wallpaper.asStateFlow()
 
     private val _apiKey = MutableStateFlow<Resource<AuthenticateAPIkey>>(Resource.Loading())
-    val apIkey  = _wallpaper.asStateFlow()
+    val apiKey  = _apiKey.asStateFlow()
 
 
 
