@@ -23,6 +23,7 @@ import com.enigmaticdevs.wallhaven.domain.viewmodel.MainViewModel
 import com.enigmaticdevs.wallhaven.util.Status
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 
@@ -138,7 +139,7 @@ class Settings : AppCompatActivity() {
 
         private fun launchAPIkeyObserver() {
             viewLifecycleOwner.lifecycleScope.launch {
-                mainViewModel.apiKey.collect {
+                mainViewModel.apiKey.collectLatest {
                     when (it.status) {
                         Status.SUCCESS -> {
                             Toast.makeText(context, "Valid API key", Toast.LENGTH_SHORT).show()

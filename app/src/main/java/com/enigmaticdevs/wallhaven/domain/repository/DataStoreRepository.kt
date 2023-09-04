@@ -10,6 +10,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import com.enigmaticdevs.wallhaven.data.model.Params
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.io.IOException
 import javax.inject.Inject
@@ -75,5 +76,10 @@ class DataStoreRepository @Inject constructor(
        return dataStore.data.map {
            it[settingsMigrated]
        }
+    }
+
+    suspend fun getKey() : String? {
+        val preference = dataStore.data.first()
+        return preference[api_Key]
     }
 }

@@ -2,7 +2,6 @@ package com.enigmaticdevs.wallhaven.domain.repository
 
 import android.util.Log
 import com.enigmaticdevs.wallhaven.data.model.AuthenticateAPIkey
-import com.enigmaticdevs.wallhaven.data.model.DataX
 import com.enigmaticdevs.wallhaven.data.model.Params
 import com.enigmaticdevs.wallhaven.data.model.Photo
 import com.enigmaticdevs.wallhaven.data.model.Wallpapers
