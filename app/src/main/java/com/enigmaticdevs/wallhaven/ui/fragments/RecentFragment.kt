@@ -2,6 +2,7 @@ package com.enigmaticdevs.wallhaven.ui.fragments
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,10 +16,12 @@ import com.enigmaticdevs.wallhaven.R
 import com.enigmaticdevs.wallhaven.data.model.Wallpaper
 import com.enigmaticdevs.wallhaven.data.model.Params
 import com.enigmaticdevs.wallhaven.databinding.FragmentRecentBinding
+import com.enigmaticdevs.wallhaven.domain.viewmodel.DataStoreViewModel
 import com.enigmaticdevs.wallhaven.domain.viewmodel.MainViewModel
 import com.enigmaticdevs.wallhaven.ui.adapters.LoadMoreAdapter
 import com.enigmaticdevs.wallhaven.ui.adapters.WallpaperAdapter
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -31,6 +34,8 @@ class RecentFragment : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var itemAdapter: WallpaperAdapter
     private lateinit var params : Params
+    private val dataStoreViewModel: DataStoreViewModel by viewModels()
+    private var searchJob: Job? = null
     private var topRange = "1y"
     private var sorting = "date_added"
 
@@ -47,14 +52,27 @@ class RecentFragment : Fragment() {
         initRecyclerView()
         loadData()
         initErrorHandling()
+
+        searchJob = loadData()
+        dataStoreViewModel.readSettings()
+        viewLifecycleOwner.lifecycleScope.launch {
+                dataStoreViewModel.settings.observe(viewLifecycleOwner) {
+                    if(it.purity != "null"){
+                    params = it
+                    Log.d("paramsPopular", params.toString())
+                    searchJob?.cancel()
+                    searchJob = loadData()
+                    }
+                }
+        }
         binding.retryLoading.setOnClickListener {
-            loadData()
+            itemAdapter.retry()
         }
         return view
     }
 
-    private fun loadData() {
-        viewLifecycleOwner.lifecycleScope.launch {
+    private fun loadData(): Job {
+       return viewLifecycleOwner.lifecycleScope.launch {
             imagesViewModel.recentList(sorting,topRange,params).collectLatest {
                 itemAdapter.submitData(it)
             }

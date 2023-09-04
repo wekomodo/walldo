@@ -1,26 +1,30 @@
 package com.enigmaticdevs.wallhaven
 
+
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
-import androidx.viewpager2.widget.ViewPager2
+import androidx.preference.PreferenceManager
+import com.enigmaticdevs.wallhaven.data.model.Params
 import com.enigmaticdevs.wallhaven.databinding.ActivityMainBinding
-import com.enigmaticdevs.wallhaven.ui.settings.Settings
+import com.enigmaticdevs.wallhaven.domain.viewmodel.DataStoreViewModel
 import com.enigmaticdevs.wallhaven.ui.adapters.ViewPagerFragmentAdapter
 import com.enigmaticdevs.wallhaven.ui.fragments.PopularFragment
 import com.enigmaticdevs.wallhaven.ui.fragments.RecentFragment
+import com.enigmaticdevs.wallhaven.ui.settings.Settings
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-
+    private val dataStoreViewModel: DataStoreViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,7 +32,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         initNavDrawer()
         binding.fragmentContainer.offscreenPageLimit = 2
+        //run one time migration from SharedPrefs to Datastore
+        savePrefsToDatastore()
+        //initialize FragmentContainer
         initFragmentAdapter()
+
     }
 
     private fun initNavDrawer() {
@@ -85,8 +93,6 @@ class MainActivity : AppCompatActivity() {
                 binding.fragmentContainer.setCurrentItem(tab.position, true)
             }.attach()
         }
-
-
         // backup layout using bottom nav bar
         /*      binding.popularButton.setOnClickListener {
                   binding.fragmentContainer.currentItem = 0
@@ -115,6 +121,43 @@ class MainActivity : AppCompatActivity() {
                   }
               })*/
     }
+    private fun savePrefsToDatastore() {
+        dataStoreViewModel.getSettingsMigrated()
+        dataStoreViewModel.settingsMigrated.observe(this){
+            Log.d("SettingsMirgrated",it.toString())
+            if(it== null){
+                val preferences = PreferenceManager.getDefaultSharedPreferences(this)
+                val stringSet = preferences.getStringSet("filter_ratio", HashSet())
+                var ratio = ""
+                if (stringSet != null) {
+                    for (items in stringSet) {
+                        ratio = "$ratio$items,"
+                    }
+                }
+                Log.d("ratiosString", ratio)
+                val resolution = preferences.getString("filter_resolution", "").toString()
+                val general = preferences.getBoolean("general_category", true)
+                val anime = preferences.getBoolean("anime_category", true)
+                val people = preferences.getBoolean("people_category", false)
+                val category = general.viaString() + anime.viaString() + people.viaString()
+                val sfw = preferences.getBoolean("purity_sfw", true)
+                val sketchy = preferences.getBoolean("purity_sketchy", false)
+                val nsfw = preferences.getBoolean("purity_nsfw", false)
+                val purity = sfw.viaString() + sketchy.viaString() + nsfw.viaString()
+                val apiKey = preferences.getString("api_key","").toString()
+                Log.d("api_key",apiKey)
+                dataStoreViewModel.saveAPIkey(apiKey)
+                dataStoreViewModel.saveSettings(params = Params(purity,category,ratio,resolution))
+                dataStoreViewModel.setSettingsMigrated()
+            }
+            else
+            {
+                Log.d("Settings","Already Migrated")
+            }
+        }
 
+    }
+
+    private fun Boolean.viaString() = if (this) "1" else "0"
 
 }

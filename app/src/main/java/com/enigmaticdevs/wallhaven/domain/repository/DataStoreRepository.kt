@@ -3,6 +3,7 @@ package com.enigmaticdevs.wallhaven.domain.repository
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -23,6 +24,7 @@ class DataStoreRepository @Inject constructor(
         val category = stringPreferencesKey("category")
         val ratio = stringPreferencesKey("ratio")
         val resolution = stringPreferencesKey("resolution")
+        val settingsMigrated = booleanPreferencesKey("settingsMigrated")
     }
 
     suspend fun saveAPIkey(key: String) {
@@ -30,6 +32,7 @@ class DataStoreRepository @Inject constructor(
             it[api_Key] = key
         }
     }
+
 
     suspend fun saveSettings(params : Params) {
         dataStore.edit {
@@ -51,7 +54,7 @@ class DataStoreRepository @Inject constructor(
             it[api_Key].toString()
         }
     }
-      fun getSettings() : Flow<Params?> {
+      fun readSettings() : Flow<Params?> {
         return dataStore.data.map {
                 Params(
                     purity = it[purity].toString(),
@@ -60,5 +63,17 @@ class DataStoreRepository @Inject constructor(
                     resolution = it[resolution].toString()
                 )
         }
+    }
+
+    suspend fun setSettingsMigrated() {
+        dataStore.edit {
+            it[settingsMigrated] = true
+        }
+    }
+
+    fun getSettingsMigrated(): Flow<Boolean?> {
+       return dataStore.data.map {
+           it[settingsMigrated]
+       }
     }
 }

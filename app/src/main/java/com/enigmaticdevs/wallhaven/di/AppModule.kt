@@ -1,6 +1,7 @@
 package com.enigmaticdevs.wallhaven.di
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.SharedPreferencesMigration
@@ -8,6 +9,7 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStoreFile
+import androidx.preference.PreferenceManager
 import com.enigmaticdevs.wallhaven.data.remote.InterfaceAPI
 import com.enigmaticdevs.wallhaven.domain.repository.MainRepository
 import com.enigmaticdevs.wallhaven.util.DispatcherProvider
@@ -26,10 +28,11 @@ import javax.inject.Singleton
 
 
 private const val BASE_URL = "https://wallhaven.cc/api/v1/"
-private const val USER_PREFERENCES = "user_preferences"
+private const val USER_PREFERENCES = "com.enigmaticdevs.wallhaven_dataStore"
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
+
 
     @Singleton
     @Provides
@@ -52,10 +55,17 @@ object AppModule {
         )
     }
 
+    @Singleton
+    @Provides
+    fun provideDefaultPreferences(@ApplicationContext context: Context) : SharedPreferences {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+    }
+
 
     @Singleton
     @Provides
     fun provideMainRepository(api: InterfaceAPI): MainRepository = MainRepository(api)
+
 
     @Singleton
     @Provides
