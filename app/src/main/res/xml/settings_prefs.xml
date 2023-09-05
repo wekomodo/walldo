@@ -12,6 +12,7 @@
             android:entries="@array/theme_entries"
             android:entryValues="@array/theme_values"
             android:summary="%s"
+            app:useSimpleSummaryProvider="true"
             />
         <Preference
             android:defaultValue=""

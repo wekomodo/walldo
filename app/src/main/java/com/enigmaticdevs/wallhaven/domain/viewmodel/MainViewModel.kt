@@ -1,6 +1,5 @@
 package com.enigmaticdevs.wallhaven.domain.viewmodel
 
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
@@ -11,15 +10,12 @@ import com.enigmaticdevs.wallhaven.data.model.Params
 import com.enigmaticdevs.wallhaven.data.model.Photo
 import com.enigmaticdevs.wallhaven.data.model.Wallpapers
 import com.enigmaticdevs.wallhaven.domain.PagingSource
-import com.enigmaticdevs.wallhaven.domain.repository.DataStoreRepository
 import com.enigmaticdevs.wallhaven.domain.repository.MainRepository
 import com.enigmaticdevs.wallhaven.util.DispatcherProvider
 import com.enigmaticdevs.wallhaven.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -43,7 +39,7 @@ class MainViewModel @Inject constructor(
     private val _wallpaper = MutableStateFlow<Resource<Photo?>>(Resource.Loading())
     val wallpaper  = _wallpaper.asStateFlow()
 
-    private val _apiKey = MutableStateFlow<Resource<AuthenticateAPIkey>>(Resource.Loading())
+    private val _apiKey = MutableStateFlow<Resource<AuthenticateAPIkey?>>(Resource.Loading())
     val apiKey  = _apiKey.asStateFlow()
 
 
@@ -54,7 +50,7 @@ class MainViewModel @Inject constructor(
         topRange : String,
         params: Params,
         page : Int) {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatchers.io) {
             val response = repository.getSearchWallpapers(query,sorting,topRange,params,page)
             if(response!=null)
                 _wallpapersSearchList.value = Resource.Success(response)
@@ -64,7 +60,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun getWallpaper(id : String){
-        viewModelScope.launch {
+        viewModelScope.launch(dispatchers.io) {
             val response = repository.getWallpaper(id)
             if(response!=null)
                 _wallpaper.value = Resource.Success(response)
@@ -74,7 +70,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun authenticateAPIkey(key : String){
-        viewModelScope.launch {
+        viewModelScope.launch(dispatchers.io) {
             val response = repository.authenticateAPIkey(key)
             if(response!=null)
                 _apiKey.value = Resource.Success(response)

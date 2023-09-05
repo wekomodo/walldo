@@ -141,8 +141,8 @@ class Settings : AppCompatActivity() {
 
         private fun launchAPIkeyObserver() {
             viewLifecycleOwner.lifecycleScope.launch {
-                mainViewModel.apiKey.collectLatest {
-                    when (it.status) {
+                mainViewModel.apiKey.collectLatest { response ->
+                    when (response.status) {
                         Status.SUCCESS -> {
                             Toast.makeText(context, "Valid API key", Toast.LENGTH_SHORT).show()
                             //saving API key in DataStore
@@ -155,7 +155,6 @@ class Settings : AppCompatActivity() {
                         Status.ERROR -> {
                             Toast.makeText(context, "Invalid API key", Toast.LENGTH_SHORT).show()
                         }
-
                         else -> {}
                     }
                 }

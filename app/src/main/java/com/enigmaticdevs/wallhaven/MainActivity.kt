@@ -3,7 +3,6 @@ package com.enigmaticdevs.wallhaven
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
@@ -124,7 +123,6 @@ class MainActivity : AppCompatActivity() {
     private fun savePrefsToDatastore() {
         dataStoreViewModel.getSettingsMigrated()
         dataStoreViewModel.settingsMigrated.observe(this){
-            Log.d("SettingsMirgrated",it.toString())
             if(it== null){
                 val preferences = PreferenceManager.getDefaultSharedPreferences(this)
                 val stringSet = preferences.getStringSet("filter_ratio", HashSet())
@@ -134,7 +132,6 @@ class MainActivity : AppCompatActivity() {
                         ratio = "$ratio$items,"
                     }
                 }
-                Log.d("ratiosString", ratio)
                 val resolution = preferences.getString("filter_resolution", "").toString()
                 val general = preferences.getBoolean("general_category", true)
                 val anime = preferences.getBoolean("anime_category", true)
@@ -145,15 +142,14 @@ class MainActivity : AppCompatActivity() {
                 val nsfw = preferences.getBoolean("purity_nsfw", false)
                 val purity = sfw.viaString() + sketchy.viaString() + nsfw.viaString()
                 val apiKey = preferences.getString("api_key","").toString()
-                Log.d("api_key",apiKey)
                 dataStoreViewModel.saveAPIkey(apiKey)
                 dataStoreViewModel.saveSettings(params = Params(purity,category,ratio,resolution))
                 dataStoreViewModel.setSettingsMigrated()
             }
-            else
+            /*else
             {
                 Log.d("Settings","Already Migrated")
-            }
+            }*/
         }
 
     }

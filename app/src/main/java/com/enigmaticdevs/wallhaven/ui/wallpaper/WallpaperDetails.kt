@@ -1,6 +1,5 @@
 package com.enigmaticdevs.wallhaven.ui.wallpaper
 
-import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
@@ -15,7 +14,6 @@ import com.enigmaticdevs.wallhaven.data.model.Photo
 import com.enigmaticdevs.wallhaven.databinding.ActivityWallpaperDetailsBinding
 import com.enigmaticdevs.wallhaven.domain.viewmodel.MainViewModel
 import com.enigmaticdevs.wallhaven.ui.fragments.BottomSheetFragment
-import com.enigmaticdevs.wallhaven.ui.settings.Settings
 import com.enigmaticdevs.wallhaven.util.Status
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -40,7 +38,6 @@ class WallpaperDetails : AppCompatActivity() {
                 when (response.status) {
                     Status.SUCCESS -> {
                         photo = response.data as Photo
-                        Log.d("photo", response.data.toString())
                         loadImage(photo)
                     }
 

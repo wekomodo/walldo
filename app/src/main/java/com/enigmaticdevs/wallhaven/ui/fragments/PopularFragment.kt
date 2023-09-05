@@ -2,7 +2,6 @@ package com.enigmaticdevs.wallhaven.ui.fragments
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -56,7 +55,6 @@ class PopularFragment : Fragment() {
         dataStoreViewModel.settings.observe(viewLifecycleOwner) {
             if(it.purity != "null"){
                 params = it
-                Log.d("paramsPopular", params.toString())
                 searchJob?.cancel()
                 searchJob = loadData()
             }

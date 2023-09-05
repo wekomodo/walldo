@@ -2,7 +2,6 @@ package com.enigmaticdevs.wallhaven.ui.fragments
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,8 +12,8 @@ import androidx.paging.LoadState
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.enigmaticdevs.wallhaven.R
-import com.enigmaticdevs.wallhaven.data.model.Wallpaper
 import com.enigmaticdevs.wallhaven.data.model.Params
+import com.enigmaticdevs.wallhaven.data.model.Wallpaper
 import com.enigmaticdevs.wallhaven.databinding.FragmentRecentBinding
 import com.enigmaticdevs.wallhaven.domain.viewmodel.DataStoreViewModel
 import com.enigmaticdevs.wallhaven.domain.viewmodel.MainViewModel
@@ -59,7 +58,6 @@ class RecentFragment : Fragment() {
                 dataStoreViewModel.settings.observe(viewLifecycleOwner) {
                     if(it.purity != "null"){
                     params = it
-                    Log.d("paramsPopular", params.toString())
                     searchJob?.cancel()
                     searchJob = loadData()
                     }

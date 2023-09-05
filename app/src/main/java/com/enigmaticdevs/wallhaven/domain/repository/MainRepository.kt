@@ -1,6 +1,5 @@
 package com.enigmaticdevs.wallhaven.domain.repository
 
-import android.util.Log
 import com.enigmaticdevs.wallhaven.data.model.AuthenticateAPIkey
 import com.enigmaticdevs.wallhaven.data.model.Params
 import com.enigmaticdevs.wallhaven.data.model.Photo
@@ -63,7 +62,6 @@ class MainRepository @Inject constructor(
 
     suspend fun getWallpaper(id: String): Photo? {
         val response = api.getWallpaper(id)
-        Log.d("response", response.toString())
         val result = response.body()
         return if (response.isSuccessful && result != null)
             result
@@ -73,11 +71,15 @@ class MainRepository @Inject constructor(
     }
 
     suspend fun authenticateAPIkey(key: String): AuthenticateAPIkey? {
-        val response = api.authenticateApiKey(key)
-        val result = response.body()
-        return if (response.isSuccessful && result != null)
-            result
-        else
+        return try{
+            val response = api.authenticateApiKey(key)
+            val result = response.body()
+            if (response.isSuccessful && result != null)
+                result
+            else
+                null
+        } catch ( e: Exception){
             null
+        }
     }
 }
