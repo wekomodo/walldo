@@ -104,10 +104,6 @@ class Settings : AppCompatActivity() {
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
             launchAPIkeyObserver()
-            launchThemeObserver()
-        }
-
-        private fun launchThemeObserver() {
         }
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -127,9 +123,15 @@ class Settings : AppCompatActivity() {
                 MaterialAlertDialogBuilder(requireContext()).setTitle("Enter API key").setView(view)
                     .setPositiveButton("Save") { _, _ ->
                         apiKey = binding.apiKeyEditText.text.toString()
+                        //Send API Request for AUTH
                         mainViewModel.authenticateAPIkey(apiKey)
                     }.setNegativeButton("Reset") { _, _ ->
+                        //reset API key in DataStore
                         dataStoreViewModel.saveAPIkey("")
+                        //reset API key in sharedPrefs
+                        preferenceManager.sharedPreferences?.edit()
+                            ?.putString("api_key", "")
+                            ?.apply()
                     }.show()
             }
             return super.onPreferenceTreeClick(preference)
@@ -143,9 +145,13 @@ class Settings : AppCompatActivity() {
                     when (it.status) {
                         Status.SUCCESS -> {
                             Toast.makeText(context, "Valid API key", Toast.LENGTH_SHORT).show()
+                            //saving API key in DataStore
                             dataStoreViewModel.saveAPIkey(apiKey)
+                            //saving API key in sharedPrefs
+                            preferenceManager.sharedPreferences?.edit()
+                                ?.putString("api_key", apiKey)
+                                ?.apply()
                         }
-
                         Status.ERROR -> {
                             Toast.makeText(context, "Invalid API key", Toast.LENGTH_SHORT).show()
                         }

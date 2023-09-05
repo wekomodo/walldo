@@ -12,7 +12,6 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.preference.PreferenceManager
 import com.enigmaticdevs.wallhaven.data.remote.InterfaceAPI
-import com.enigmaticdevs.wallhaven.domain.repository.DataStoreRepository
 import com.enigmaticdevs.wallhaven.domain.repository.MainRepository
 import com.enigmaticdevs.wallhaven.util.DispatcherProvider
 import dagger.Module
@@ -24,7 +23,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -41,11 +39,13 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideApi(dataStoreRepository: DataStoreRepository): InterfaceAPI {
+    fun provideApi(sharedPreferences: SharedPreferences): InterfaceAPI {
         val client = OkHttpClient.Builder().addInterceptor { chain ->
             val original = chain.request()
-            var apiKey: String
-            runBlocking {
+            val apiKey = sharedPreferences.getString("api_key", "").toString()
+            Log.d("interceptor", apiKey)
+            // If we want to retrieve key from DataStoreRepository but it adds runBlocking(which is not a good practice)
+            /*runBlocking {
                 apiKey = dataStoreRepository.getKey().toString()
                 Log.d("interceptor", apiKey)
                 if (apiKey.isNotEmpty()) {
@@ -55,8 +55,8 @@ object AppModule {
                     chain.proceed(authorized)
                 } else {
                     chain.proceed(original)
-                }
-            }
+                }*/
+            chain.proceed(original.newBuilder().addHeader("X-API-Key", apiKey).build())
         }.build()
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
