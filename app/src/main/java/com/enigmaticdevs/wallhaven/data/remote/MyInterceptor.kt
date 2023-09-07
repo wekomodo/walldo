@@ -1,6 +1,5 @@
 package com.enigmaticdevs.wallhaven.data.remote
 
-import android.util.Log
 import com.enigmaticdevs.wallhaven.domain.repository.DataStoreRepository
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
@@ -14,7 +13,6 @@ class MyInterceptor @Inject constructor(
         //using DataStore to retrieve API key
         return runBlocking {
             val apiKey = dataStoreRepository.getKey().toString()
-            Log.d("interceptor", apiKey)
             if (apiKey.isNotEmpty()) {
                 val authorized = original.newBuilder()
                     .addHeader("X-API-Key", apiKey)

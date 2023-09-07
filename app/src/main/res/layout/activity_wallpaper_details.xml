@@ -61,7 +61,7 @@
 
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/cardView2"
+        android:id="@+id/wallpaper_detail_cardview"
         style="?attr/materialCardViewFilledStyle"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -81,7 +81,7 @@
             android:layout_height="match_parent"
             android:layout_gravity="center"
             android:adjustViewBounds="true"
-            android:contentDescription="wallpaper"
+            android:contentDescription="@string/wallpaper"
             android:cropToPadding="false"
             android:elevation="2sp"
             android:scaleType="center"

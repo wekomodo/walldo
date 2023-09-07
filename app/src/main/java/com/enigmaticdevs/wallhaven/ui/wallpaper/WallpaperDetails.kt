@@ -18,8 +18,8 @@ import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
@@ -40,11 +40,12 @@ import com.enigmaticdevs.wallhaven.util.download.DownloadAction
 import com.enigmaticdevs.wallhaven.util.download.STATUS_FAILED
 import com.enigmaticdevs.wallhaven.util.download.fileExists
 import com.enigmaticdevs.wallhaven.util.download.getUriForPhoto
+import com.enigmaticdevs.wallhaven.util.download.registerReceiver
 import com.enigmaticdevs.wallhaven.util.download.showFileExistsDialog
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
-import com.enigmaticdevs.wallhaven.util.download.registerReceiver
 import kotlinx.coroutines.launch
+
 
 @AndroidEntryPoint
 class WallpaperDetails : AppCompatActivity() {
@@ -56,7 +57,6 @@ class WallpaperDetails : AppCompatActivity() {
     private var readPermissionGranted = false
     private var writePermissionGranted = false
     private lateinit var fileName: String
-    val SUBDIRECTORY = "Walldo"
     private lateinit var permissionsLauncher: ActivityResultLauncher<Array<String>>
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,6 +65,7 @@ class WallpaperDetails : AppCompatActivity() {
         imageId = intent.getStringExtra("imageId").toString()
         Log.d("imageId", imageId)
         fileName = "walldo-${imageId}.jpg"
+        initializePermissionLauncher()
         updateOrRequestPermissions()
         imageViewModel.getWallpaper(imageId)
         lifecycleScope.launch {
@@ -86,7 +87,11 @@ class WallpaperDetails : AppCompatActivity() {
             }
         }
         binding.setAsWallpaper.setOnClickListener {
-            setWallpaper()
+            //setWallpaper()
+            Intent(this, SetAsWallpaper::class.java).apply {
+                putExtra(SetAsWallpaper.EXTRA_PHOTO_URL, photo.data.path)
+                startActivity(this)
+            }
         }
 
         binding.toolbar3.setNavigationOnClickListener {
@@ -120,6 +125,16 @@ class WallpaperDetails : AppCompatActivity() {
         }
     }
 
+    private fun initializePermissionLauncher() {
+        permissionsLauncher =
+            registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+                readPermissionGranted =
+                    permissions[Manifest.permission.READ_EXTERNAL_STORAGE] ?: readPermissionGranted
+                writePermissionGranted = permissions[Manifest.permission.WRITE_EXTERNAL_STORAGE]
+                    ?: writePermissionGranted
+            }
+    }
+
     private fun setWallpaper() {
         if (fileExists(fileName)) {
             getUriForPhoto(fileName)?.let { uri ->
@@ -127,7 +142,8 @@ class WallpaperDetails : AppCompatActivity() {
             } ?: run {
                 download()
             }
-        }
+        } else
+            download()
     }
 
     private fun updateOrRequestPermissions() {
@@ -139,7 +155,6 @@ class WallpaperDetails : AppCompatActivity() {
             this,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
         ) == PackageManager.PERMISSION_GRANTED
-
         val minSdk29 = Build.VERSION.SDK_INT > Build.VERSION_CODES.Q
         val minSdk32 = Build.VERSION.SDK_INT > Build.VERSION_CODES.S
         writePermissionGranted = hasWritePermission || minSdk32
@@ -212,12 +227,13 @@ class WallpaperDetails : AppCompatActivity() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onStart() {
         super.onStart()
-        downloadReceiver = registerReceiver(IntentFilter(
-            ACTION_DOWNLOAD_COMPLETE
-        )) {
+        downloadReceiver = registerReceiver(
+            IntentFilter(
+                ACTION_DOWNLOAD_COMPLETE
+            )
+        ) {
             it?.let { handleDownloadIntent(it) }
         }
     }
@@ -255,19 +271,17 @@ class WallpaperDetails : AppCompatActivity() {
     }
 
 
-    private fun getSerializable(): DownloadAction
-    {
-        return if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-            intent.getSerializableExtra(DATA_ACTION,DownloadAction::class.java) as DownloadAction
+    private fun getSerializable(): DownloadAction {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            intent.getSerializableExtra(DATA_ACTION, DownloadAction::class.java) as DownloadAction
         else
             intent.getSerializableExtra(DATA_ACTION) as DownloadAction
     }
-    private fun getParcelable(): Uri?
-    {
-        return if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-            intent.getParcelableExtra(DATA_URI,Uri::class.java) as Uri
+
+    private fun getParcelable(): Uri? {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            intent.getParcelableExtra(DATA_URI, Uri::class.java) as Uri
         else
             intent.getParcelableExtra(DATA_URI) as Uri?
     }
-
 }

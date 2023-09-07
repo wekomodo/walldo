@@ -33,6 +33,7 @@
     <string name="file_exists_message">This image has already been downloaded. Do you want to download it again?</string>
     <string name="yes">YES</string>
     <string name="no">NO</string>
+    <string name="wallpaper">wallpaper</string>
 
 
     <string-array name="theme_entries">
