@@ -1,11 +1,9 @@
 package com.enigmaticdevs.wallhaven.ui.wallpaper
 
 import android.Manifest
-import android.app.DownloadManager
 import android.app.WallpaperManager
 import android.content.BroadcastReceiver
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Color
@@ -14,6 +12,7 @@ import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Parcelable
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
@@ -23,7 +22,6 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.bumptech.glide.Glide
 import com.enigmaticdevs.wallhaven.R
 import com.enigmaticdevs.wallhaven.data.model.Photo
@@ -31,20 +29,20 @@ import com.enigmaticdevs.wallhaven.databinding.ActivityWallpaperDetailsBinding
 import com.enigmaticdevs.wallhaven.domain.viewmodel.MainViewModel
 import com.enigmaticdevs.wallhaven.ui.fragments.BottomSheetFragment
 import com.enigmaticdevs.wallhaven.util.Status
-import com.enigmaticdevs.wallhaven.util.download.ACTION_DOWNLOAD_COMPLETE
 import com.enigmaticdevs.wallhaven.util.download.AndroidDownloader
 import com.enigmaticdevs.wallhaven.util.download.DATA_ACTION
 import com.enigmaticdevs.wallhaven.util.download.DATA_URI
 import com.enigmaticdevs.wallhaven.util.download.DOWNLOAD_STATUS
 import com.enigmaticdevs.wallhaven.util.download.DownloadAction
 import com.enigmaticdevs.wallhaven.util.download.STATUS_FAILED
+import com.enigmaticdevs.wallhaven.util.download.STATUS_SUCCESSFUL
 import com.enigmaticdevs.wallhaven.util.download.fileExists
 import com.enigmaticdevs.wallhaven.util.download.getUriForPhoto
-import com.enigmaticdevs.wallhaven.util.download.registerReceiver
 import com.enigmaticdevs.wallhaven.util.download.showFileExistsDialog
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.io.Serializable
 
 
 @AndroidEntryPoint
@@ -185,10 +183,11 @@ class WallpaperDetails : AppCompatActivity() {
     }
 
     private fun download() {
-        if (readPermissionGranted && writePermissionGranted) {
-            val downloader = AndroidDownloader(this, fileName)
-            downloader.downloadFile(photo.data.path)
-        }
+        /*if (readPermissionGranted && writePermissionGranted) {*/
+            Toast.makeText(this,"Download Started",Toast.LENGTH_SHORT).show()
+            val downloader = AndroidDownloader(this)
+            val downloadID =  downloader.downloadFile(photo.data.path,fileName)
+       /* }*/
     }
 
     private fun loadImage(photo: Photo) {
@@ -226,52 +225,7 @@ class WallpaperDetails : AppCompatActivity() {
             }
         }
     }
-
-    override fun onStart() {
-        super.onStart()
-        downloadReceiver = registerReceiver(
-            IntentFilter(
-                ACTION_DOWNLOAD_COMPLETE
-            )
-        ) {
-            it?.let { handleDownloadIntent(it) }
-        }
-    }
-
-    override fun onStop() {
-        super.onStop()
-        downloadReceiver?.let {
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(it)
-        }
-    }
-
-    private fun handleDownloadIntent(intent: Intent) {
-        val action = getSerializable()
-        val status = intent.getIntExtra(DOWNLOAD_STATUS, -1)
-        if (action == DownloadAction.WALLPAPER) {
-            when (status) {
-                DownloadManager.STATUS_SUCCESSFUL -> getParcelable()?.let {
-                    applyWallpaper(it)
-                }
-
-                STATUS_FAILED ->
-                    Log.d("WallpaperIntent", "It failed")
-            }
-        } else if (action == DownloadAction.DOWNLOAD) {
-            when (status) {
-                DownloadManager.STATUS_SUCCESSFUL -> {
-                    Toast.makeText(this, "Download Completed", Toast.LENGTH_SHORT).show()
-                }
-
-                STATUS_FAILED -> {
-                    Toast.makeText(this, "Download Failed", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-    }
-
-
-    private fun getSerializable(): DownloadAction {
+   /* private fun getSerializable(): DownloadAction {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
             intent.getSerializableExtra(DATA_ACTION, DownloadAction::class.java) as DownloadAction
         else
@@ -284,4 +238,56 @@ class WallpaperDetails : AppCompatActivity() {
         else
             intent.getParcelableExtra(DATA_URI) as Uri?
     }
+*/
+/*
+    override fun onStart() {
+        super.onStart()
+        downloadReceiver = registerReceiver(IntentFilter(ACTION_DOWNLOAD_COMPLETE)) {
+            it?.let { handleDownloadIntent(it) }
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        downloadReceiver?.let {
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(it)
+        }
+    }
+*/
+
+    private fun handleDownloadIntent(intent: Intent) {
+        val action = getSerializable(intent, DATA_ACTION, DownloadAction::class.java)
+        val status = intent.getIntExtra(DOWNLOAD_STATUS, -1)
+
+        if (action == DownloadAction.WALLPAPER) {
+            when (status) {
+                STATUS_SUCCESSFUL -> getParcelable(intent, DATA_URI, Uri::class.java)?.let {
+                    applyWallpaper(it)
+                }
+                STATUS_FAILED -> {
+                   Toast.makeText(this,"Download Failed",Toast.LENGTH_SHORT).show()
+                }
+            }
+        } else if (action == DownloadAction.DOWNLOAD) {
+            when (status) {
+                STATUS_SUCCESSFUL -> Toast.makeText(this,"Download Successful",Toast.LENGTH_SHORT).show()
+                STATUS_FAILED -> Toast.makeText(this,"Download Failed",Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun <T : Serializable?> getSerializable(intent: Intent, name: String, clazz: Class<T>): T
+    {
+        return if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            intent.getSerializableExtra(name, clazz)!!
+        else
+            intent.getSerializableExtra(name) as T
+    }
+    private fun <T: Parcelable?> getParcelable(intent: Intent,name: String,clazz : Class<T>): T? {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            intent.getParcelableExtra(name, clazz)
+        else
+            intent.getParcelableExtra(DATA_URI)
+    }
+
 }

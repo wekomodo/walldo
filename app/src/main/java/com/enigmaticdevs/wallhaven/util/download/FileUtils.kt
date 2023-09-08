@@ -16,7 +16,7 @@ const val WALLDO_DIRECTORY = "Walldo"
 
 const val FILE_PROVIDER_AUTHORITY = "${BuildConfig.APPLICATION_ID}.provider"
 
-val WALLDO_RELATIVE_PATH = "${Environment.DIRECTORY_PICTURES}${File.separator}$WALLDO_DIRECTORY"
+val WALLDO_RELATIVE_PATH: String = Environment.DIRECTORY_DOWNLOADS
 
 val WALLDO_LEGACY_PATH = "${Environment.getExternalStoragePublicDirectory(
     Environment.DIRECTORY_PICTURES)}${File.separator}$WALLDO_DIRECTORY"

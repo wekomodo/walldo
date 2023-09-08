@@ -1,4 +1,4 @@
-package com.enigmaticdevs.wallhaven.util
+package com.enigmaticdevs.wallhaven.util.imageview
 
 
 import android.content.Context

@@ -6,18 +6,15 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.ImageView
-import androidx.paging.LoadState
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.enigmaticdevs.wallhaven.data.model.Wallpaper
-import com.enigmaticdevs.wallhaven.databinding.ActivityWallpaperDetailsBinding
 import com.enigmaticdevs.wallhaven.databinding.ItemPhotoBinding
 import com.enigmaticdevs.wallhaven.ui.wallpaper.WallpaperDetails
-import com.enigmaticdevs.wallhaven.util.AspectRatioImageView
-import com.enigmaticdevs.wallhaven.util.setAspectRatio
+import com.enigmaticdevs.wallhaven.util.imageview.AspectRatioImageView
+import com.enigmaticdevs.wallhaven.util.imageview.setAspectRatio
 
 class WallpaperAdapter(
     private val context: Context
