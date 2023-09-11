@@ -16,6 +16,7 @@ import com.enigmaticdevs.wallhaven.domain.viewmodel.DataStoreViewModel
 import com.enigmaticdevs.wallhaven.ui.adapters.ViewPagerFragmentAdapter
 import com.enigmaticdevs.wallhaven.ui.fragments.PopularFragment
 import com.enigmaticdevs.wallhaven.ui.fragments.RecentFragment
+import com.enigmaticdevs.wallhaven.ui.search.SearchActivity
 import com.enigmaticdevs.wallhaven.ui.settings.Settings
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
@@ -35,7 +36,10 @@ class MainActivity : AppCompatActivity() {
         savePrefsToDatastore()
         //initialize FragmentContainer
         initFragmentAdapter()
-
+        binding.searchView.setOnClickListener{
+            val intent = Intent(this, SearchActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun initNavDrawer() {

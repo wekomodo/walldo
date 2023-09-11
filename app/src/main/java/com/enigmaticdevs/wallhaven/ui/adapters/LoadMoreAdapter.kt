@@ -40,7 +40,10 @@ class LoadMoreAdapter(private val retry: () -> Unit) :
                 //looks self explanatory
                 if (state is LoadState.Loading)
                     btnLoadMoreRetry.visibility = View.GONE
-
+                if(state.endOfPaginationReached && state is LoadState.NotLoading){
+                    prgBarLoadMore.isVisible = false
+                    btnLoadMoreRetry.isVisible = false
+                }
             }
         }
     }

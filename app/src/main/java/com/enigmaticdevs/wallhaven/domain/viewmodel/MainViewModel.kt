@@ -26,11 +26,14 @@ class MainViewModel @Inject constructor(
 ) : ViewModel() {
 
     fun popularList(sorting : String,topRange : String,params: Params) = Pager(PagingConfig(pageSize = 1)){
-        PagingSource(repository, sorting,topRange, params)
+        PagingSource(repository, "",sorting,topRange, params)
     }.flow.cachedIn(viewModelScope)
 
     fun recentList(sorting : String,topRange : String,params: Params) = Pager(PagingConfig(pageSize = 1)){
-        PagingSource(repository,sorting,topRange,params)
+        PagingSource(repository,"",sorting,topRange,params)
+    }.flow.cachedIn(viewModelScope)
+    fun searchList(query : String,sorting : String,topRange : String,params: Params) = Pager(PagingConfig(pageSize = 1)){
+        PagingSource(repository,query,sorting,topRange,params)
     }.flow.cachedIn(viewModelScope)
 
     private val _wallpapersSearchList = MutableStateFlow<Resource<Wallpapers?>>(Resource.Loading())

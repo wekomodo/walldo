@@ -74,6 +74,7 @@ class PopularFragment : Fragment() {
         }
     }
 
+
     private fun initErrorHandling() {
         viewLifecycleOwner.lifecycleScope.launch {
             itemAdapter.loadStateFlow.collect {
