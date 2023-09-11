@@ -34,6 +34,7 @@
     <string name="yes">YES</string>
     <string name="no">NO</string>
     <string name="wallpaper">wallpaper</string>
+    <string name="try_again">Try again</string>
 
 
     <string-array name="theme_entries">

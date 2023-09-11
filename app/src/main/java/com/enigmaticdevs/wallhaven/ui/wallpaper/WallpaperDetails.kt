@@ -11,14 +11,16 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.ColorFilter
 import android.graphics.ImageDecoder
+import android.graphics.PorterDuff
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
-import android.widget.Toast
+import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -32,10 +34,12 @@ import com.enigmaticdevs.wallhaven.databinding.ActivityWallpaperDetailsBinding
 import com.enigmaticdevs.wallhaven.domain.viewmodel.MainViewModel
 import com.enigmaticdevs.wallhaven.ui.fragments.BottomSheetFragment
 import com.enigmaticdevs.wallhaven.util.Status
+import com.enigmaticdevs.wallhaven.util.customToast
 import com.enigmaticdevs.wallhaven.util.download.AndroidDownloader
 import com.enigmaticdevs.wallhaven.util.download.fileExists
 import com.enigmaticdevs.wallhaven.util.download.getUriForPhoto
 import com.enigmaticdevs.wallhaven.util.download.showFileExistsDialog
+import com.enigmaticdevs.wallhaven.util.errorToast
 import com.enigmaticdevs.wallhaven.util.shareIntent
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -47,7 +51,8 @@ class WallpaperDetails : AppCompatActivity() {
     private val imageViewModel: MainViewModel by viewModels()
     private lateinit var imageId: String
     private lateinit var binding: ActivityWallpaperDetailsBinding
-    private lateinit var photo: Photo
+    private var photo: Photo? = null
+    private var isChecked = false
     private var readPermissionGranted = false
     private var writePermissionGranted = false
     private lateinit var fileName: String
@@ -71,36 +76,42 @@ class WallpaperDetails : AppCompatActivity() {
             imageViewModel.wallpaper.collectLatest { response ->
                 when (response.status) {
                     Status.SUCCESS -> {
-                        photo = response.data as Photo
+                        binding.imageFailedToLoad.visibility = View.GONE
+                        binding.wallpaperDetailLoadingBar.visibility = View.GONE
+                        photo = response.data
                         loadImage(photo)
                     }
 
-                    Status.ERROR -> Toast.makeText(
-                        this@WallpaperDetails,
-                        "Failed",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Status.ERROR -> {
+                        binding.wallpaperDetailLoadingBar.visibility = View.GONE
+                        binding.imageFailedToLoad.visibility = View.VISIBLE
+                    }
 
                     else -> {}
                 }
             }
         }
+        binding.imageFailedTryAgain.setOnClickListener {
+            binding.wallpaperDetailLoadingBar.visibility = View.VISIBLE
+            binding.imageFailedToLoad.visibility = View.GONE
+            imageViewModel.getWallpaper(imageId)
+        }
         binding.setAsWallpaper.setOnClickListener {
-            val preference = PreferenceManager.getDefaultSharedPreferences(this)
-            val set_as_wallpaper = preference.getString("set_as_wallpaper", "walldo")
-            when (set_as_wallpaper) {
-                "walldo" -> {
-                    Intent(this, SetAsWallpaper::class.java).apply {
-                        putExtra(SetAsWallpaper.EXTRA_PHOTO_URL, photo.data.path)
-                        startActivity(this)
+            photo?.let {
+                val preference = PreferenceManager.getDefaultSharedPreferences(this)
+                when (preference.getString("set_as_wallpaper", "walldo")) {
+                    "walldo" -> {
+                        Intent(this, SetAsWallpaper::class.java).apply {
+                            putExtra(SetAsWallpaper.EXTRA_PHOTO_URL, it.data.path)
+                            startActivity(this)
+                        }
+                    }
+
+                    "system" -> {
+                        setWallpaper()
                     }
                 }
-
-                "system" -> {
-                    setWallpaper()
-                }
             }
-
         }
         binding.toolbar3.setNavigationOnClickListener {
             finish()
@@ -108,24 +119,54 @@ class WallpaperDetails : AppCompatActivity() {
         binding.toolbar3.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.info -> {
-                    val bottomSheetFragment = BottomSheetFragment.newInstance(photo)
-                    bottomSheetFragment.show(supportFragmentManager, "BottomSheetDialog")
+                    photo?.let { item ->
+                        val bottomSheetFragment = BottomSheetFragment.newInstance(item)
+                        bottomSheetFragment.show(supportFragmentManager, "BottomSheetDialog")
+                    } ?: run {
+                        errorToast(this@WallpaperDetails)
+                    }
+
                     true
 
                 }
 
                 R.id.download -> {
-                    if (fileExists(fileName)) {
-                        showFileExistsDialog(this) {
+                    photo?.let {
+                        if (fileExists(fileName)) {
+                            showFileExistsDialog(this) {
+                                download("download")
+                            }
+                        } else
                             download("download")
-                        }
-                    } else {
-                        download("download")
+                    } ?: run {
+                        errorToast(this@WallpaperDetails)
                     }
                     true
                 }
 
-                R.id.share -> shareIntent(this, photo.data.path)
+                R.id.share -> {
+                    photo?.let { item ->
+                        shareIntent(this, item.data.path)
+                    } ?: run {
+                        errorToast(this@WallpaperDetails)
+                    }
+                    true
+                }
+
+                R.id.favorite -> {
+                    if (!isChecked) {
+                        isChecked = true
+                        it.setIcon(R.drawable.ic_favorite_checked)
+                        customToast(this@WallpaperDetails,"Added to favorites")
+                    } else {
+                        isChecked = false
+                        it.setIcon(R.drawable.ic_favorite_unchecked)
+                        customToast(this@WallpaperDetails,"Removed from favorites")
+                    }
+
+                    true
+                }
+
                 else -> true
             }
 
@@ -181,23 +222,28 @@ class WallpaperDetails : AppCompatActivity() {
     }
 
     private fun download(s: String) {
-        if (readPermissionGranted && writePermissionGranted) {
-            Toast.makeText(this, "Download Started", Toast.LENGTH_SHORT).show()
-            val downloader = AndroidDownloader(this)
+        photo?.let { item ->
+            if (readPermissionGranted && writePermissionGranted) {
+                customToast(this@WallpaperDetails, "Download Started")
+                val downloader = AndroidDownloader(this)
 
-            when (s) {
-                "wallpaper" -> {
-                    action = s
-                    downloadID = downloader.downloadWallpaper(photo.data.path, fileName)
+                when (s) {
+                    "wallpaper" -> {
+                        action = s
+                        downloadID = downloader.downloadWallpaper(item.data.path, fileName)
+                    }
+
+                    "download" -> {
+                        action = s
+                        downloadID = downloader.downloadFile(item.data.path, fileName)
+                    }
                 }
 
-                "download" -> {
-                    action = s
-                    downloadID = downloader.downloadFile(photo.data.path, fileName)
-                }
             }
-
+        } ?: run {
+            errorToast(this@WallpaperDetails)
         }
+
     }
 
     private val onDownloadComplete: BroadcastReceiver = object : BroadcastReceiver() {
@@ -206,8 +252,7 @@ class WallpaperDetails : AppCompatActivity() {
             val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
             //Checking if the received broadcast is for our enqueued download by matching download id
             if (downloadID == id) {
-                Toast.makeText(this@WallpaperDetails, "Download Completed", Toast.LENGTH_SHORT)
-                    .show()
+                customToast(this@WallpaperDetails, "Download Finished")
                 when (action) {
                     "wallpaper" -> {
                         setWallpaper()
@@ -218,7 +263,7 @@ class WallpaperDetails : AppCompatActivity() {
         }
     }
 
-    private fun loadImage(photo: Photo) {
+    private fun loadImage(photo: Photo?) {
         photo?.let { wallpaper ->
             binding.wallpaperDetailAvatarUsername.text = wallpaper.data.uploader.username
             Glide.with(this)

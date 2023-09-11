@@ -61,24 +61,27 @@ class MainRepository @Inject constructor(
     }
 
     suspend fun getWallpaper(id: String): Photo? {
-        val response = api.getWallpaper(id)
-        val result = response.body()
-        return if (response.isSuccessful && result != null)
-            result
-        else
+        return try {
+            val response = api.getWallpaper(id)
+            val result = response.body()
+            return if (response.isSuccessful && result != null)
+                result
+            else
+                null
+        } catch (e: Exception) {
             null
-
+        }
     }
 
     suspend fun authenticateAPIkey(key: String): AuthenticateAPIkey? {
-        return try{
+        return try {
             val response = api.authenticateApiKey(key)
             val result = response.body()
             if (response.isSuccessful && result != null)
                 result
             else
                 null
-        } catch ( e: Exception){
+        } catch (e: Exception) {
             null
         }
     }

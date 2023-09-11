@@ -6,7 +6,7 @@
         <menu>
             <item
                 android:id="@+id/nav_favorites"
-                android:icon="@drawable/ic_favorite"
+                android:icon="@drawable/ic_favorite_checked"
                 android:title="@string/favorites"
                 app:showAsAction="ifRoom"/>
             <item
