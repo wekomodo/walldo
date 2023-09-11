@@ -2,7 +2,7 @@
 ![App Logo](https://github.com/wekomodo/walldo/blob/master/images/icon.png "Icon")
 
 ## Description & Features
-An Android based on wallhaven.cc API, using dagger,mvvm & dynamic colors library, gradually upgrading to jetpack Compose
+An Android app based on wallhaven.cc API, using dagger,mvvm & dynamic colors library, gradually upgrading to jetpack Compose
 * Minimal Design.
 * Dynamic colors.
 
