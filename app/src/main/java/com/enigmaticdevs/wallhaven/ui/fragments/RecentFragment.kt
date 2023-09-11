@@ -81,10 +81,16 @@ class RecentFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             itemAdapter.loadStateFlow.collect {
                 val state = it.refresh
-                if (state is LoadState.Error)
+                if (state is LoadState.Error) {
                     binding.failedToLoad.visibility = View.VISIBLE
-                if (state is LoadState.Loading)
+                    binding.recentLoading.visibility = View.GONE
+                }
+                if (state is LoadState.Loading) {
                     binding.failedToLoad.visibility = View.GONE
+                    binding.recentLoading.visibility = View.VISIBLE
+                }
+                if(state is LoadState.NotLoading)
+                    binding.recentLoading.visibility = View.GONE
             }
         }
     }

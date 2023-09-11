@@ -79,10 +79,16 @@ class PopularFragment : Fragment() {
             itemAdapter.loadStateFlow.collect {
                 val state = it.refresh
                 binding.apply {
-                    if (state is LoadState.Error)
+                    if (state is LoadState.Error) {
+                        binding.popularLoading.visibility = View.GONE
                         failedToLoad.visibility = View.VISIBLE
-                    if (state is LoadState.Loading)
+                    }
+                    if (state is LoadState.Loading) {
+                        binding.popularLoading.visibility = View.VISIBLE
                         failedToLoad.visibility = View.GONE
+                    }
+                    if(state is LoadState.NotLoading)
+                        binding.popularLoading.visibility = View.GONE
                 }
             }
         }
