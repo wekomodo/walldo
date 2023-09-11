@@ -9,7 +9,7 @@ An Android based on wallhaven.cc API, using dagger,mvvm & dynamic colors library
 ## Screenshots
 <div style="display:flex;">
 <img alt="App image" src="images/walldo1.png" width="30%">
-<img alt="App image" src="images/walldo2.jpg" width="30%">
+<img alt="App image" src="images/walldo2.png" width="30%">
 <img alt="App image" src="images/walldo3.jpg" width="30%">
 </div>
 
