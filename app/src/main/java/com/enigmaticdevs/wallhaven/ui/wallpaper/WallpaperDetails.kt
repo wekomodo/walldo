@@ -1,9 +1,13 @@
 package com.enigmaticdevs.wallhaven.ui.wallpaper
 
 import android.Manifest
+import android.annotation.SuppressLint
+import android.app.DownloadManager
 import android.app.WallpaperManager
 import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Color
@@ -12,7 +16,6 @@ import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Parcelable
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
@@ -20,8 +23,8 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.preference.PreferenceManager
 import com.bumptech.glide.Glide
 import com.enigmaticdevs.wallhaven.R
 import com.enigmaticdevs.wallhaven.data.model.Photo
@@ -30,19 +33,13 @@ import com.enigmaticdevs.wallhaven.domain.viewmodel.MainViewModel
 import com.enigmaticdevs.wallhaven.ui.fragments.BottomSheetFragment
 import com.enigmaticdevs.wallhaven.util.Status
 import com.enigmaticdevs.wallhaven.util.download.AndroidDownloader
-import com.enigmaticdevs.wallhaven.util.download.DATA_ACTION
-import com.enigmaticdevs.wallhaven.util.download.DATA_URI
-import com.enigmaticdevs.wallhaven.util.download.DOWNLOAD_STATUS
-import com.enigmaticdevs.wallhaven.util.download.DownloadAction
-import com.enigmaticdevs.wallhaven.util.download.STATUS_FAILED
-import com.enigmaticdevs.wallhaven.util.download.STATUS_SUCCESSFUL
 import com.enigmaticdevs.wallhaven.util.download.fileExists
 import com.enigmaticdevs.wallhaven.util.download.getUriForPhoto
 import com.enigmaticdevs.wallhaven.util.download.showFileExistsDialog
+import com.enigmaticdevs.wallhaven.util.shareIntent
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import java.io.Serializable
 
 
 @AndroidEntryPoint
@@ -51,11 +48,14 @@ class WallpaperDetails : AppCompatActivity() {
     private lateinit var imageId: String
     private lateinit var binding: ActivityWallpaperDetailsBinding
     private lateinit var photo: Photo
-    private var downloadReceiver: BroadcastReceiver? = null
     private var readPermissionGranted = false
     private var writePermissionGranted = false
     private lateinit var fileName: String
+    private var action: String = ""
+    private var downloadID = -1L
     private lateinit var permissionsLauncher: ActivityResultLauncher<Array<String>>
+
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityWallpaperDetailsBinding.inflate(layoutInflater)
@@ -65,6 +65,7 @@ class WallpaperDetails : AppCompatActivity() {
         fileName = "walldo-${imageId}.jpg"
         initializePermissionLauncher()
         updateOrRequestPermissions()
+        registerReceiver(onDownloadComplete, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
         imageViewModel.getWallpaper(imageId)
         lifecycleScope.launch {
             imageViewModel.wallpaper.collectLatest { response ->
@@ -85,17 +86,25 @@ class WallpaperDetails : AppCompatActivity() {
             }
         }
         binding.setAsWallpaper.setOnClickListener {
-            //setWallpaper()
-            Intent(this, SetAsWallpaper::class.java).apply {
-                putExtra(SetAsWallpaper.EXTRA_PHOTO_URL, photo.data.path)
-                startActivity(this)
-            }
-        }
+            val preference = PreferenceManager.getDefaultSharedPreferences(this)
+            val set_as_wallpaper = preference.getString("set_as_wallpaper", "walldo")
+            when (set_as_wallpaper) {
+                "walldo" -> {
+                    Intent(this, SetAsWallpaper::class.java).apply {
+                        putExtra(SetAsWallpaper.EXTRA_PHOTO_URL, photo.data.path)
+                        startActivity(this)
+                    }
+                }
 
+                "system" -> {
+                    setWallpaper()
+                }
+            }
+
+        }
         binding.toolbar3.setNavigationOnClickListener {
             finish()
         }
-
         binding.toolbar3.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.info -> {
@@ -108,15 +117,15 @@ class WallpaperDetails : AppCompatActivity() {
                 R.id.download -> {
                     if (fileExists(fileName)) {
                         showFileExistsDialog(this) {
-                            download()
+                            download("download")
                         }
                     } else {
-                        download()
+                        download("download")
                     }
                     true
                 }
 
-                R.id.share -> share()
+                R.id.share -> shareIntent(this, photo.data.path)
                 else -> true
             }
 
@@ -138,56 +147,75 @@ class WallpaperDetails : AppCompatActivity() {
             getUriForPhoto(fileName)?.let { uri ->
                 applyWallpaper(uri)
             } ?: run {
-                download()
+                download("wallpaper")
             }
         } else
-            download()
+            download("wallpaper")
     }
 
     private fun updateOrRequestPermissions() {
-        val hasReadPermission = ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.READ_EXTERNAL_STORAGE,
+        val hasReadPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            checkSelfPermission(Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED
+        else
+            checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+        val hasWritePermission = checkSelfPermission(
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
         ) == PackageManager.PERMISSION_GRANTED
-        val hasWritePermission = ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-        ) == PackageManager.PERMISSION_GRANTED
-        val minSdk29 = Build.VERSION.SDK_INT > Build.VERSION_CODES.Q
-        val minSdk32 = Build.VERSION.SDK_INT > Build.VERSION_CODES.S
-        writePermissionGranted = hasWritePermission || minSdk32
-        readPermissionGranted = hasReadPermission || minSdk29
+        readPermissionGranted = hasReadPermission
+        val minSdk28 = Build.VERSION.SDK_INT > Build.VERSION_CODES.P
+        writePermissionGranted = hasWritePermission || minSdk28
 
         val permissionToRequest = mutableListOf<String>()
         if (!writePermissionGranted) {
             permissionToRequest.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
         }
         if (!readPermissionGranted) {
-            permissionToRequest.add(Manifest.permission.READ_EXTERNAL_STORAGE)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                permissionToRequest.add(Manifest.permission.READ_MEDIA_IMAGES)
+            else
+                permissionToRequest.add(Manifest.permission.READ_EXTERNAL_STORAGE)
         }
         if (permissionToRequest.isNotEmpty()) {
             permissionsLauncher.launch(permissionToRequest.toTypedArray())
         }
     }
 
-    private fun share(): Boolean {
-        val sharingIntent = Intent(Intent.ACTION_SEND)
-        sharingIntent.type = "text/plain"
-        val shareBody =
-            "Here's an awesome wallpaper I found on Walldo " + photo.data.path
-        val shareSub = R.string.app_name.toString()
-        sharingIntent.putExtra(Intent.EXTRA_SUBJECT, shareSub)
-        sharingIntent.putExtra(Intent.EXTRA_TEXT, shareBody)
-        startActivity(Intent.createChooser(sharingIntent, "Share using"))
-        return true
+    private fun download(s: String) {
+        if (readPermissionGranted && writePermissionGranted) {
+            Toast.makeText(this, "Download Started", Toast.LENGTH_SHORT).show()
+            val downloader = AndroidDownloader(this)
+
+            when (s) {
+                "wallpaper" -> {
+                    action = s
+                    downloadID = downloader.downloadWallpaper(photo.data.path, fileName)
+                }
+
+                "download" -> {
+                    action = s
+                    downloadID = downloader.downloadFile(photo.data.path, fileName)
+                }
+            }
+
+        }
     }
 
-    private fun download() {
-        /*if (readPermissionGranted && writePermissionGranted) {*/
-            Toast.makeText(this,"Download Started",Toast.LENGTH_SHORT).show()
-            val downloader = AndroidDownloader(this)
-            val downloadID =  downloader.downloadFile(photo.data.path,fileName)
-       /* }*/
+    private val onDownloadComplete: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            //Fetching the download id received with the broadcast
+            val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
+            //Checking if the received broadcast is for our enqueued download by matching download id
+            if (downloadID == id) {
+                Toast.makeText(this@WallpaperDetails, "Download Completed", Toast.LENGTH_SHORT)
+                    .show()
+                when (action) {
+                    "wallpaper" -> {
+                        setWallpaper()
+                    }
+
+                }
+            }
+        }
     }
 
     private fun loadImage(photo: Photo) {
@@ -209,6 +237,7 @@ class WallpaperDetails : AppCompatActivity() {
         try {
             startActivity(WallpaperManager.getInstance(this).getCropAndSetWallpaperIntent(uri))
         } catch (e: IllegalArgumentException) {
+            e.localizedMessage?.let { Log.d("exception", it) }
             var bitmap: Bitmap? = null
             try {
                 bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -225,69 +254,4 @@ class WallpaperDetails : AppCompatActivity() {
             }
         }
     }
-   /* private fun getSerializable(): DownloadAction {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-            intent.getSerializableExtra(DATA_ACTION, DownloadAction::class.java) as DownloadAction
-        else
-            intent.getSerializableExtra(DATA_ACTION) as DownloadAction
-    }
-
-    private fun getParcelable(): Uri? {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-            intent.getParcelableExtra(DATA_URI, Uri::class.java) as Uri
-        else
-            intent.getParcelableExtra(DATA_URI) as Uri?
-    }
-*/
-/*
-    override fun onStart() {
-        super.onStart()
-        downloadReceiver = registerReceiver(IntentFilter(ACTION_DOWNLOAD_COMPLETE)) {
-            it?.let { handleDownloadIntent(it) }
-        }
-    }
-
-    override fun onStop() {
-        super.onStop()
-        downloadReceiver?.let {
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(it)
-        }
-    }
-*/
-
-    private fun handleDownloadIntent(intent: Intent) {
-        val action = getSerializable(intent, DATA_ACTION, DownloadAction::class.java)
-        val status = intent.getIntExtra(DOWNLOAD_STATUS, -1)
-
-        if (action == DownloadAction.WALLPAPER) {
-            when (status) {
-                STATUS_SUCCESSFUL -> getParcelable(intent, DATA_URI, Uri::class.java)?.let {
-                    applyWallpaper(it)
-                }
-                STATUS_FAILED -> {
-                   Toast.makeText(this,"Download Failed",Toast.LENGTH_SHORT).show()
-                }
-            }
-        } else if (action == DownloadAction.DOWNLOAD) {
-            when (status) {
-                STATUS_SUCCESSFUL -> Toast.makeText(this,"Download Successful",Toast.LENGTH_SHORT).show()
-                STATUS_FAILED -> Toast.makeText(this,"Download Failed",Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    private fun <T : Serializable?> getSerializable(intent: Intent, name: String, clazz: Class<T>): T
-    {
-        return if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-            intent.getSerializableExtra(name, clazz)!!
-        else
-            intent.getSerializableExtra(name) as T
-    }
-    private fun <T: Parcelable?> getParcelable(intent: Intent,name: String,clazz : Class<T>): T? {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-            intent.getParcelableExtra(name, clazz)
-        else
-            intent.getParcelableExtra(DATA_URI)
-    }
-
 }

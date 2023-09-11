@@ -162,4 +162,12 @@
         <item name="Lock">lock</item>
         <item name="both">both</item>
     </string-array>
+    <string-array name="set_entries" >
+        <item name="walldo">Walldo(more consistent)</item>
+        <item name="system">System</item>
+    </string-array>
+    <string-array name="set_values" >
+        <item name="walldo">walldo</item>
+        <item name="system">system</item>
+    </string-array>
 </resources>

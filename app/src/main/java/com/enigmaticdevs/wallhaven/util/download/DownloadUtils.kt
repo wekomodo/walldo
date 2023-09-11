@@ -11,6 +11,5 @@ const val DOWNLOAD_STATUS = "$packageName.DOWNLOAD_STATUS"
 const val STATUS_SUCCESSFUL = 1
 const val STATUS_FAILED = 2
 const val STATUS_CANCELLED = 3
+const val ACTION_DOWNLOAD = "$packageName."
 
-
-enum class DownloadAction { DOWNLOAD, WALLPAPER }
