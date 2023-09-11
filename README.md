@@ -1,5 +1,5 @@
 # Walldo- Walls from wallhaven (Android App)<br />
-![App Logo](https://github.com/wekomodo/walldo/blob/master/images/app_icon.jpg "Icon")
+![App Logo](https://github.com/wekomodo/walldo/blob/master/images/app_icon.png "Icon")
 
 ## Description & Features
 An Android based on wallhaven.cc API, using dagger,mvvm & dynamic colors library, gradually upgrading to jetpack Compose
