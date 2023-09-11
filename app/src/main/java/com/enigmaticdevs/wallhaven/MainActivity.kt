@@ -14,6 +14,7 @@ import com.enigmaticdevs.wallhaven.data.model.Params
 import com.enigmaticdevs.wallhaven.databinding.ActivityMainBinding
 import com.enigmaticdevs.wallhaven.domain.viewmodel.DataStoreViewModel
 import com.enigmaticdevs.wallhaven.ui.adapters.ViewPagerFragmentAdapter
+import com.enigmaticdevs.wallhaven.ui.autowallpaper.AutoWallpaperSettings
 import com.enigmaticdevs.wallhaven.ui.fragments.PopularFragment
 import com.enigmaticdevs.wallhaven.ui.fragments.RecentFragment
 import com.enigmaticdevs.wallhaven.ui.search.SearchActivity
@@ -58,11 +59,8 @@ class MainActivity : AppCompatActivity() {
         // navigation for drawer items
         binding.navigationView.setNavigationItemSelectedListener {
             when (it.itemId) {
-                R.id.nav_autowallpaper -> Toast.makeText(this, "Item 2", Toast.LENGTH_SHORT).show()
-                R.id.nav_settings -> {
-                    val intent = Intent(this, Settings::class.java)
-                    startActivity(intent)
-                }
+                R.id.nav_autowallpaper -> startActivity(Intent(this, AutoWallpaperSettings::class.java))
+                R.id.nav_settings -> startActivity(Intent(this, Settings::class.java))
                 else -> {
                     Toast.makeText(this, "Item 2", Toast.LENGTH_SHORT).show()
                 }
