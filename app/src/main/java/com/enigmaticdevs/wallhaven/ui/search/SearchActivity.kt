@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.inputmethod.EditorInfo
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.RecyclerView
@@ -44,22 +45,24 @@ class SearchActivity : AppCompatActivity() {
             val query = "+$it"
             binding.searchTextEditText.setText(it)
             searchJob = loadData(query)
+            binding.searchTextEditText.isEnabled = false
+            binding.searchInfoFab.isVisible = false
         } ?: run{
             binding.searchTextEditText.focusAndShowKeyboard()
-        }
-        binding.searchTextEditText.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                val query = binding.searchTextEditText.text.toString()
-                searchJob = loadData(query)
-                currentFocus?.hideKeyboard()
-                return@setOnEditorActionListener true
+            binding.searchTextEditText.setOnEditorActionListener { _, actionId, _ ->
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    val query = binding.searchTextEditText.text.toString()
+                    searchJob = loadData(query)
+                    currentFocus?.hideKeyboard()
+                    return@setOnEditorActionListener true
+                }
+                return@setOnEditorActionListener false
             }
-            return@setOnEditorActionListener false
+            searchInfo()
         }
         binding.materialToolbar.setNavigationOnClickListener {
             finish()
         }
-        searchInfo()
     }
 
     private fun loadData(query: String): Job {

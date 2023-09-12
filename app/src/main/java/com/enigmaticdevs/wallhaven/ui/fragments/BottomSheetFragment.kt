@@ -72,7 +72,6 @@ class BottomSheetFragment : BottomSheetDialogFragment() {
                     val tag = chip.text
                     val intent = Intent(requireContext(), SearchActivity::class.java)
                     intent.putExtra("tag", tag)
-                    parentFragmentManager.popBackStack()
                     startActivity(intent)
                 }
             }
