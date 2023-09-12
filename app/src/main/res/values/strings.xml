@@ -53,6 +53,7 @@
     <string name="developer_instagram_url">https://www.instagram.com/wekomodo/</string>
     <string name="avatar_image">avatar_image</string>
     <string name="username">username</string>
+    <string name="oops">Oops</string>
 
     <string-array name="theme_entries">
         <item name="light">Light</item>

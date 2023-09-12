@@ -31,12 +31,22 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var itemAdapter: WallpaperAdapter
     private var searchJob: Job? = null
+    private var tag: String? = null
     private val params: Params = Params("110", "111", "", "")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySearchBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.searchTextEditText.focusAndShowKeyboard()
+        tag = intent.getStringExtra("tag")
+        initRecyclerView()
+        initErrorHandling()
+        tag?.let {
+            val query = "+$it"
+            binding.searchTextEditText.setText(it)
+            searchJob = loadData(query)
+        } ?: run{
+            binding.searchTextEditText.focusAndShowKeyboard()
+        }
         binding.searchTextEditText.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 val query = binding.searchTextEditText.text.toString()
@@ -49,8 +59,6 @@ class SearchActivity : AppCompatActivity() {
         binding.materialToolbar.setNavigationOnClickListener {
             finish()
         }
-        initRecyclerView()
-        initErrorHandling()
         searchInfo()
     }
 
@@ -71,8 +79,8 @@ class SearchActivity : AppCompatActivity() {
                         errorToast(this@SearchActivity)
                     }
                     if (it.append.endOfPaginationReached && state is LoadState.NotLoading) {
-                        if ( itemAdapter.itemCount < 2)
-                            customToast(this@SearchActivity,"No results found")
+                        if (itemAdapter.itemCount < 1)
+                            customToast(this@SearchActivity, "No results found")
                         ///  hide empty view
 
                     }

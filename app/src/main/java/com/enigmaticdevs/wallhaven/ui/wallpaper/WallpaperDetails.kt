@@ -11,9 +11,7 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Color
-import android.graphics.ColorFilter
 import android.graphics.ImageDecoder
-import android.graphics.PorterDuff
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
@@ -70,6 +68,7 @@ class WallpaperDetails : AppCompatActivity() {
         fileName = "walldo-${imageId}.jpg"
         initializePermissionLauncher()
         updateOrRequestPermissions()
+        initOnClickListeners()
         registerReceiver(onDownloadComplete, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
         imageViewModel.getWallpaper(imageId)
         lifecycleScope.launch {
@@ -90,6 +89,16 @@ class WallpaperDetails : AppCompatActivity() {
                     else -> {}
                 }
             }
+        }
+
+    }
+
+    private fun initOnClickListeners() {
+        binding.cardView.setOnClickListener{
+            launchUserProfile()
+        }
+        binding.wallpaperDetailAvatarUsername.setOnClickListener {
+            launchUserProfile()
         }
         binding.imageFailedTryAgain.setOnClickListener {
             binding.wallpaperDetailLoadingBar.visibility = View.VISIBLE
@@ -170,6 +179,16 @@ class WallpaperDetails : AppCompatActivity() {
                 else -> true
             }
 
+        }
+    }
+
+    private fun launchUserProfile() {
+        photo?.let{
+            val username = it.data.uploader.username
+            val intent = Intent(this, UserProfileActivity::class.java)
+            intent.putExtra("userImage",it.data.uploader.avatar.`128px`)
+            intent.putExtra("username", username)
+            startActivity(intent)
         }
     }
 
