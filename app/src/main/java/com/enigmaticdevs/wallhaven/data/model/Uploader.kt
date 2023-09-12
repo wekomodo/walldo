@@ -7,5 +7,4 @@ data class Uploader(
     val username : String,
     val group : String,
     val avatar : Avatar
-
-    )
+) : java.io.Serializable

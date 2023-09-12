@@ -11,4 +11,4 @@ data class Tag(
     val id: Int,
     val name: String,
     val purity: String
-)
+) : java.io.Serializable

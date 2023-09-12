@@ -1,33 +1,31 @@
 package com.enigmaticdevs.wallhaven.ui.fragments
 
-import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.cardview.widget.CardView
 import com.enigmaticdevs.wallhaven.R
 import com.enigmaticdevs.wallhaven.data.model.Photo
 import com.enigmaticdevs.wallhaven.databinding.BottomsheetFragmentBinding
+import com.enigmaticdevs.wallhaven.ui.search.SearchActivity
+import com.enigmaticdevs.wallhaven.util.getSerializable
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.chip.Chip
-import kotlinx.serialization.Serializable
 
 
 class BottomSheetFragment : BottomSheetDialogFragment() {
     private lateinit var binding: BottomsheetFragmentBinding
+    private var photo : Photo?  = null
 
-
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -35,10 +33,12 @@ class BottomSheetFragment : BottomSheetDialogFragment() {
     ): View? {
         val view = inflater.inflate(R.layout.bottomsheet_fragment, container, false)
         binding = BottomsheetFragmentBinding.bind(view)
-        val photo  = getSerializable()
-       /* val photo: Photo = requireArguments().getSerializable(
-            "wallpaperInfo", Photo::class.java)  as Photo*/
-        photo.let { wallpaper ->
+        try {
+            photo  = getSerializable(requireArguments(),"wallpaperInfo",Photo::class.java)
+        }catch (e : Exception){
+            println(e.localizedMessage)
+        }
+        photo?.let { wallpaper ->
             binding.apply {
                 infoImageId.text = wallpaper.data.id
                 infoResolution.text = wallpaper.data.resolution
@@ -58,35 +58,28 @@ class BottomSheetFragment : BottomSheetDialogFragment() {
                     copyColor(binding.infoImageId.text.toString())
                 }
             }
-        }
-        val tf = Typeface.createFromAsset(
-            requireContext().assets,
-            "fonts/gordita_regular.otf"
-        )
-        for (tags in photo.data.tags) {
-            val chip = Chip(requireContext())
-            chip.text = tags.name
-            chip.isClickable = true
-            binding.tagsGroup.addView(chip)
-            chip.typeface = tf
-            chip.setOnClickListener {
-                val tag = chip.text
-                /*val intent = Intent(requireContext(), TagsSearch::class.java)
-                intent.putExtra("tag", tag)
-                startActivity(intent)*/
+            val tf = Typeface.createFromAsset(
+                requireContext().assets,
+                "fonts/gordita_regular.otf"
+            )
+            for (tags in wallpaper.data.tags) {
+                val chip = Chip(requireContext())
+                chip.text = tags.name
+                chip.isClickable = true
+                binding.tagsGroup.addView(chip)
+                chip.typeface = tf
+                chip.setOnClickListener {
+                    val tag = chip.text
+                    val intent = Intent(requireContext(), SearchActivity::class.java)
+                    intent.putExtra("tag", tag)
+                    parentFragmentManager.popBackStack()
+                    startActivity(intent)
+                }
             }
         }
+
         return view
     }
-
-    private fun getSerializable(): Photo
-    {
-        return if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-            requireArguments().getSerializable("wallpaperInfo",Photo::class.java) as Photo
-        else
-            requireArguments().getSerializable("wallpaperInfo") as Photo
-    }
-
     private fun bindData(cardColor: CardView, colorText: TextView, color: String) {
         cardColor.setCardBackgroundColor(Color.parseColor(color))
         colorText.apply {

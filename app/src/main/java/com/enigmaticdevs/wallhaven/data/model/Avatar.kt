@@ -8,4 +8,4 @@ data class Avatar(
     val `200px`: String,
     val `20px`: String,
     val `32px`: String
-)
+) : java.io.Serializable

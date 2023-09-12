@@ -2,6 +2,7 @@ package com.enigmaticdevs.wallhaven.util
 
 import android.content.Intent
 import android.os.Build
+import android.os.Bundle
 import android.os.Parcelable
 import java.io.Serializable
 
@@ -17,4 +18,12 @@ import java.io.Serializable
         intent.getParcelableExtra(name, clazz)
     else
         intent.getParcelableExtra(name)
+}
+
+fun <T : Serializable?> getSerializable(requireArguments: Bundle, name: String, clazz: Class<T>): T
+{
+    return if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+        requireArguments.getSerializable(name, clazz)!!
+    else
+        requireArguments.getSerializable(name) as T
 }

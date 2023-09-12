@@ -24,6 +24,4 @@ data class Wallpaper(
     val views: Int,
     val tags : List<Tag>,
     val uploader : Uploader,
-
-
-)
+) : java.io.Serializable
