@@ -13,6 +13,7 @@ import androidx.preference.PreferenceManager
 import com.enigmaticdevs.wallhaven.data.model.Params
 import com.enigmaticdevs.wallhaven.databinding.ActivityMainBinding
 import com.enigmaticdevs.wallhaven.domain.viewmodel.DataStoreViewModel
+import com.enigmaticdevs.wallhaven.ui.about.AboutMeActivity
 import com.enigmaticdevs.wallhaven.ui.adapters.ViewPagerFragmentAdapter
 import com.enigmaticdevs.wallhaven.ui.autowallpaper.AutoWallpaperSettings
 import com.enigmaticdevs.wallhaven.ui.fragments.PopularFragment
@@ -61,6 +62,7 @@ class MainActivity : AppCompatActivity() {
             when (it.itemId) {
                 R.id.nav_autowallpaper -> startActivity(Intent(this, AutoWallpaperSettings::class.java))
                 R.id.nav_settings -> startActivity(Intent(this, Settings::class.java))
+                R.id.nav_aboutMe -> startActivity(Intent(this, AboutMeActivity::class.java))
                 else -> {
                     Toast.makeText(this, "Item 2", Toast.LENGTH_SHORT).show()
                 }

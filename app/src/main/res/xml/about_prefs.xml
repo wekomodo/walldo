@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <Preference app:title="wallhaven.cc"
+        app:summary="best wallpapers on the internet"
+        app:iconSpaceReserved="false">
+
+        <intent android:action="android.intent.action.VIEW"
+            android:data="https://wallhaven.cc/" />
+    </Preference>
+
+    <PreferenceCategory app:title="@string/app_name"
+        app:iconSpaceReserved="false">
+
+        <Preference app:title="@string/support_development"
+            app:iconSpaceReserved="false"
+            app:summary="@string/donate_summary">
+
+            <!--<intent
+                android:action="android.intent.action.VIEW"
+                android:targetClass="com.enigmaticdevs.wallhaven.donation.Donation"
+                android:targetPackage="@string/package_name" />-->
+        </Preference>
+
+        <Preference app:title="@string/rate_app_title"
+            app:summary="@string/rate_app_summary"
+            app:iconSpaceReserved="false">
+
+            <intent android:action="android.intent.action.VIEW"
+                android:data="@string/play_store_url" />
+        </Preference>
+
+        <Preference app:title="@string/report_bug_title"
+            app:summary="@string/report_bug_summary"
+            app:iconSpaceReserved="false">
+
+            <intent android:action="android.intent.action.VIEW"
+                android:data="@string/contact_developer_uri" />
+        </Preference>
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/developer_title"
+        app:iconSpaceReserved="false">
+
+        <Preference app:title="@string/instagram"
+            app:summary="@string/developer_instagram_username"
+            app:icon="@drawable/ic_instagram">
+
+            <intent android:action="android.intent.action.VIEW"
+                android:data="@string/developer_instagram_url" />
+        </Preference>
+    </PreferenceCategory>
+</PreferenceScreen>

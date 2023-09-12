@@ -37,6 +37,23 @@
     <string name="try_again">Try again</string>
 
 
+    <!-- About me Prefs -->
+    <string name="donate_summary">If you really love it, consider supporting by donating a few bucks</string>
+    <string name="donate_banner_text" translatable="false">Hello &#128075;,\n\nI\'m Wekomodo or Fury, the developer of Walldo. If you want to support further development of the app, you can choose to send a few dollars my way by selecting one of the options below.</string>
+    <string name="support_development">Support Development</string>
+    <string name="rate_app_title">Rate App</string>
+    <string name="rate_app_summary">rate the app on play-store pretty peas</string>
+    <string name="play_store_url">https://play.google.com/store/apps/details?id=com.enigmaticdevs.wallhaven</string>
+    <string name="report_bug_title">Report Bug</string>
+    <string name="report_bug_summary">Report bugs or request new features</string>
+    <string name="developer_title">Developer</string>
+    <string name="instagram">Instagram</string>
+    <string name="developer_instagram_username">\@wekomodo</string>
+    <string name="contact_developer_uri">mailto:enigmaticdevs@gmail.com</string>
+    <string name="developer_instagram_url">https://www.instagram.com/wekomodo/</string>
+    <string name="avatar_image">avatar_image</string>
+    <string name="username">username</string>
+
     <string-array name="theme_entries">
         <item name="light">Light</item>
         <item name="dark">Dark</item>

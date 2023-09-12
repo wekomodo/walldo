@@ -32,6 +32,12 @@
         android:theme="@style/Theme.Wallhaven"
         tools:targetApi="33">
         <activity
+            android:name=".ui.wallpaper.UserProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.about.AboutMeActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.autowallpaper.AutoWallpaperSettings"
             android:exported="false" />
         <activity
