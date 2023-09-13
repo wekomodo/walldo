@@ -2,11 +2,9 @@ package com.enigmaticdevs.wallhaven.ui.settings
 
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.viewModels
@@ -15,7 +13,6 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import com.enigmaticdevs.wallhaven.R
-import com.enigmaticdevs.wallhaven.data.model.Params
 import com.enigmaticdevs.wallhaven.databinding.ActivitySettingsBinding
 import com.enigmaticdevs.wallhaven.databinding.ItemEditTextBinding
 import com.enigmaticdevs.wallhaven.domain.viewmodel.DataStoreViewModel
@@ -30,7 +27,6 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class Settings : AppCompatActivity() {
     private lateinit var binding: ActivitySettingsBinding
-    private val dataStoreViewModel: DataStoreViewModel by viewModels()
     private lateinit var preferences: SharedPreferences
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,37 +59,8 @@ class Settings : AppCompatActivity() {
                     }
                 }
             }
-            if (key == "purity_sfw" || key == "purity_sketchy" || key == "purity_nsfw" || key == "general_category" || key == "anime_category" || key == "people_category" || key == "api_key" || key == "filter_ratio" || key == "filter_resolution") {
-                //read from sharedPrefs & save to Datastore
-                savePrefsToDatastore()
-            }
-
         }
 
-    private fun savePrefsToDatastore() {
-        val preferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val stringSet = preferences.getStringSet("filter_ratio", HashSet())
-        var ratio = ""
-        if (stringSet != null) {
-            for (items in stringSet) {
-                ratio = "$ratio$items,"
-            }
-        }
-        Log.d("ratiosString", ratio)
-        val resolution = preferences.getString("filter_resolution", "").toString()
-        val general = preferences.getBoolean("general_category", true)
-        val anime = preferences.getBoolean("anime_category", true)
-        val people = preferences.getBoolean("people_category", false)
-        val category = general.viaString() + anime.viaString() + people.viaString()
-        val sfw = preferences.getBoolean("purity_sfw", true)
-        val sketchy = preferences.getBoolean("purity_sketchy", false)
-        val nsfw = preferences.getBoolean("purity_nsfw", false)
-        val purity = sfw.viaString() + sketchy.viaString() + nsfw.viaString()
-
-        dataStoreViewModel.saveSettings(params = Params(purity,category,ratio,resolution))
-    }
-
-    private fun Boolean.viaString() = if (this) "1" else "0"
 
     @AndroidEntryPoint
     class SettingsFragment : PreferenceFragmentCompat() {

@@ -6,14 +6,14 @@
 
         <ListPreference
             android:defaultValue="default"
-            android:icon="@drawable/ic_theme"
-            android:key="theme"
-            android:title="Theme"
             android:entries="@array/theme_entries"
             android:entryValues="@array/theme_values"
+            android:icon="@drawable/ic_theme"
+            android:key="theme"
             android:summary="%s"
-            app:useSimpleSummaryProvider="true"
-            />
+            android:title="Theme"
+            app:allowDividerAbove="true"
+            app:useSimpleSummaryProvider="true" />
         <Preference
             android:defaultValue=""
             android:key="api_key"
@@ -22,74 +22,15 @@
             app:summary="API key can be found on wallhaven.cc by logging in,if it doesnt work try restarting app"
             app:title="API key" />
         <ListPreference
-            android:key="filter_resolution"
-            app:title="Resolution Filter"
-            app:icon="@drawable/ic_resolution"
-            app:allowDividerAbove="true"
-            android:entries="@array/resolution_entries"
-            android:entryValues="@array/resolution_values"
-            android:defaultValue=""
-            app:summary="Only greater than your chosen resolution will be shown"
-            />
-        <MultiSelectListPreference
-            android:defaultValue="@array/ratio_default"
-            android:key="filter_ratio"
-            android:entries="@array/ratio_entries"
-            android:entryValues="@array/ratio_values"
-            app:allowDividerAbove="true"
-            app:icon="@drawable/ic_ratio"
-            app:summary="Selected ratios will be used"
-            app:title="Ratio Filter"/>
-        <ListPreference
             android:defaultValue="walldo"
-            android:icon="@drawable/ic_wallpaper"
-            android:key="set_as_wallpaper"
-            android:title="Set wallpaper"
             android:entries="@array/set_entries"
             android:entryValues="@array/set_values"
+            android:icon="@drawable/ic_wallpaper"
+            android:key="set_as_wallpaper"
             android:summary="%s"
-            app:useSimpleSummaryProvider="true"
-            />
-        <PreferenceCategory android:title="Categories">
-            <SwitchPreference
-                android:defaultValue="true"
-                android:key="general_category"
-                android:summary="Basically most of the walls"
-                android:title="General"
-                app:defaultValue="true" />
-            <SwitchPreference
-                android:defaultValue="false"
-                android:key="anime_category"
-                android:summaryOff="weeb mode off"
-                android:summaryOn="weeb mode on"
-                android:title="Anime"
-                 />
-            <SwitchPreference
-                android:defaultValue="false"
-                android:key="people_category"
-                android:summary="Homosapeins"
-                android:title="People" />
-        </PreferenceCategory>
-    </PreferenceCategory>
-    <PreferenceCategory
-        android:icon="@drawable/ic_purity"
-        android:summary=" NSFW wont work until you put an API key"
-        android:title="Purity Filter">
-
-        <SwitchPreference
-            android:defaultValue="true"
-            android:key="purity_sfw"
-            android:summary="Legs crossed"
-            android:title="SFW" />
-        <SwitchPreference
-            android:defaultValue="false"
-            android:key="purity_sketchy"
-            android:summary="shady corner in the dark"
-            android:title="SKETCHY" />
-        <SwitchPreference
-            android:defaultValue="false"
-            android:key="purity_nsfw"
-            android:summary="Legs wide open"
-            android:title="NSFW" />
+            android:title="Set wallpaper"
+            app:allowDividerAbove="true"
+            app:allowDividerBelow="true"
+            app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 </androidx.preference.PreferenceScreen>

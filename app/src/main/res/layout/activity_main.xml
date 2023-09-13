@@ -83,6 +83,17 @@
                 />
         </com.google.android.material.card.MaterialCardView>
 
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_settings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="8sp"
+            android:layout_marginBottom="8sp"
+            android:clickable="true"
+            app:srcCompat="@drawable/ic_settings"
+            android:focusable="true" />
+
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <!-- Note: A RecyclerView can also be used -->

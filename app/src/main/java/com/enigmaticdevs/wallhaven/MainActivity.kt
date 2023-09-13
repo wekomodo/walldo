@@ -19,6 +19,7 @@ import com.enigmaticdevs.wallhaven.ui.autowallpaper.AutoWallpaperSettings
 import com.enigmaticdevs.wallhaven.ui.fragments.PopularFragment
 import com.enigmaticdevs.wallhaven.ui.fragments.RecentFragment
 import com.enigmaticdevs.wallhaven.ui.search.SearchActivity
+import com.enigmaticdevs.wallhaven.ui.settings.BottomSheetSettings
 import com.enigmaticdevs.wallhaven.ui.settings.Settings
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
@@ -41,6 +42,10 @@ class MainActivity : AppCompatActivity() {
         binding.searchView.setOnClickListener{
             val intent = Intent(this, SearchActivity::class.java)
             startActivity(intent)
+        }
+        binding.fabSettings.setOnClickListener{
+            val bottomSheetSettings = BottomSheetSettings()
+            bottomSheetSettings.show(supportFragmentManager, "BottomSheetDialog")
         }
     }
 
