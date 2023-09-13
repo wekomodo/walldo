@@ -3,6 +3,7 @@ package com.enigmaticdevs.wallhaven.ui.search
 import android.os.Bundle
 import android.view.inputmethod.EditorInfo
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
@@ -33,6 +34,7 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var itemAdapter: WallpaperAdapter
     private var searchJob: Job? = null
     private var tag: String? = null
+    private var dialog : AlertDialog? = null
     private val params: Params = Params("110", "111", "", "")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,6 +75,8 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
+
+
     private fun initErrorHandling() {
         lifecycleScope.launch {
             itemAdapter.loadStateFlow.collect {
@@ -107,7 +111,7 @@ class SearchActivity : AppCompatActivity() {
 
     private fun searchInfo() {
         binding.searchInfoFab.setOnClickListener {
-            MaterialAlertDialogBuilder(this)
+            dialog = MaterialAlertDialogBuilder(this)
                 .setTitle("Ways of finding what you're looking for")
                 .setMessage(
                     "• tagname (Search fuzzily for a tag) \n" +
@@ -118,8 +122,13 @@ class SearchActivity : AppCompatActivity() {
                             "• like:wallpaper ID (Find wallpapers with similar tags)"
                 )
                 .setPositiveButton("Ok") { _, _ ->
-                }
-                .show()
+                }.show()
+
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        dialog?.dismiss()
     }
 }
