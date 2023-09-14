@@ -20,6 +20,9 @@ import com.bumptech.glide.Glide
 import com.enigmaticdevs.wallhaven.databinding.ActivitySetAsWallpaperBinding
 import com.enigmaticdevs.wallhaven.databinding.SetWallpaperDailogBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 class SetAsWallpaper : AppCompatActivity() {
@@ -69,19 +72,18 @@ class SetAsWallpaper : AppCompatActivity() {
                     val dialog = MaterialAlertDialogBuilder(this@SetAsWallpaper)
                         .setView(view)
                         .show()
-
                     dialogBinding.setAsBoth.setOnClickListener {
-                        manager.setBitmap(bitmap)
+                        setBitmap(manager, bitmap, null)
                         dialog.dismiss()
                         finish()
                     }
                     dialogBinding.setAsHomescreen.setOnClickListener {
-                        manager.setBitmap(bitmap, null, false, WallpaperManager.FLAG_SYSTEM)
+                        setBitmap(manager, bitmap, WallpaperManager.FLAG_SYSTEM)
                         dialog.dismiss()
                         finish()
                     }
                     dialogBinding.setAsLockscreen.setOnClickListener {
-                        manager.setBitmap(bitmap, null, false, WallpaperManager.FLAG_LOCK)
+                        setBitmap(manager, bitmap, WallpaperManager.FLAG_LOCK)
                         dialog.dismiss()
                         finish()
                     }
@@ -91,6 +93,17 @@ class SetAsWallpaper : AppCompatActivity() {
                     }
                 }
             }, 500)
+
+        }
+    }
+
+    private fun setBitmap(manager: WallpaperManager, bitmap: Bitmap, flagSystem: Int?) {
+        CoroutineScope(Dispatchers.IO).launch {
+            flagSystem?.let {
+                manager.setBitmap(bitmap, null, false, it)
+            } ?: run {
+                manager.setBitmap(bitmap)
+            }
 
         }
     }
