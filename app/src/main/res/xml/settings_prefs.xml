@@ -21,16 +21,31 @@
             app:icon="@drawable/ic_api_key"
             app:summary="API key can be found on wallhaven.cc by logging in,if it doesnt work try restarting app"
             app:title="API key" />
-        <ListPreference
-            android:defaultValue="walldo"
-            android:entries="@array/set_entries"
-            android:entryValues="@array/set_values"
-            android:icon="@drawable/ic_wallpaper"
-            android:key="set_as_wallpaper"
-            android:summary="%s"
-            android:title="Set wallpaper"
-            app:allowDividerAbove="true"
-            app:allowDividerBelow="true"
-            app:useSimpleSummaryProvider="true" />
+        <PreferenceCategory
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:title="Wallpaper">
+
+            <ListPreference
+                android:defaultValue="walldo"
+                android:entries="@array/set_entries"
+                android:entryValues="@array/set_values"
+                android:icon="@drawable/ic_wallpaper"
+                android:key="set_as_wallpaper"
+                android:summary="%s"
+                android:title="Set wallpaper"
+                app:allowDividerAbove="true"
+                app:allowDividerBelow="true"
+                app:useSimpleSummaryProvider="true" />
+            <SwitchPreference
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:defaultValue="false"
+                android:icon="@drawable/ic_wallpaper"
+                android:key="long_press_to_download"
+                android:summary="can be inconsistent"
+                android:title="Long press to download"
+                app:allowDividerAbove="true" />
+        </PreferenceCategory>
     </PreferenceCategory>
 </androidx.preference.PreferenceScreen>

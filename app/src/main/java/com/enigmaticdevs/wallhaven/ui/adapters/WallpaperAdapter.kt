@@ -13,6 +13,11 @@ import com.bumptech.glide.Glide
 import com.enigmaticdevs.wallhaven.data.model.Wallpaper
 import com.enigmaticdevs.wallhaven.databinding.ItemPhotoBinding
 import com.enigmaticdevs.wallhaven.ui.wallpaper.WallpaperDetails
+import com.enigmaticdevs.wallhaven.util.customToast
+import com.enigmaticdevs.wallhaven.util.download.AndroidDownloader
+import com.enigmaticdevs.wallhaven.util.download.fileExists
+import com.enigmaticdevs.wallhaven.util.download.showFileExistsDialog
+import com.enigmaticdevs.wallhaven.util.hasWritePermission
 import com.enigmaticdevs.wallhaven.util.imageview.AspectRatioImageView
 import com.enigmaticdevs.wallhaven.util.imageview.setAspectRatio
 
@@ -44,6 +49,21 @@ class WallpaperAdapter(
             false
         )
         val vh = ViewHolder(inflatedView)
+        vh.photo.setOnLongClickListener {
+            val position = vh.absoluteAdapterPosition
+            val photo = getItem(position)
+            photo?.let {
+                val fileName = "walldo-" + photo.id + ".jpg"
+                if (context.fileExists(fileName)) {
+                    showFileExistsDialog(context) { downloadPhoto(it, fileName) }
+                }
+                else
+                    downloadPhoto(it,fileName)
+            } ?: run{
+                customToast(context,"photo Empty")
+            }
+            true
+        }
         vh.photo.setOnClickListener {
             val intent = Intent(context, WallpaperDetails::class.java)
             intent.putExtra("imageId", getItem(vh.absoluteAdapterPosition)?.id)
@@ -51,6 +71,17 @@ class WallpaperAdapter(
         }
         return vh
     }
+
+    private fun downloadPhoto(photo: Wallpaper, fileName: String) {
+        if (context.hasWritePermission()) {
+            customToast(context, "Download Started")
+            val downloader = AndroidDownloader(context)
+            downloader.downloadFile(photo.path, fileName)
+        }
+        else
+            customToast(context,"NO permission")
+    }
+
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         getItem(position)?.let { currentItem ->

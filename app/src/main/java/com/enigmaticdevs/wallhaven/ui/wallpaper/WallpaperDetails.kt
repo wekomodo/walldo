@@ -8,7 +8,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.ImageDecoder
@@ -38,6 +37,8 @@ import com.enigmaticdevs.wallhaven.util.download.fileExists
 import com.enigmaticdevs.wallhaven.util.download.getUriForPhoto
 import com.enigmaticdevs.wallhaven.util.download.showFileExistsDialog
 import com.enigmaticdevs.wallhaven.util.errorToast
+import com.enigmaticdevs.wallhaven.util.hasReadPermission
+import com.enigmaticdevs.wallhaven.util.hasWritePermission
 import com.enigmaticdevs.wallhaven.util.shareIntent
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -214,13 +215,8 @@ class WallpaperDetails : AppCompatActivity() {
     }
 
     private fun updateOrRequestPermissions() {
-        val hasReadPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-            checkSelfPermission(Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED
-        else
-            checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-        val hasWritePermission = checkSelfPermission(
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-        ) == PackageManager.PERMISSION_GRANTED
+        val hasReadPermission = hasReadPermission()
+        val hasWritePermission = hasWritePermission()
         readPermissionGranted = hasReadPermission
         val minSdk28 = Build.VERSION.SDK_INT > Build.VERSION_CODES.P
         writePermissionGranted = hasWritePermission || minSdk28
