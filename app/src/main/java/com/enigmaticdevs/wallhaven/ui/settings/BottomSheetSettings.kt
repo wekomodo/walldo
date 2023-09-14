@@ -19,7 +19,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class BottomSheetSettings : BottomSheetDialogFragment() {
     private lateinit var binding: BottomsheetSettingsBinding
-    private val dataStoreViewModel: DataStoreViewModel by viewModels()
+    private val dataStoreViewModel: DataStoreViewModel? by viewModels()
     private lateinit var preferences: SharedPreferences
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -70,7 +70,7 @@ class BottomSheetSettings : BottomSheetDialogFragment() {
         val nsfw = preferences.getBoolean("purity_nsfw", false)
         val purity = sfw.viaString() + sketchy.viaString() + nsfw.viaString()
 
-        dataStoreViewModel.saveSettings(params = Params(purity,category,ratio,resolution))
+        dataStoreViewModel?.saveSettings(params = Params(purity,category,ratio,resolution))
     }
 
     private fun Boolean.viaString() = if (this) "1" else "0"
