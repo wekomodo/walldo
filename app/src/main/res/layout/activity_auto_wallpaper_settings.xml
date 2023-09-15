@@ -29,6 +29,15 @@
             android:fontFamily="@font/gordita_bold"
             android:textSize="28sp"
             />
+        <androidx.constraintlayout.utils.widget.ImageFilterView
+            android:id="@+id/auto_wallpaper_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            android:src="@drawable/ic_info"
+            android:layout_gravity="end"
+            android:layout_marginEnd="8sp"/>
     </com.google.android.material.appbar.MaterialToolbar>
 
     <FrameLayout

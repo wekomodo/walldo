@@ -75,6 +75,11 @@ dependencies {
     // Dagger Hilt
     implementation("com.google.dagger:hilt-android:2.47")
     kapt("com.google.dagger:hilt-android-compiler:2.47")
+    //hiltWorkManager
+    implementation "androidx.hilt:hilt-work:1.0.0"
+    kapt("androidx.hilt:hilt-compiler:1.0.0")
+    implementation 'androidx.work:work-runtime-ktx:2.8.1'
+    //material3
     implementation 'androidx.compose.material3:material3'
     androidTestImplementation platform('androidx.compose:compose-bom:1.4.3')
     androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
@@ -97,4 +102,7 @@ dependencies {
     implementation "androidx.datastore:datastore-preferences:1.0.0"
     //billing lib v6
     implementation "com.android.billingclient:billing-ktx:6.0.1"
+    //picasso
+    implementation 'com.squareup.picasso:picasso:2.71828'
+
 }

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="keyline_0">0dp</dimen>
+    <dimen name="keyline_1">1dp</dimen>
+    <dimen name="keyline_2">2dp</dimen>
+    <dimen name="keyline_3">4dp</dimen>
+    <dimen name="keyline_4">6dp</dimen>
+    <dimen name="keyline_5">8dp</dimen>
+    <dimen name="keyline_6">12dp</dimen>
+    <dimen name="keyline_7">16dp</dimen>
+    <dimen name="keyline_8">24dp</dimen>
+    <dimen name="keyline_9">32dp</dimen>
+    <dimen name="keyline_10">48dp</dimen>
+    <dimen name="keyline_11">64dp</dimen>
+</resources>
