@@ -10,6 +10,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.preference.PreferenceManager
+import com.enigmaticdevs.wallhaven.data.download.DownloadService
 import com.enigmaticdevs.wallhaven.data.remote.InterfaceAPI
 import com.enigmaticdevs.wallhaven.data.remote.MyInterceptor
 import com.enigmaticdevs.wallhaven.domain.repository.DataStoreRepository
@@ -78,6 +79,20 @@ object AppModule {
     @Provides
     fun provideMainRepository(api: InterfaceAPI): MainRepository = MainRepository(api)
 
+
+    @Singleton
+    @Provides
+    fun provideDownloadService(dataStoreRepository: DataStoreRepository)  : DownloadService{
+        val client = OkHttpClient.Builder().apply {
+            addInterceptor(MyInterceptor(dataStoreRepository))
+        }.build()
+        return Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(client)
+            .build()
+            .create(DownloadService::class.java)
+    }
 
     @Singleton
     @Provides

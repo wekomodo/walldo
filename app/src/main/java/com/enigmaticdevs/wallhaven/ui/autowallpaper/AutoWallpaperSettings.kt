@@ -15,8 +15,9 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import androidx.work.Constraints
 import androidx.work.Data
+import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
-import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
 import com.enigmaticdevs.wallhaven.R
 import com.enigmaticdevs.wallhaven.data.model.Params
@@ -26,7 +27,7 @@ import com.enigmaticdevs.wallhaven.ui.autowallpaper.service.AutoWallpaperWork
 import com.enigmaticdevs.wallhaven.util.customToast
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
-import java.time.Duration
+import java.util.concurrent.TimeUnit
 
 @AndroidEntryPoint
 class AutoWallpaperSettings : AppCompatActivity() {
@@ -87,24 +88,25 @@ class AutoWallpaperSettings : AppCompatActivity() {
                 data.putString("category",params.category)
                 data.putString("ratio",params.ratio)
                 data.putString("resolution",params.resolution)
-                /*val workRequest =
+                val workRequest =
                     PeriodicWorkRequest.Builder(
                         AutoWallpaperWork::class.java,
                         interval * 60 * 1000,
                         TimeUnit.MILLISECONDS
-                    ).setInputData(data.build()).setConstraints(constraints.build()).build()*/
-                val workRequest =
-                    OneTimeWorkRequestBuilder<AutoWallpaperWork>()
-                        .setInitialDelay(Duration.ofSeconds(10))
-                        .setInputData(data.build())
-                        .setConstraints(constraints.build())
-                        .build()
-                WorkManager.getInstance(this).enqueue(workRequest)
-              /*  WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+                    ).setInputData(data.build()).setConstraints(constraints.build()).build()
+                WorkManager.getInstance(this).enqueueUniquePeriodicWork(
                     "autoWallpaper",
                     ExistingPeriodicWorkPolicy.UPDATE,  //Existing Periodic Work policy
                     workRequest //work request
-                )*/
+                )
+                // one time workRequest to test AutoWallpaper
+                /*   val workRequest =
+                    OneTimeWorkRequestBuilder<AutoWallpaperWork>()
+                        .setInitialDelay(Duration.ofSeconds(5))
+                        .setInputData(data.build())
+                        .setConstraints(constraints.build())
+                        .build()
+                WorkManager.getInstance(this).enqueue(workRequest)*/
                 customToast(this,"Worker is set")
         } else {
             WorkManager.getInstance(this)

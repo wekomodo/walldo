@@ -5,23 +5,25 @@ import android.app.WallpaperManager
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
-import android.graphics.Bitmap
-import android.graphics.drawable.BitmapDrawable
+import android.graphics.Rect
 import android.util.Log
-import android.widget.ImageView
 import androidx.core.app.NotificationManagerCompat
 import androidx.hilt.work.HiltWorker
 import androidx.preference.PreferenceManager
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.enigmaticdevs.wallhaven.data.download.DownloadServiceRepository
 import com.enigmaticdevs.wallhaven.data.model.Params
 import com.enigmaticdevs.wallhaven.domain.repository.MainRepository
+import com.enigmaticdevs.wallhaven.util.screenHeight
+import com.enigmaticdevs.wallhaven.util.screenWidth
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
-import java.io.IOException
+import kotlin.math.max
+import kotlin.math.min
 
 
 @HiltWorker
@@ -29,7 +31,8 @@ class AutoWallpaperWork
 @AssistedInject constructor(
     @Assisted context: Context,
     @Assisted workerParams: WorkerParameters,
-    private val repository: MainRepository
+    private val repository: MainRepository,
+    private val downloadServiceRepository: DownloadServiceRepository
 ) :
     CoroutineWorker(context, workerParams) {
     private var params: Params = Params("110", "111", "", "")
@@ -41,15 +44,17 @@ class AutoWallpaperWork
     private var ratio: String = ""
     private var resolution: String = ""
     private var topRange: String = ""
+    private lateinit var context : Context
     override suspend fun doWork(): Result {
         Log.d("workerWallpaper", "Chaleya")
-        preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        context = applicationContext
+        preferences = PreferenceManager.getDefaultSharedPreferences(context)
         val orientationFix = preferences.getBoolean("device_orientation_fix", false)
         notificationManager = NotificationManagerCompat.from(
-            applicationContext
+            context
         )
         if (orientationFix) {
-            if (applicationContext.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
+            if (context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
                 return Result.success()
         }
         source = preferences.getString("wallpaper_source", "random").toString()
@@ -79,39 +84,32 @@ class AutoWallpaperWork
     private fun loadSourcePhoto(sort: String, page: Int, topRange: String, params: Params) {
         // GET PHOTO HERE
         CoroutineScope(IO).launch {
-            val wallpaperList = repository.getSearchWallpapers("", sort, topRange, params, page)
-            if (wallpaperList != null) {
-                val size = wallpaperList.data.size - 1
-                val data = wallpaperList.data[(0..size).random()]
-                val photo = ImageView(applicationContext)
-            /*    Picasso.get().load(data.path)
-                    .resize(
-                        Resources.getSystem().displayMetrics.widthPixels,
-                        Resources.getSystem().displayMetrics.heightPixels
-                    )
-                    .centerCrop()
-                    .memoryPolicy(MemoryPolicy.NO_CACHE)
-                    .into(photo, object : com.squareup.picasso.Callback {
-                        override fun onSuccess() {
-                            if (photo.drawable != null) {
-                                // notificationId is a unique int for each notification that you must define
-                                notificationManager.cancel(456)
-                                setWallpaper(photo)
-                                Log.i("Wallpaper", "Set")
-                            }
-                        }
-
-                        override fun onError(e: Exception?) {
-                            Log.d("Error", "failed to make drawable")
-                        }
-                    })*/
+            try {
+                val wallpaperList = repository.getSearchWallpapers("", sort, topRange, params, page)
+                if (wallpaperList!=null) {
+                    val size = wallpaperList.data.size - 1
+                    val data = wallpaperList.data[(0..size).random()]
+                    val url = data.path
+                    val cropRect = getCropHintRect(
+                        min(screenWidth, screenHeight).toDouble(),
+                        max(screenWidth, screenHeight).toDouble(),
+                        data.dimension_x.toDouble(),
+                        data.dimension_y.toDouble())
+                    downloadServiceRepository.downloadFile(url)?.byteStream().use {
+                        WallpaperManager.getInstance(context).setStream(it,cropRect,true)
+                    }
+                }
+            }
+            catch (e : Exception){
+                Log.d("Worker",e.message.toString())
             }
 
         }
+
     }
 
-    private fun setWallpaper(photo: ImageView) {
-        val screen = preferences.getString("auto_wall_screen", "both").toString()
+    /*private fun setWallpaper(photo: ImageView) {
+        val screen = preferences.getString("auto_wall_screen", "both")
         CoroutineScope(IO).launch {
             val wallpaperMgr = WallpaperManager.getInstance(applicationContext)
             val myBitmap: Bitmap = (photo.drawable as BitmapDrawable).bitmap
@@ -136,4 +134,35 @@ class AutoWallpaperWork
             }
         }
     }
+*/
+    private fun getCropHintRect(
+        screenWidth: Double,
+        screenHeight: Double,
+        photoWidth: Double,
+        photoHeight: Double
+    ): Rect? {
+        if (screenWidth > 0 && screenHeight > 0 && photoWidth > 0 && photoHeight > 0) {
+            val screenAspectRatio = screenWidth / screenHeight
+            val photoAspectRatio = photoWidth / photoHeight
+            val resizeFactor = if (screenAspectRatio >= photoAspectRatio) {
+                photoWidth / screenWidth
+            } else {
+                photoHeight / screenHeight
+            }
+            val newWidth = screenWidth * resizeFactor
+            val newHeight = screenHeight * resizeFactor
+            val newLeft = (photoWidth - newWidth) / 2
+            val newTop = (photoHeight - newHeight) / 2
+            val newRight = newWidth + newLeft
+
+            val rect = Rect(newLeft.toInt(), newTop.toInt(), newRight.toInt(), (newHeight + newTop).toInt())
+            return if (rect.isValid()) rect else null
+        }
+        return null
+    }
+
+    private fun Rect.isValid(): Boolean {
+        return right >= 0 && left in 0..right && bottom >= 0 && top in 0..bottom
+    }
+
 }

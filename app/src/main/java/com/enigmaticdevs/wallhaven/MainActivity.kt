@@ -3,7 +3,6 @@ package com.enigmaticdevs.wallhaven
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -21,6 +20,7 @@ import com.enigmaticdevs.wallhaven.ui.fragments.RecentFragment
 import com.enigmaticdevs.wallhaven.ui.search.SearchActivity
 import com.enigmaticdevs.wallhaven.ui.settings.BottomSheetSettings
 import com.enigmaticdevs.wallhaven.ui.settings.Settings
+import com.enigmaticdevs.wallhaven.util.customToast
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -69,7 +69,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_settings -> startActivity(Intent(this, Settings::class.java))
                 R.id.nav_aboutMe -> startActivity(Intent(this, AboutMeActivity::class.java))
                 else -> {
-                    Toast.makeText(this, "Item 2", Toast.LENGTH_SHORT).show()
+                    customToast(this,"message")
                 }
             }
             binding.drawerLayout.closeDrawer(GravityCompat.START)
