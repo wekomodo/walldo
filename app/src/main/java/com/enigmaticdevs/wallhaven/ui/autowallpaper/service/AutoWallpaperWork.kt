@@ -12,8 +12,8 @@ import androidx.hilt.work.HiltWorker
 import androidx.preference.PreferenceManager
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.enigmaticdevs.wallhaven.data.download.DownloadServiceRepository
 import com.enigmaticdevs.wallhaven.data.model.Params
+import com.enigmaticdevs.wallhaven.domain.repository.DownloadServiceRepository
 import com.enigmaticdevs.wallhaven.domain.repository.MainRepository
 import com.enigmaticdevs.wallhaven.util.screenHeight
 import com.enigmaticdevs.wallhaven.util.screenWidth
@@ -37,7 +37,7 @@ class AutoWallpaperWork
     CoroutineWorker(context, workerParams) {
     private var params: Params = Params("110", "111", "", "")
     private lateinit var preferences: SharedPreferences
-    private lateinit var source: String
+    private var source: String = "random"
     private lateinit var notificationManager: NotificationManagerCompat
     private var purity: String = "100"
     private var category: String = "111"
@@ -45,6 +45,7 @@ class AutoWallpaperWork
     private var resolution: String = ""
     private var topRange: String = ""
     private lateinit var context : Context
+    private var screen : String = "both"
     override suspend fun doWork(): Result {
         Log.d("workerWallpaper", "Chaleya")
         context = applicationContext
@@ -57,19 +58,20 @@ class AutoWallpaperWork
             if (context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
                 return Result.success()
         }
-        source = preferences.getString("wallpaper_source", "random").toString()
+        source = inputData.getString("source").toString()
         purity = inputData.getString("purity").toString()
         resolution = inputData.getString("resolution").toString()
         ratio = inputData.getString("ratio").toString()
         category = inputData.getString("category").toString()
+        screen = inputData.getString("screen").toString()
         params = Params(purity, category, ratio, resolution)
-        source = preferences.getString("wallpaper_source", "random").toString()
+        Log.d("worker",source)
         when (source) {
             "random" -> {
                 loadSourcePhoto("random", 1, "", params)
             }
 
-            "toplist" -> {
+            "popular" -> {
                 topRange = preferences.getString("topRange", "1y").toString()
                 loadSourcePhoto("toplist", (0..20).random(), topRange, params)
             }
@@ -86,7 +88,7 @@ class AutoWallpaperWork
         CoroutineScope(IO).launch {
             try {
                 val wallpaperList = repository.getSearchWallpapers("", sort, topRange, params, page)
-                if (wallpaperList!=null) {
+                if (wallpaperList != null) {
                     val size = wallpaperList.data.size - 1
                     val data = wallpaperList.data[(0..size).random()]
                     val url = data.path
@@ -94,9 +96,21 @@ class AutoWallpaperWork
                         min(screenWidth, screenHeight).toDouble(),
                         max(screenWidth, screenHeight).toDouble(),
                         data.dimension_x.toDouble(),
-                        data.dimension_y.toDouble())
+                        data.dimension_y.toDouble()
+                    )
                     downloadServiceRepository.downloadFile(url)?.byteStream().use {
-                        WallpaperManager.getInstance(context).setStream(it,cropRect,true)
+                        when (screen) {
+                            "home" -> WallpaperManager.getInstance(context)
+                                .setStream(it, cropRect, true,WallpaperManager.FLAG_SYSTEM)
+
+                            "lock" -> WallpaperManager.getInstance(context)
+                                .setStream(it, cropRect, true,WallpaperManager.FLAG_LOCK)
+
+                            "both" -> WallpaperManager.getInstance(context)
+                                .setStream(it, cropRect, true)
+
+                            else -> {}
+                        }
                     }
                 }
             }

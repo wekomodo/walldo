@@ -1,5 +1,6 @@
-package com.enigmaticdevs.wallhaven.data.download
+package com.enigmaticdevs.wallhaven.domain.repository
 
+import com.enigmaticdevs.wallhaven.data.download.DownloadService
 import okhttp3.ResponseBody
 import javax.inject.Inject
 

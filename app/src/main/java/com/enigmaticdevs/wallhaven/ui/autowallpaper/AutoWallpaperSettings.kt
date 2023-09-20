@@ -1,14 +1,12 @@
 package com.enigmaticdevs.wallhaven.ui.autowallpaper
 
 import android.content.SharedPreferences
-import android.os.Build
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.method.LinkMovementMethod
 import android.text.util.Linkify
 import android.widget.TextView
 import androidx.activity.viewModels
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.text.util.LinkifyCompat
 import androidx.preference.PreferenceFragmentCompat
@@ -35,7 +33,8 @@ class AutoWallpaperSettings : AppCompatActivity() {
     private val dataStoreViewModel: DataStoreViewModel by viewModels()
     private var params: Params = Params("100", "111", "", "")
     private lateinit var preferences: SharedPreferences
-    @RequiresApi(Build.VERSION_CODES.O)
+    private val AUTO_WALLPAPER_WORK_ID = "AUTO_WALLPAPER"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAutoWallpaperSettingsBinding.inflate(layoutInflater)
@@ -46,31 +45,28 @@ class AutoWallpaperSettings : AppCompatActivity() {
             .commit()
         dataStoreViewModel.readSettings()
         dataStoreViewModel.settings.observe(this) {
-            if(it.purity != "null"){
+            if (it.purity != "null") {
                 params = it
             }
         }
-            preferences = PreferenceManager.getDefaultSharedPreferences(this)
-            preferences.registerOnSharedPreferenceChangeListener(mPrefsListener)
+        preferences = PreferenceManager.getDefaultSharedPreferences(this)
+        preferences.registerOnSharedPreferenceChangeListener(mPrefsListener)
 
 
         initOnClickListeners()
         setContentView(binding.root)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private val mPrefsListener =
         SharedPreferences.OnSharedPreferenceChangeListener { preference, key ->
-            if (key == "auto_wallpaper") {
-                //read from sharedPrefs & save to Datastore
-                setWorkManager(preference,key)
+            if (key != null) {
+                setWorkManager(preference, key)
             }
-        }
+            }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun setWorkManager(preference: SharedPreferences, key: String) {
         //check the key and open dialog
-        if (key == "auto_wallpaper" || key == "only_on_wifi" || key == "only_on_charging" || key == "only_when_charging" || key == "auto_wall_interval") {
+        if (key == "auto_wallpaper" || key == "only_on_wifi" || key == "only_on_charging" || key == "only_when_charging" || key == "auto_wall_interval" || key == "wallpaper_source") {
             /*   billingViewModel.walldoProLiveData.observe(this) {
                    if (it?.entitled == true) {*/
             val autoWallpaper = preference.getBoolean("auto_wallpaper", false)
@@ -79,23 +75,26 @@ class AutoWallpaperSettings : AppCompatActivity() {
                 val chargingMust = preference.getBoolean("only_on_charging", false)
                 val idleMust = preference.getBoolean("only_when_idle", false)
                 val constraints = Constraints.Builder()
-                        .setRequiredNetworkType(if (wifiMust) NetworkType.UNMETERED else NetworkType.NOT_REQUIRED)
-                        .setRequiresCharging(chargingMust)
-                        .setRequiresDeviceIdle(idleMust)
+                    .setRequiredNetworkType(if (wifiMust) NetworkType.UNMETERED else NetworkType.NOT_REQUIRED)
+                    .setRequiresCharging(chargingMust)
+                    .setRequiresDeviceIdle(idleMust)
                 val interval = preference.getString("auto_wall_interval", "1440")!!.toLong()
                 val data: Data.Builder = Data.Builder()
-                data.putString("purity",params.purity)
-                data.putString("category",params.category)
-                data.putString("ratio",params.ratio)
-                data.putString("resolution",params.resolution)
+                data.putString("source", preference.getString("wallpaper_source", "random"))
+                data.putString("purity", params.purity)
+                data.putString("category", params.category)
+                data.putString("ratio", params.ratio)
+                data.putString("resolution", params.resolution)
+                data.putString("screen", preference.getString("auto_wall_screen", "both"))
                 val workRequest =
                     PeriodicWorkRequest.Builder(
                         AutoWallpaperWork::class.java,
                         interval * 60 * 1000,
                         TimeUnit.MILLISECONDS
                     ).setInputData(data.build()).setConstraints(constraints.build()).build()
+                WorkManager.getInstance(this).cancelUniqueWork(AUTO_WALLPAPER_WORK_ID)
                 WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-                    "autoWallpaper",
+                    AUTO_WALLPAPER_WORK_ID,
                     ExistingPeriodicWorkPolicy.UPDATE,  //Existing Periodic Work policy
                     workRequest //work request
                 )
@@ -107,12 +106,13 @@ class AutoWallpaperSettings : AppCompatActivity() {
                         .setConstraints(constraints.build())
                         .build()
                 WorkManager.getInstance(this).enqueue(workRequest)*/
-                customToast(this,"Worker is set")
-        } else {
-            WorkManager.getInstance(this)
-                .cancelUniqueWork("autoWallpaper")
-        }
-    } /*else {
+                customToast(this, "Worker is set")
+            } else {
+                customToast(this, "Worker is cancelled")
+                WorkManager.getInstance(this)
+                    .cancelUniqueWork(AUTO_WALLPAPER_WORK_ID)
+            }
+        } /*else {
                         findPreference<SwitchPreference>("auto_wallpaper")?.isChecked = false
                         context?.startActivity(Intent(context, Upgrade::class.java))
                     }*/

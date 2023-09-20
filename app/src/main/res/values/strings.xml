@@ -72,7 +72,7 @@
     </string-array>
     <string-array name="source_values">
         <item name="random">random</item>
-        <item name="toplist">Popular</item>
+        <item name="toplist">popular</item>
         <item name="favorite">favorite</item>
     </string-array>
     <string-array name="auto_wall_time_entries">
