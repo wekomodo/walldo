@@ -20,6 +20,7 @@ import com.enigmaticdevs.wallhaven.ui.fragments.RecentFragment
 import com.enigmaticdevs.wallhaven.ui.search.SearchActivity
 import com.enigmaticdevs.wallhaven.ui.settings.BottomSheetSettings
 import com.enigmaticdevs.wallhaven.ui.settings.Settings
+import com.enigmaticdevs.wallhaven.ui.upgrade.UpgradeActivity
 import com.enigmaticdevs.wallhaven.util.customToast
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
@@ -68,6 +69,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_autowallpaper -> startActivity(Intent(this, AutoWallpaperSettings::class.java))
                 R.id.nav_settings -> startActivity(Intent(this, Settings::class.java))
                 R.id.nav_aboutMe -> startActivity(Intent(this, AboutMeActivity::class.java))
+                R.id.nav_upgrade -> startActivity(Intent(this, UpgradeActivity::class.java))
                 else -> {
                     customToast(this,"message")
                 }

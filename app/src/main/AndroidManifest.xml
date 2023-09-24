@@ -2,9 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-feature
-        android:name="android.hardware.camera"
-        android:required="false" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.SET_WALLPAPER" />
@@ -15,7 +12,6 @@
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
-    <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
@@ -26,10 +22,14 @@
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@drawable/ic_app_icon"
         android:label="@string/app_name"
+        android:process="com.enigmaticdevs.wallhaven"
         android:roundIcon="@drawable/ic_app_icon"
         android:supportsRtl="true"
         android:theme="@style/Theme.Wallhaven"
         tools:targetApi="33">
+        <activity
+            android:name=".ui.upgrade.UpgradeActivity"
+            android:exported="false" />
         <activity
             android:name=".ui.wallpaper.UserProfileActivity"
             android:exported="false" />
@@ -68,10 +68,10 @@
 
         <service
             android:name=".services.QsTileService"
+            android:exported="true"
             android:icon="@drawable/ic_auto_wallpaper"
             android:label="@string/walldo_next_please"
-            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
-            android:exported="true">
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
@@ -82,6 +82,7 @@
             android:authorities="${applicationId}.androidx-startup"
             android:exported="false"
             tools:node="merge">
+
             <!-- If you are using androidx.startup to initialize other components -->
             <meta-data
                 android:name="androidx.work.WorkManagerInitializer"

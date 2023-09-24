@@ -1,5 +1,6 @@
 package com.enigmaticdevs.wallhaven.di
 
+import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.datastore.core.DataStore
@@ -13,6 +14,7 @@ import androidx.preference.PreferenceManager
 import com.enigmaticdevs.wallhaven.data.download.DownloadService
 import com.enigmaticdevs.wallhaven.data.remote.InterfaceAPI
 import com.enigmaticdevs.wallhaven.data.remote.MyInterceptor
+import com.enigmaticdevs.wallhaven.domain.billing.BillingRepository
 import com.enigmaticdevs.wallhaven.domain.repository.DataStoreRepository
 import com.enigmaticdevs.wallhaven.domain.repository.MainRepository
 import com.enigmaticdevs.wallhaven.util.DispatcherProvider
@@ -78,6 +80,10 @@ object AppModule {
     @Singleton
     @Provides
     fun provideMainRepository(api: InterfaceAPI): MainRepository = MainRepository(api)
+
+    @Singleton
+    @Provides
+    fun provideBillingRepository(@ApplicationContext context : Context): BillingRepository = BillingRepository(context as Application)
 
 
     @Singleton

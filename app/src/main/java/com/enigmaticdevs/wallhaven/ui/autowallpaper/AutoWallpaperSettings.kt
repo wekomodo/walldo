@@ -1,12 +1,14 @@
 package com.enigmaticdevs.wallhaven.ui.autowallpaper
 
 import android.content.SharedPreferences
+import android.os.Build
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.method.LinkMovementMethod
 import android.text.util.Linkify
 import android.widget.TextView
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.text.util.LinkifyCompat
 import androidx.preference.PreferenceFragmentCompat
@@ -35,6 +37,7 @@ class AutoWallpaperSettings : AppCompatActivity() {
     private lateinit var preferences: SharedPreferences
     private val AUTO_WALLPAPER_WORK_ID = "AUTO_WALLPAPER"
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAutoWallpaperSettingsBinding.inflate(layoutInflater)
@@ -57,18 +60,21 @@ class AutoWallpaperSettings : AppCompatActivity() {
         setContentView(binding.root)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private val mPrefsListener =
         SharedPreferences.OnSharedPreferenceChangeListener { preference, key ->
-            if (key != null) {
+            if (key == "auto_wallpaper") {
                 setWorkManager(preference, key)
             }
             }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun setWorkManager(preference: SharedPreferences, key: String) {
         //check the key and open dialog
         if (key == "auto_wallpaper" || key == "only_on_wifi" || key == "only_on_charging" || key == "only_when_charging" || key == "auto_wall_interval" || key == "wallpaper_source") {
             /*   billingViewModel.walldoProLiveData.observe(this) {
                    if (it?.entitled == true) {*/
+
             val autoWallpaper = preference.getBoolean("auto_wallpaper", false)
             if (autoWallpaper) {
                 val wifiMust = preference.getBoolean("only_on_wifi", false)
@@ -78,7 +84,7 @@ class AutoWallpaperSettings : AppCompatActivity() {
                     .setRequiredNetworkType(if (wifiMust) NetworkType.UNMETERED else NetworkType.NOT_REQUIRED)
                     .setRequiresCharging(chargingMust)
                     .setRequiresDeviceIdle(idleMust)
-                val interval = preference.getString("auto_wall_interval", "1440")!!.toLong()
+                val interval = preference.getString("auto_wall_interval", "1440")?.toLong() ?: 1440
                 val data: Data.Builder = Data.Builder()
                 data.putString("source", preference.getString("wallpaper_source", "random"))
                 data.putString("purity", params.purity)
@@ -99,7 +105,7 @@ class AutoWallpaperSettings : AppCompatActivity() {
                     workRequest //work request
                 )
                 // one time workRequest to test AutoWallpaper
-                /*   val workRequest =
+                  /* val workRequest =
                     OneTimeWorkRequestBuilder<AutoWallpaperWork>()
                         .setInitialDelay(Duration.ofSeconds(5))
                         .setInputData(data.build())

@@ -70,7 +70,7 @@ class QsTileService : TileService() {
                 .setRequiredNetworkType(if (wifiMust) NetworkType.UNMETERED else NetworkType.NOT_REQUIRED)
                 .setRequiresCharging(chargingMust)
                 .setRequiresDeviceIdle(idleMust)
-            val interval = preference.getString("auto_wall_interval", "1440")!!.toLong()
+            val interval = preference.getString("auto_wall_interval", "1440")?.toLong() ?: 1440
             val data: Data.Builder = Data.Builder()
             data.putString("source", preference.getString("wallpaper_source", "random"))
             data.putString("purity", params.purity)
