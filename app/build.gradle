@@ -5,7 +5,8 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.4.10'
     id("com.google.devtools.ksp")
 }
-
+def localProperties = new Properties()
+localProperties.load(new FileInputStream(rootProject.file("local.properties")))
 android {
     namespace 'com.enigmaticdevs.wallhaven'
     compileSdk 34
@@ -16,11 +17,14 @@ android {
         targetSdk 34
         versionCode 16
         versionName "1.0"
-
+        buildConfigField("String", "GOOGLE_PLAY_LICENSE_KEY", localProperties['googlePlayLicenseKey'])
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary true
         }
+    }
+    ksp {
+        arg('room.schemaLocation', "$projectDir/schemas")
     }
 
     buildTypes {
@@ -76,8 +80,8 @@ dependencies {
     implementation("com.google.dagger:hilt-android:2.47")
     ksp("com.google.dagger:hilt-android-compiler:2.47")
     //hiltWorkManager
-    implementation "androidx.hilt:hilt-work:1.0.0"
-    ksp("androidx.hilt:hilt-compiler:1.0.0")
+    implementation "androidx.hilt:hilt-work:1.1.0-alpha01"
+    ksp("androidx.hilt:hilt-compiler:1.1.0-alpha01")
     implementation 'androidx.work:work-runtime-ktx:2.8.1'
     //material3
     implementation 'androidx.compose.material3:material3'
@@ -85,7 +89,6 @@ dependencies {
     androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
     debugImplementation 'androidx.compose.ui:ui-tooling'
     debugImplementation 'androidx.compose.ui:ui-test-manifest'
-
     // LiveData
     implementation "androidx.fragment:fragment-ktx:1.6.1"
     //glide
@@ -108,5 +111,7 @@ dependencies {
     implementation "androidx.room:room-runtime:2.5.2"
     implementation "androidx.room:room-ktx:2.5.2"
     ksp("androidx.room:room-compiler:2.5.2")
+    //billing
+    implementation "com.android.billingclient:billing-ktx:6.0.1"
 
 }
