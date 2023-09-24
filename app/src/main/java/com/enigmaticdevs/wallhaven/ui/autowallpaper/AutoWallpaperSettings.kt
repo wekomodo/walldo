@@ -21,7 +21,7 @@ import com.enigmaticdevs.wallhaven.R
 import com.enigmaticdevs.wallhaven.data.model.Params
 import com.enigmaticdevs.wallhaven.databinding.ActivityAutoWallpaperSettingsBinding
 import com.enigmaticdevs.wallhaven.domain.viewmodel.DataStoreViewModel
-import com.enigmaticdevs.wallhaven.ui.autowallpaper.service.AutoWallpaperWork
+import com.enigmaticdevs.wallhaven.services.AutoWallpaperWork
 import com.enigmaticdevs.wallhaven.util.customToast
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint

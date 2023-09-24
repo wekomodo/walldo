@@ -1,4 +1,4 @@
-package com.enigmaticdevs.wallhaven.ui.autowallpaper.service
+package com.enigmaticdevs.wallhaven.services
 
 
 import android.app.WallpaperManager

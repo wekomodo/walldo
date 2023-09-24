@@ -54,6 +54,7 @@
     <string name="avatar_image">avatar_image</string>
     <string name="username">username</string>
     <string name="oops">Oops</string>
+    <string name="walldo_next_please">Walldo next please</string>
 
     <string-array name="theme_entries">
         <item name="light">Light</item>
