@@ -12,7 +12,10 @@ import androidx.hilt.work.HiltWorker
 import androidx.preference.PreferenceManager
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.enigmaticdevs.wallhaven.autoWallpaperdb.AutoWallpaperRepository
+import com.enigmaticdevs.wallhaven.data.autowallpaper.models.AutoWallpaper
 import com.enigmaticdevs.wallhaven.data.model.Params
+import com.enigmaticdevs.wallhaven.data.model.Wallpaper
 import com.enigmaticdevs.wallhaven.domain.repository.DownloadServiceRepository
 import com.enigmaticdevs.wallhaven.domain.repository.MainRepository
 import com.enigmaticdevs.wallhaven.util.screenHeight
@@ -32,7 +35,8 @@ class AutoWallpaperWork
     @Assisted context: Context,
     @Assisted workerParams: WorkerParameters,
     private val repository: MainRepository,
-    private val downloadServiceRepository: DownloadServiceRepository
+    private val downloadServiceRepository: DownloadServiceRepository,
+    private val autoWallpaperRepository: AutoWallpaperRepository
 ) :
     CoroutineWorker(context, workerParams) {
     private var params: Params = Params("110", "111", "", "")
@@ -98,6 +102,7 @@ class AutoWallpaperWork
                         data.dimension_x.toDouble(),
                         data.dimension_y.toDouble()
                     )
+                    insertData(data)
                     downloadServiceRepository.downloadFile(url)?.byteStream().use {
                         when (screen) {
                             "home" -> WallpaperManager.getInstance(context)
@@ -149,6 +154,14 @@ class AutoWallpaperWork
         }
     }
 */
+
+    private  fun insertData(data: Wallpaper) {
+        if(preferences.getBoolean("auto_wallpaper_history_switch",true))
+            CoroutineScope(IO).launch {
+                val autoWallImage = AutoWallpaper(0, data.id, data.thumbs.original, data.path, data.purity,data.dimension_x,data.dimension_y)
+                autoWallpaperRepository.addImage(autoWallImage)
+            }
+    }
     private fun getCropHintRect(
         screenWidth: Double,
         screenHeight: Double,

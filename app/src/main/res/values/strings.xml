@@ -56,6 +56,7 @@
     <string name="oops">Oops</string>
     <string name="walldo_next_please">Walldo next please</string>
     <string name="thanks">Thanks</string>
+    <string name="history">History</string>
 
     <string-array name="theme_entries">
         <item name="light">Light</item>

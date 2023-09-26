@@ -43,7 +43,7 @@ class BottomSheetSettings : BottomSheetDialogFragment() {
 
     private val mPrefsListener =
         SharedPreferences.OnSharedPreferenceChangeListener { preference, key ->
-            if (key == "purity_sfw" || key == "purity_sketchy" || key == "purity_nsfw" || key == "general_category" || key == "anime_category" || key == "people_category" || key == "api_key" || key == "filter_ratio" || key == "filter_resolution") {
+            if (key == "purity_sfw" || key == "purity_sketchy" || key == "purity_nsfw" || key == "general_category" || key == "anime_category" || key == "people_category"|| key == "filter_ratio" || key == "filter_resolution") {
                 //read from sharedPrefs & save to Datastore
                 savePrefsToDatastore()
             }
