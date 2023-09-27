@@ -28,6 +28,9 @@
         android:theme="@style/Theme.Wallhaven"
         tools:targetApi="33">
         <activity
+            android:name=".ui.favorite.FavoriteActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.autowallpaper.AutoWallpaperHistory"
             android:exported="false" />
         <activity

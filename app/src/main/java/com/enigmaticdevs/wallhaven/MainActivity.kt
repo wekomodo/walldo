@@ -15,6 +15,7 @@ import com.enigmaticdevs.wallhaven.domain.viewmodel.DataStoreViewModel
 import com.enigmaticdevs.wallhaven.ui.about.AboutMeActivity
 import com.enigmaticdevs.wallhaven.ui.adapters.ViewPagerFragmentAdapter
 import com.enigmaticdevs.wallhaven.ui.autowallpaper.AutoWallpaperSettings
+import com.enigmaticdevs.wallhaven.ui.favorite.FavoriteActivity
 import com.enigmaticdevs.wallhaven.ui.fragments.PopularFragment
 import com.enigmaticdevs.wallhaven.ui.fragments.RecentFragment
 import com.enigmaticdevs.wallhaven.ui.search.SearchActivity
@@ -66,6 +67,7 @@ class MainActivity : AppCompatActivity() {
         // navigation for drawer items
         binding.navigationView.setNavigationItemSelectedListener {
             when (it.itemId) {
+                R.id.nav_favorites -> startActivity(Intent(this, FavoriteActivity::class.java))
                 R.id.nav_autowallpaper -> startActivity(Intent(this, AutoWallpaperSettings::class.java))
                 R.id.nav_settings -> startActivity(Intent(this, Settings::class.java))
                 R.id.nav_aboutMe -> startActivity(Intent(this, AboutMeActivity::class.java))
