@@ -12,10 +12,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.Target
 import com.enigmaticdevs.wallhaven.R
+import com.enigmaticdevs.wallhaven.autoWallpaperdb.AutoWallpaperDatabase
 import com.enigmaticdevs.wallhaven.data.autowallpaper.models.AutoWallpaper
 import com.enigmaticdevs.wallhaven.ui.wallpaper.WallpaperDetails
+import com.enigmaticdevs.wallhaven.util.customToast
 import com.enigmaticdevs.wallhaven.util.imageview.AspectRatioImageView
 import com.enigmaticdevs.wallhaven.util.imageview.setAspectRatio
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class AutoWallpaperHistoryItemAdapter(
     private val context: Context,
@@ -33,6 +39,23 @@ class AutoWallpaperHistoryItemAdapter(
             false
         )
         val vh = ViewHolder(inflatedView)
+        vh.photo.setOnLongClickListener {
+            val position = vh.absoluteAdapterPosition
+            val photo = list[position]
+            MaterialAlertDialogBuilder(context)
+                .setTitle("Delete")
+                .setMessage("Are you sure you want to delete this?")
+                .setPositiveButton("Yes") { _, _ ->
+                    CoroutineScope(Dispatchers.IO).launch {
+                        AutoWallpaperDatabase.getInstance(context).autoWallpaperDao().deleteImage(photo)
+                    }
+                    notifyItemRemoved(position)
+                    list.removeAt(position)
+                }.setNegativeButton("No",null)
+                .show()
+            customToast(context,"item clicked")
+            true
+        }
         vh.photo.setOnClickListener {
             val position = vh.absoluteAdapterPosition
             val id = list[position].imageId
@@ -40,14 +63,13 @@ class AutoWallpaperHistoryItemAdapter(
             intent.putExtra("imageId", id)
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val apiKey = preferences.getString("api_key", "").toString()
-            if(list[position].purity == "nsfw")
-            {
-                if(apiKey.isNotEmpty())
+            if (list[position].purity == "nsfw") {
+                if (apiKey.isNotEmpty())
                     context.startActivity(intent)
                 else
-                    Toast.makeText(context,"Add API key First", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Add API key First", Toast.LENGTH_SHORT).show()
             }
-            if(list[position].purity != "nsfw" ){
+            if (list[position].purity != "nsfw") {
                 context.startActivity(intent)
             }
         }
@@ -65,8 +87,8 @@ class AutoWallpaperHistoryItemAdapter(
     override fun getItemCount(): Int {
         return list.size
     }
-    fun setData(image : MutableList<AutoWallpaper>)
-    {
+
+    fun setData(image: MutableList<AutoWallpaper>) {
         list = image
         notifyDataSetChanged()
     }

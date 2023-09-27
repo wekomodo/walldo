@@ -57,6 +57,7 @@
     <string name="walldo_next_please">Walldo next please</string>
     <string name="thanks">Thanks</string>
     <string name="history">History</string>
+    <string name="delete_all">Delete all</string>
 
     <string-array name="theme_entries">
         <item name="light">Light</item>
