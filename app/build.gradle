@@ -109,8 +109,6 @@ dependencies {
     implementation "androidx.datastore:datastore-preferences:1.0.0"
     //billing lib v6
     implementation "com.android.billingclient:billing-ktx:6.0.1"
-    //picasso
-    implementation 'com.squareup.picasso:picasso:2.71828'
     // Room components
     implementation "androidx.room:room-runtime:2.5.2"
     implementation "androidx.room:room-ktx:2.5.2"
