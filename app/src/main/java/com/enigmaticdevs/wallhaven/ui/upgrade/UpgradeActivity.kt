@@ -1,7 +1,6 @@
 package com.enigmaticdevs.wallhaven.ui.upgrade
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
@@ -9,8 +8,12 @@ import com.airbnb.lottie.LottieAnimationView
 import com.enigmaticdevs.wallhaven.R
 import com.enigmaticdevs.wallhaven.databinding.ActivityUpgradeBinding
 import com.enigmaticdevs.wallhaven.util.customToast
-import com.enigmaticdevs.wallhaven.utils.livedata.observeEvent
+import com.enigmaticdevs.wallhaven.util.livedata.observeEvent
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -19,10 +22,12 @@ class UpgradeActivity : AppCompatActivity() {
 
     private lateinit var binding : ActivityUpgradeBinding
     private val billingViewModel: UpgradeViewModel by viewModels()
+    private lateinit var firebaseAnalytics: FirebaseAnalytics
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityUpgradeBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        firebaseAnalytics = Firebase.analytics
         billingViewModel.canPurchaseLiveData.observe(this) { canPurchase ->
             binding.upgradeGoPro.isVisible = canPurchase
         }
@@ -50,7 +55,10 @@ class UpgradeActivity : AppCompatActivity() {
     private fun observeBillingResponse() {
         billingViewModel.billingMessageLiveData.observeEvent(this) { customToast(this,it) }
         billingViewModel.billingErrorLiveData.observeEvent(this) {
-            Log.d("upgrade","$it.responseCode  $it.debugMessage")
+            firebaseAnalytics.logEvent("billing_error") {
+                param("response_code", "${it.responseCode}")
+                param("debug_message", it.debugMessage)
+            }
         }
     }
 

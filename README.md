@@ -27,6 +27,8 @@ An Android app based on wallhaven.cc API, using Dagger Hilt,MVVM & dynamic color
 * WorkManager
 * Billing V6
 * Android Datastore
+* Firebase Analytics & Crashlytics
+
 
 ## Links
 [API used](https://wallhaven.cc/help/api)     <br />

@@ -24,18 +24,22 @@ import com.enigmaticdevs.wallhaven.ui.settings.Settings
 import com.enigmaticdevs.wallhaven.ui.upgrade.UpgradeActivity
 import com.enigmaticdevs.wallhaven.util.customToast
 import com.google.android.material.tabs.TabLayoutMediator
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val dataStoreViewModel: DataStoreViewModel by viewModels()
-
+    private lateinit var analytics: FirebaseAnalytics
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         initNavDrawer()
+        analytics = Firebase.analytics
         binding.fragmentContainer.offscreenPageLimit = 2
         //run one time migration from SharedPrefs to Datastore
         savePrefsToDatastore()

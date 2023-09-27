@@ -81,7 +81,7 @@ class BillingRepository(private val application: Application) :
         startDataSourceConnections()
     }
 
-    private fun startDataSourceConnections() {
+    fun startDataSourceConnections() {
         Log.d(LOG_TAG, "startDataSourceConnections")
         instantiateAndConnectToPlayBillingService()
         localCacheBillingClient = LocalBillingDb.getInstance(application)

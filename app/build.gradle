@@ -17,8 +17,8 @@ android {
         applicationId "com.enigmaticdevs.wallhaven"
         minSdk 24
         targetSdk 34
-        versionCode 16
-        versionName "1.0"
+        versionCode 19
+        versionName "1.6"
         buildConfigField("String", "GOOGLE_PLAY_LICENSE_KEY", localProperties['googlePlayLicenseKey'])
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -68,6 +68,7 @@ dependencies {
     implementation platform('androidx.compose:compose-bom:1.4.3')
     implementation 'com.google.firebase:firebase-crashlytics:18.4.3'
     implementation 'com.google.firebase:firebase-analytics:21.3.0'
+    implementation 'com.google.firebase:firebase-analytics-ktx:21.3.0'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
