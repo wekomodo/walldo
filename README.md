@@ -8,6 +8,15 @@ An Android app based on wallhaven.cc API, using Dagger Hilt,MVVM & dynamic color
 * AutoWallpaper.
 * Favorites Section.
 
+
+
+## Screenshots
+<div style="display:flex;">
+<img alt="App image" src="images/walldo1.png" width="30%">
+<img alt="App image" src="images/walldo2.png" width="30%">
+<img alt="App image" src="images/walldo3.png" width="30%">
+</div>
+
 ## Libraries Used
 * Dagger Hilt
 * Retrofit
@@ -18,14 +27,6 @@ An Android app based on wallhaven.cc API, using Dagger Hilt,MVVM & dynamic color
 * WorkManager
 * Billing V6
 * Android Datastore
-
-
-## Screenshots
-<div style="display:flex;">
-<img alt="App image" src="images/walldo1.png" width="30%">
-<img alt="App image" src="images/walldo2.png" width="30%">
-<img alt="App image" src="images/walldo3.png" width="30%">
-</div>
 
 ## Links
 [API used](https://wallhaven.cc/help/api)     <br />
