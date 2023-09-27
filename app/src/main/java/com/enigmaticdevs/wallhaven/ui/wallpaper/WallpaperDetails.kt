@@ -22,12 +22,15 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.get
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import com.bumptech.glide.Glide
 import com.enigmaticdevs.wallhaven.R
+import com.enigmaticdevs.wallhaven.data.favorite.models.FavoriteImages
 import com.enigmaticdevs.wallhaven.data.model.Photo
 import com.enigmaticdevs.wallhaven.databinding.ActivityWallpaperDetailsBinding
+import com.enigmaticdevs.wallhaven.domain.favorite.FavoriteViewModel
 import com.enigmaticdevs.wallhaven.domain.viewmodel.MainViewModel
 import com.enigmaticdevs.wallhaven.ui.fragments.BottomSheetFragment
 import com.enigmaticdevs.wallhaven.util.Status
@@ -48,6 +51,7 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class WallpaperDetails : AppCompatActivity() {
     private val imageViewModel: MainViewModel by viewModels()
+    private val favoriteViewModel : FavoriteViewModel by viewModels()
     private lateinit var imageId: String
     private lateinit var binding: ActivityWallpaperDetailsBinding
     private var photo: Photo? = null
@@ -58,6 +62,8 @@ class WallpaperDetails : AppCompatActivity() {
     private var action: String = ""
     private var downloadID = -1L
     private lateinit var permissionsLauncher: ActivityResultLauncher<Array<String>>
+    private var favoriteImage: FavoriteImages?  = null
+    private var favoriteImages : MutableList<FavoriteImages>  = ArrayList()
 
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -72,6 +78,10 @@ class WallpaperDetails : AppCompatActivity() {
         initOnClickListeners()
         registerReceiver(onDownloadComplete, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
         imageViewModel.getWallpaper(imageId)
+        favoriteViewModel.readAllData.observe(this){
+            favoriteImages = it
+            setChecked()
+        }
         lifecycleScope.launch {
             imageViewModel.wallpaper.collectLatest { response ->
                 when (response.status) {
@@ -92,6 +102,16 @@ class WallpaperDetails : AppCompatActivity() {
             }
         }
 
+    }
+    private fun setChecked() {
+        for( item in favoriteImages)
+        {
+            if(item.imageId == imageId) {
+                favoriteImage = item
+                binding.toolbar3.menu[0].setIcon(R.drawable.ic_favorite_checked)
+                isChecked = true
+            }
+        }
     }
 
     private fun initOnClickListeners() {
@@ -166,10 +186,12 @@ class WallpaperDetails : AppCompatActivity() {
                 R.id.favorite -> {
                     if (!isChecked) {
                         isChecked = true
+                        addToFavorites()
                         it.setIcon(R.drawable.ic_favorite_checked)
                         customToast(this@WallpaperDetails,"Added to favorites")
                     } else {
                         isChecked = false
+                        deleteFromFavorites()
                         it.setIcon(R.drawable.ic_favorite_unchecked)
                         customToast(this@WallpaperDetails,"Removed from favorites")
                     }
@@ -180,6 +202,27 @@ class WallpaperDetails : AppCompatActivity() {
                 else -> true
             }
 
+        }
+    }
+
+    private fun addToFavorites() {
+        photo?.let{
+            val image = FavoriteImages(0,
+                imageId,
+                it.data.thumbs.original,
+                it.data.path,
+                it.data.purity,
+                it.data.dimension_x,
+                it.data.dimension_y)
+            favoriteViewModel.addImage(image)
+        }
+    }
+
+    private fun deleteFromFavorites() {
+
+
+        favoriteImage?.let {
+            favoriteViewModel.deleteImage(it)
         }
     }
 

@@ -5,6 +5,9 @@ import androidx.room.Room
 import com.enigmaticdevs.wallhaven.autoWallpaperdb.AutoWallpaperDatabase
 import com.enigmaticdevs.wallhaven.autoWallpaperdb.AutoWallpaperRepository
 import com.enigmaticdevs.wallhaven.data.autowallpaper.AutoWallpaperDao
+import com.enigmaticdevs.wallhaven.domain.favorite.FavoriteRepository
+import com.enigmaticdevs.wallhaven.favoritedb.FavoriteImagesDao
+import com.enigmaticdevs.wallhaven.favoritedb.FavoriteImagesDatabase
 import com.enigmaticdevs.wallhaven.util.Constant
 import dagger.Module
 import dagger.Provides
@@ -19,7 +22,7 @@ class DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideAppDatabase(@ApplicationContext appContext: Context): AutoWallpaperDatabase {
+    fun provideAutoWallpaperDatabase(@ApplicationContext appContext: Context): AutoWallpaperDatabase {
         return Room.databaseBuilder(
             appContext,
             AutoWallpaperDatabase::class.java,
@@ -32,4 +35,24 @@ class DatabaseModule {
     }
     @Provides
     fun provideAutoWallpaperRepository(autoWallpaperDao: AutoWallpaperDao): AutoWallpaperRepository = AutoWallpaperRepository(autoWallpaperDao)
+
+
+    @Provides
+    @Singleton
+    fun provideFavoriteDatabase(@ApplicationContext appContext: Context): FavoriteImagesDatabase {
+        return Room.databaseBuilder(
+            appContext,
+            FavoriteImagesDatabase::class.java,
+            Constant.favoriteDatabaseName
+        ).build()
+    }
+
+    @Provides
+    fun provideFavoriteDao(favoriteImagesDatabase: FavoriteImagesDatabase): FavoriteImagesDao {
+        return favoriteImagesDatabase.favoriteImagesDao()
+    }
+
+    @Provides
+    fun provideFavoriteRepository(favoriteImagesDao: FavoriteImagesDao): FavoriteRepository = FavoriteRepository(favoriteImagesDao)
+
 }

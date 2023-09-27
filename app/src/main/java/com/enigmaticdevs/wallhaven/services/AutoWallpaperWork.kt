@@ -16,6 +16,7 @@ import com.enigmaticdevs.wallhaven.autoWallpaperdb.AutoWallpaperRepository
 import com.enigmaticdevs.wallhaven.data.autowallpaper.models.AutoWallpaper
 import com.enigmaticdevs.wallhaven.data.model.Params
 import com.enigmaticdevs.wallhaven.data.model.Wallpaper
+import com.enigmaticdevs.wallhaven.domain.favorite.FavoriteRepository
 import com.enigmaticdevs.wallhaven.domain.repository.DownloadServiceRepository
 import com.enigmaticdevs.wallhaven.domain.repository.MainRepository
 import com.enigmaticdevs.wallhaven.util.screenHeight
@@ -36,7 +37,8 @@ class AutoWallpaperWork
     @Assisted workerParams: WorkerParameters,
     private val repository: MainRepository,
     private val downloadServiceRepository: DownloadServiceRepository,
-    private val autoWallpaperRepository: AutoWallpaperRepository
+    private val autoWallpaperRepository: AutoWallpaperRepository,
+    private val favoriteRepository: FavoriteRepository
 ) :
     CoroutineWorker(context, workerParams) {
     private var params: Params = Params("110", "111", "", "")
@@ -81,7 +83,7 @@ class AutoWallpaperWork
             }
 
             "favorite" -> {
-                //  loadFavoritePhoto()
+                  loadFavoritePhoto()
             }
         }
         return Result.success()
@@ -96,27 +98,15 @@ class AutoWallpaperWork
                     val size = wallpaperList.data.size - 1
                     val data = wallpaperList.data[(0..size).random()]
                     val url = data.path
+                    insertData(data)
                     val cropRect = getCropHintRect(
                         min(screenWidth, screenHeight).toDouble(),
                         max(screenWidth, screenHeight).toDouble(),
                         data.dimension_x.toDouble(),
                         data.dimension_y.toDouble()
                     )
-                    insertData(data)
-                    downloadServiceRepository.downloadFile(url)?.byteStream().use {
-                        when (screen) {
-                            "home" -> WallpaperManager.getInstance(context)
-                                .setStream(it, cropRect, true,WallpaperManager.FLAG_SYSTEM)
+                    downloadAndSetWallpaper(url,cropRect)
 
-                            "lock" -> WallpaperManager.getInstance(context)
-                                .setStream(it, cropRect, true,WallpaperManager.FLAG_LOCK)
-
-                            "both" -> WallpaperManager.getInstance(context)
-                                .setStream(it, cropRect, true)
-
-                            else -> {}
-                        }
-                    }
                 }
             }
             catch (e : Exception){
@@ -127,34 +117,45 @@ class AutoWallpaperWork
 
     }
 
-    /*private fun setWallpaper(photo: ImageView) {
-        val screen = preferences.getString("auto_wall_screen", "both")
+    private fun downloadAndSetWallpaper(url: String, cropRect: Rect?) {
         CoroutineScope(IO).launch {
-            val wallpaperMgr = WallpaperManager.getInstance(applicationContext)
-            val myBitmap: Bitmap = (photo.drawable as BitmapDrawable).bitmap
-            try {
+            downloadServiceRepository.downloadFile(url)?.byteStream().use {
                 when (screen) {
-                    "home" -> {
-                        Log.d("WallpaperSet ", "HomeScreen")
-                        wallpaperMgr.setBitmap(myBitmap, null, false, WallpaperManager.FLAG_SYSTEM)
-                    }
+                    "home" -> WallpaperManager.getInstance(context)
+                        .setStream(it, cropRect, true, WallpaperManager.FLAG_SYSTEM)
 
-                    "lock" -> {
-                        Log.d("WallpaperSet ", "Lockscreen")
-                        wallpaperMgr.setBitmap(myBitmap, null, false, WallpaperManager.FLAG_LOCK)
-                    }
+                    "lock" -> WallpaperManager.getInstance(context)
+                        .setStream(it, cropRect, true, WallpaperManager.FLAG_LOCK)
 
-                    "both" -> {
-                        wallpaperMgr.setBitmap(myBitmap)
-                    }
+                    "both" -> WallpaperManager.getInstance(context)
+                        .setStream(it, cropRect, true)
+                    else -> {}
                 }
-            } catch (e: IOException) {
-                e.printStackTrace()
             }
         }
     }
-*/
 
+    private fun loadFavoritePhoto() {
+        CoroutineScope(IO).launch {
+            Log.d("databaseRead", "Chaleya")
+           val list = favoriteRepository.getOnlyUrls()
+            if(list.size>0)
+            {
+
+                val size: Int = list.size - 1
+                val item = list[(0..size).random()]
+                val cropRect = getCropHintRect(
+                    min(screenWidth, screenHeight).toDouble(),
+                    max(screenWidth, screenHeight).toDouble(),
+                    item.dimension_x.toDouble(),
+                    item.dimension_y.toDouble()
+                )
+                item.imageUrl?.let {
+                    downloadAndSetWallpaper(it, cropRect)
+                }
+            }
+        }
+    }
     private  fun insertData(data: Wallpaper) {
         if(preferences.getBoolean("auto_wallpaper_history_switch",true))
             CoroutineScope(IO).launch {
