@@ -1,7 +1,7 @@
 package com.enigmaticdevs.wallhaven.ui.about
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceFragmentCompat
 import com.enigmaticdevs.wallhaven.R
 import com.enigmaticdevs.wallhaven.databinding.ActivityAboutMeBinding

@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map
 import com.enigmaticdevs.wallhaven.data.billing.Sku
 import com.enigmaticdevs.wallhaven.domain.billing.BillingRepository
-import com.enigmaticdevs.wallhaven.utils.livedata.combineWith
+import com.enigmaticdevs.wallhaven.util.livedata.combineWith
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 

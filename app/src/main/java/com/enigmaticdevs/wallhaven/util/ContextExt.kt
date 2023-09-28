@@ -25,3 +25,11 @@ fun Context.hasPermission(vararg permissions: String): Boolean {
         ) == PackageManager.PERMISSION_GRANTED
     }
 }
+
+
+fun Context.hasNotificationPermission(): Boolean {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+        hasPermission(Manifest.permission.POST_NOTIFICATIONS)
+    else
+        true
+}

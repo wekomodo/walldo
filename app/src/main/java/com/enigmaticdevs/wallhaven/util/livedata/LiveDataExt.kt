@@ -1,9 +1,10 @@
-package com.enigmaticdevs.wallhaven.utils.livedata
+package com.enigmaticdevs.wallhaven.util.livedata
 
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Observer
+import com.enigmaticdevs.wallhaven.utils.livedata.Event
 
 inline fun <T> LiveData<Event<T>>.observeEvent(
     owner: LifecycleOwner,
@@ -17,8 +18,8 @@ inline fun <T> LiveData<T>.observeOnce(
     crossinline onChanged: (T) -> Unit
 ): Observer<T> {
     val wrappedObserver = object : Observer<T> {
-        override fun onChanged(t: T) {
-            onChanged.invoke(t)
+        override fun onChanged(value: T) {
+            onChanged.invoke(value)
             removeObserver(this)
         }
     }

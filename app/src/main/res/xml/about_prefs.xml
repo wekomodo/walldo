@@ -17,10 +17,10 @@
             app:iconSpaceReserved="false"
             app:summary="@string/donate_summary">
 
-            <!--<intent
+            <intent
                 android:action="android.intent.action.VIEW"
-                android:targetClass="com.enigmaticdevs.wallhaven.donation.Donation"
-                android:targetPackage="@string/package_name" />-->
+                android:targetClass="com.enigmaticdevs.wallhaven.ui.donation.DonationActivity"
+                android:targetPackage="com.enigmaticdevs.wallhaven" />
         </Preference>
 
         <Preference app:title="@string/rate_app_title"

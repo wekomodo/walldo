@@ -40,6 +40,7 @@ import com.enigmaticdevs.wallhaven.util.download.fileExists
 import com.enigmaticdevs.wallhaven.util.download.getUriForPhoto
 import com.enigmaticdevs.wallhaven.util.download.showFileExistsDialog
 import com.enigmaticdevs.wallhaven.util.errorToast
+import com.enigmaticdevs.wallhaven.util.hasNotificationPermission
 import com.enigmaticdevs.wallhaven.util.hasReadPermission
 import com.enigmaticdevs.wallhaven.util.hasWritePermission
 import com.enigmaticdevs.wallhaven.util.shareIntent
@@ -263,10 +264,13 @@ class WallpaperDetails : AppCompatActivity() {
         readPermissionGranted = hasReadPermission
         val minSdk28 = Build.VERSION.SDK_INT > Build.VERSION_CODES.P
         writePermissionGranted = hasWritePermission || minSdk28
-
+        val notificationPermissionGranted = hasNotificationPermission()
         val permissionToRequest = mutableListOf<String>()
         if (!writePermissionGranted) {
             permissionToRequest.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        }
+        if (!notificationPermissionGranted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                permissionToRequest.add(Manifest.permission.POST_NOTIFICATIONS)
         }
         if (!readPermissionGranted) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
@@ -278,6 +282,8 @@ class WallpaperDetails : AppCompatActivity() {
             permissionsLauncher.launch(permissionToRequest.toTypedArray())
         }
     }
+
+
 
     private fun download(s: String) {
         photo?.let { item ->

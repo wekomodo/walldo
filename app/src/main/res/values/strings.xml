@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">Walldo</string>
+    <string name="package_name">com.enigmaticdevs.wallhaven</string>
     <string name="title_activity_homescreen">Homescreen</string>
     <string name="open_nav">open nav</string>
     <string name="close_nav">close nav</string>
@@ -49,7 +50,7 @@
     <string name="developer_title">Developer</string>
     <string name="instagram">Instagram</string>
     <string name="developer_instagram_username">\@wekomodo</string>
-    <string name="contact_developer_uri">mailto:enigmaticdevs@gmail.com</string>
+    <string name="contact_developer_uri">mailto:itswekomodo@gmail.com</string>
     <string name="developer_instagram_url">https://www.instagram.com/wekomodo/</string>
     <string name="avatar_image">avatar_image</string>
     <string name="username">username</string>
@@ -58,6 +59,8 @@
     <string name="thanks">Thanks</string>
     <string name="history">History</string>
     <string name="delete_all">Delete all</string>
+    <string name="you_are_welcome">you\'re welcome</string>
+    <string name="filters">filters</string>
 
     <string-array name="theme_entries">
         <item name="light">Light</item>

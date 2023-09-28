@@ -7,14 +7,14 @@
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/item_photo_cardview"
-        android:layout_width="match_parent"
         style="?attr/materialCardViewFilledStyle"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="2dp"
         android:layout_marginTop="2dp"
         android:layout_marginEnd="2dp"
         android:layout_marginBottom="2dp"
-        app:cardCornerRadius="10sp"
+        app:cardCornerRadius="5sp"
         app:cardElevation="0dp"
         app:cardMaxElevation="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -29,7 +29,7 @@
             android:adjustViewBounds="true"
             android:background="?selectableItemBackgroundBorderless"
             android:scaleType="fitXY"
-            android:src="@drawable/new_icon"/>
+            android:src="@drawable/new_icon" />
 
     </com.google.android.material.card.MaterialCardView>
 
