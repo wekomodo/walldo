@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import com.android.billingclient.api.ProductDetails
 import com.enigmaticdevs.wallhaven.R
+import com.enigmaticdevs.wallhaven.domain.donation.DonationViewHolder
 
 class DonationAdapter(
     private val callback: ItemEventCallback

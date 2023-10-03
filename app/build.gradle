@@ -17,7 +17,7 @@ android {
         applicationId "com.enigmaticdevs.wallhaven"
         minSdk 24
         targetSdk 34
-        versionCode 19
+        versionCode 20
         versionName "1.6"
         buildConfigField("String", "GOOGLE_PLAY_LICENSE_KEY", localProperties['googlePlayLicenseKey'])
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -117,5 +117,9 @@ dependencies {
     ksp("androidx.room:room-compiler:2.5.2")
     //billing
     implementation "com.android.billingclient:billing-ktx:6.0.1"
+    //memory leak
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.12'
+    //Material Intro
+    implementation 'com.github.AppIntro:AppIntro:6.1.0'
 
 }

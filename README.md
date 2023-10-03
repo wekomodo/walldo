@@ -8,13 +8,18 @@ An Android app based on wallhaven.cc API, using Dagger Hilt,MVVM & dynamic color
 * AutoWallpaper.
 * Favorites Section.
 
-
+#running the project
+add google-services.json to src/main
+add googlePlayLicenseKey to local.properties
 
 ## Screenshots
 <div style="display:flex;">
 <img alt="App image" src="images/walldo1.png" width="30%">
 <img alt="App image" src="images/walldo2.png" width="30%">
 <img alt="App image" src="images/walldo3.png" width="30%">
+<img alt="App image" src="images/walldo4.png" width="30%">
+<img alt="App image" src="images/walldo5.png" width="30%">
+<img alt="App image" src="images/walldo6.png" width="30%">
 </div>
 
 ## Libraries Used

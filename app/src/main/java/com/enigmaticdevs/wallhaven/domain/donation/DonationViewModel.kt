@@ -1,4 +1,4 @@
-package com.enigmaticdevs.wallhaven.ui.donation
+package com.enigmaticdevs.wallhaven.domain.donation
 
 import android.app.Activity
 import androidx.lifecycle.ViewModel

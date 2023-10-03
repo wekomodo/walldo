@@ -18,6 +18,7 @@ import com.enigmaticdevs.wallhaven.ui.autowallpaper.AutoWallpaperSettings
 import com.enigmaticdevs.wallhaven.ui.favorite.FavoriteActivity
 import com.enigmaticdevs.wallhaven.ui.fragments.PopularFragment
 import com.enigmaticdevs.wallhaven.ui.fragments.RecentFragment
+import com.enigmaticdevs.wallhaven.ui.intro.IntroActivity
 import com.enigmaticdevs.wallhaven.ui.search.SearchActivity
 import com.enigmaticdevs.wallhaven.ui.settings.BottomSheetSettings
 import com.enigmaticdevs.wallhaven.ui.settings.Settings
@@ -38,6 +39,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        val preferences = PreferenceManager.getDefaultSharedPreferences(this)
+        if(!preferences.getBoolean("intro_done",false)){
+            startActivity(Intent(this, IntroActivity::class.java))
+            finish()
+        }
         initNavDrawer()
         analytics = Firebase.analytics
         binding.fragmentContainer.offscreenPageLimit = 2

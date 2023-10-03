@@ -33,6 +33,9 @@
         android:theme="@style/Theme.Wallhaven"
         tools:targetApi="33">
         <activity
+            android:name=".ui.intro.IntroActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.donation.DonationActivity"
             android:exported="false" />
         <activity

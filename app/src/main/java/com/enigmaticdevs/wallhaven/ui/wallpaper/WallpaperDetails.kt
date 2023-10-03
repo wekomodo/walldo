@@ -327,6 +327,11 @@ class WallpaperDetails : AppCompatActivity() {
         }
     }
 
+    override fun onDestroy() {
+        unregisterReceiver(onDownloadComplete)
+        super.onDestroy()
+    }
+
     private fun loadImage(photo: Photo?) {
         photo?.let { wallpaper ->
             binding.wallpaperDetailAvatarUsername.text = wallpaper.data.uploader.username

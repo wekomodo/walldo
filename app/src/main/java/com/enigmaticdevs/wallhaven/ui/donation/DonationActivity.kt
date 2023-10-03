@@ -9,6 +9,7 @@ import com.android.billingclient.api.ProductDetails
 import com.enigmaticdevs.wallhaven.R
 import com.enigmaticdevs.wallhaven.data.billing.Sku
 import com.enigmaticdevs.wallhaven.databinding.ActivityDonationBinding
+import com.enigmaticdevs.wallhaven.domain.donation.DonationViewModel
 import com.enigmaticdevs.wallhaven.util.SpacingItemDecoration
 import com.enigmaticdevs.wallhaven.util.livedata.observeEvent
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -37,7 +38,9 @@ class DonationActivity : AppCompatActivity() ,DonationAdapter.ItemEventCallback 
             donationAdapter.submitList(sortedConsumableProductDetails)
         }
         viewModel.purchaseCompleteLiveData.observeEvent(this) { showThanksDialog() }
-
+        binding.toolbar7.setNavigationOnClickListener{
+            finish()
+        }
     }
 
     private fun showThanksDialog() {
