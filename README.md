@@ -8,9 +8,9 @@ An Android app based on wallhaven.cc API, using Dagger Hilt,MVVM & dynamic color
 * AutoWallpaper.
 * Favorites Section.
 
-#running the project
-add google-services.json to src/main
-add googlePlayLicenseKey to local.properties
+## Running the project
+* add google-services.json to src/main
+* add googlePlayLicenseKey to local.properties
 
 ## Screenshots
 <div style="display:flex;">
