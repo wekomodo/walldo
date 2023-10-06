@@ -11,6 +11,8 @@ import com.enigmaticdevs.wallhaven.data.model.Photo
 import com.enigmaticdevs.wallhaven.data.model.Wallpapers
 import com.enigmaticdevs.wallhaven.domain.PagingSource
 import com.enigmaticdevs.wallhaven.domain.repository.MainRepository
+import com.enigmaticdevs.wallhaven.domain.usecases.AuthenticateAPIkeyUseCase
+import com.enigmaticdevs.wallhaven.domain.usecases.GetWallsBySortUseCase
 import com.enigmaticdevs.wallhaven.util.DispatcherProvider
 import com.enigmaticdevs.wallhaven.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,7 +24,9 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private  val repository: MainRepository,
-    private val dispatchers : DispatcherProvider
+    private val dispatchers : DispatcherProvider,
+    private val getWallsBySortUseCase: GetWallsBySortUseCase,
+    private val authenticateAPIkeyUseCase: AuthenticateAPIkeyUseCase
 ) : ViewModel() {
 
     fun popularList(sorting : String,topRange : String,params: Params) = Pager(PagingConfig(pageSize = 1)){
@@ -45,7 +49,15 @@ class MainViewModel @Inject constructor(
     private val _apiKey = MutableStateFlow<Resource<AuthenticateAPIkey?>>(Resource.Loading())
     val apiKey  = _apiKey.asStateFlow()
 
-
+    fun  getWallsBySort( query : String,
+                         sorting : String,
+                         topRange : String,
+                         params: Params,
+                         page : Int) {
+        viewModelScope.launch(dispatchers.io) {
+            _wallpapersSearchList.value = getWallsBySortUseCase(query, sorting, topRange, params, page)
+        }
+    }
 
     fun getSearchWallpapers(
         query : String,
@@ -74,11 +86,7 @@ class MainViewModel @Inject constructor(
 
     fun authenticateAPIkey(key : String){
         viewModelScope.launch(dispatchers.io) {
-            val response = repository.authenticateAPIkey(key)
-            if(response!=null)
-                _apiKey.value = Resource.Success(response)
-            else
-                _apiKey.value = Resource.Error("Failed")
+            _apiKey.value = authenticateAPIkeyUseCase(key)
         }
     }
 }

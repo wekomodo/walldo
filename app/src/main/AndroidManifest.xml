@@ -69,10 +69,12 @@
             android:name=".ui.wallpaper.WallpaperDetails"
             android:exported="false" />
         <activity
-            android:name=".composeui.Homescreen"
+            android:name=".composeui.MainComposeActivity"
             android:exported="true"
             android:label="@string/title_activity_homescreen"
-            android:theme="@style/Theme.Wallhaven" />
+            android:theme="@style/Theme.Wallhaven">
+
+        </activity>
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -81,6 +83,7 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
 
         <service

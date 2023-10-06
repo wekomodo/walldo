@@ -1,6 +1,7 @@
 package com.enigmaticdevs.wallhaven.ui.fragments
 
 import android.content.Context
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -97,12 +98,23 @@ class PopularFragment : Fragment() {
 
     private fun initRecyclerView() {
         recyclerView = binding.recyclerview
-        val staggeredGridLayoutManager = StaggeredGridLayoutManager(
-            2,
-            StaggeredGridLayoutManager.VERTICAL
-        )
 
-        recyclerView.layoutManager = staggeredGridLayoutManager
+        if (context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE){
+            val staggeredGridLayoutManager = StaggeredGridLayoutManager(
+                3,
+                StaggeredGridLayoutManager.VERTICAL
+            )
+            recyclerView.layoutManager = staggeredGridLayoutManager
+        }
+        else {
+            val staggeredGridLayoutManager = StaggeredGridLayoutManager(
+                2,
+                StaggeredGridLayoutManager.VERTICAL
+            )
+            recyclerView.layoutManager = staggeredGridLayoutManager
+        }
+
+
         itemAdapter = WallpaperAdapter(context)
         val footerAdapter = LoadMoreAdapter { itemAdapter.retry() }
         recyclerView.adapter = itemAdapter.withLoadStateFooter(footerAdapter)

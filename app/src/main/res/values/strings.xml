@@ -196,4 +196,5 @@
         <item name="walldo">walldo</item>
         <item name="system">system</item>
     </string-array>
+    <string name="title_activity_lmao">LMAO</string>
 </resources>

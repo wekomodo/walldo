@@ -77,7 +77,7 @@ class WallpaperDetails : AppCompatActivity() {
         initializePermissionLauncher()
         updateOrRequestPermissions()
         initOnClickListeners()
-        registerReceiver(onDownloadComplete, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
+        this.registerReceiver(onDownloadComplete, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
         imageViewModel.getWallpaper(imageId)
         favoriteViewModel.readAllData.observe(this){
             favoriteImages = it
