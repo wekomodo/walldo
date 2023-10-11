@@ -115,9 +115,11 @@ class AutoWallpaperFragment : PreferenceFragmentCompat() {
     }
 
     override fun onPreferenceTreeClick(preference: Preference): Boolean {
-        val key: String = preference.key
-        if (key == "auto_wallpaper" || key == "only_on_wifi" || key == "only_on_charging" || key == "only_when_charging" || key == "auto_wall_interval" || key == "wallpaper_source")
-            setWorkManager(preference)
+        val key: String? = preference.key
+        key?.let{
+            if (it == "auto_wallpaper" || it == "only_on_wifi" || it == "only_on_charging" || it == "only_when_charging" || it == "auto_wall_interval" || it == "wallpaper_source")
+                setWorkManager(preference)
+        }
         return super.onPreferenceTreeClick(preference)
     }
     private fun setWorkManager(preference: Preference) {

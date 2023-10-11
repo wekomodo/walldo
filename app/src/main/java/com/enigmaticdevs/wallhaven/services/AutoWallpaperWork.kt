@@ -120,16 +120,18 @@ class AutoWallpaperWork
     private fun downloadAndSetWallpaper(url: String, cropRect: Rect?) {
         CoroutineScope(IO).launch {
             downloadServiceRepository.downloadFile(url)?.byteStream().use {
-                when (screen) {
-                    "home" -> WallpaperManager.getInstance(context)
-                        .setStream(it, cropRect, true, WallpaperManager.FLAG_SYSTEM)
+                it?.let{
+                    when (screen) {
+                        "home" -> WallpaperManager.getInstance(context)
+                            .setStream(it, cropRect, true, WallpaperManager.FLAG_SYSTEM)
 
-                    "lock" -> WallpaperManager.getInstance(context)
-                        .setStream(it, cropRect, true, WallpaperManager.FLAG_LOCK)
+                        "lock" -> WallpaperManager.getInstance(context)
+                            .setStream(it, cropRect, true, WallpaperManager.FLAG_LOCK)
 
-                    "both" -> WallpaperManager.getInstance(context)
-                        .setStream(it, cropRect, true)
-                    else -> {}
+                        "both" -> WallpaperManager.getInstance(context)
+                            .setStream(it, cropRect, true)
+                        else -> {}
+                }
                 }
             }
         }

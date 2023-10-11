@@ -1,7 +1,11 @@
 package com.enigmaticdevs.wallhaven.util
 
 import android.Manifest
+import android.annotation.SuppressLint
+import android.app.DownloadManager
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.content.ContextCompat
@@ -26,6 +30,21 @@ fun Context.hasPermission(vararg permissions: String): Boolean {
     }
 }
 
+
+@SuppressLint("UnspecifiedRegisterReceiverFlag")
+fun registerBroadcastReceiver(context : Context, receiver: BroadcastReceiver){
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+        ContextCompat.registerReceiver(context,
+            receiver,
+            IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE),
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
+    else
+        context.registerReceiver(
+            receiver,
+            IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE),
+        )
+}
 
 fun Context.hasNotificationPermission(): Boolean {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)

@@ -7,7 +7,6 @@ import android.app.WallpaperManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.ImageDecoder
@@ -43,6 +42,7 @@ import com.enigmaticdevs.wallhaven.util.errorToast
 import com.enigmaticdevs.wallhaven.util.hasNotificationPermission
 import com.enigmaticdevs.wallhaven.util.hasReadPermission
 import com.enigmaticdevs.wallhaven.util.hasWritePermission
+import com.enigmaticdevs.wallhaven.util.registerBroadcastReceiver
 import com.enigmaticdevs.wallhaven.util.shareIntent
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -52,7 +52,7 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class WallpaperDetails : AppCompatActivity() {
     private val imageViewModel: MainViewModel by viewModels()
-    private val favoriteViewModel : FavoriteViewModel by viewModels()
+    private val favoriteViewModel: FavoriteViewModel by viewModels()
     private lateinit var imageId: String
     private lateinit var binding: ActivityWallpaperDetailsBinding
     private var photo: Photo? = null
@@ -63,8 +63,8 @@ class WallpaperDetails : AppCompatActivity() {
     private var action: String = ""
     private var downloadID = -1L
     private lateinit var permissionsLauncher: ActivityResultLauncher<Array<String>>
-    private var favoriteImage: FavoriteImages?  = null
-    private var favoriteImages : MutableList<FavoriteImages>  = ArrayList()
+    private var favoriteImage: FavoriteImages? = null
+    private var favoriteImages: MutableList<FavoriteImages> = ArrayList()
 
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -77,9 +77,13 @@ class WallpaperDetails : AppCompatActivity() {
         initializePermissionLauncher()
         updateOrRequestPermissions()
         initOnClickListeners()
-        this.registerReceiver(onDownloadComplete, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
+        registerBroadcastReceiver(this,onDownloadComplete)
+        readDatabase()
+    }
+
+    private fun readDatabase() {
         imageViewModel.getWallpaper(imageId)
-        favoriteViewModel.readAllData.observe(this){
+        favoriteViewModel.readAllData.observe(this) {
             favoriteImages = it
             setChecked()
         }
@@ -104,10 +108,10 @@ class WallpaperDetails : AppCompatActivity() {
         }
 
     }
+
     private fun setChecked() {
-        for( item in favoriteImages)
-        {
-            if(item.imageId == imageId) {
+        for (item in favoriteImages) {
+            if (item.imageId == imageId) {
                 favoriteImage = item
                 binding.toolbar3.menu[0].setIcon(R.drawable.ic_favorite_checked)
                 isChecked = true
@@ -116,7 +120,7 @@ class WallpaperDetails : AppCompatActivity() {
     }
 
     private fun initOnClickListeners() {
-        binding.cardView.setOnClickListener{
+        binding.cardView.setOnClickListener {
             launchUserProfile()
         }
         binding.wallpaperDetailAvatarUsername.setOnClickListener {
@@ -189,12 +193,12 @@ class WallpaperDetails : AppCompatActivity() {
                         isChecked = true
                         addToFavorites()
                         it.setIcon(R.drawable.ic_favorite_checked)
-                        customToast(this@WallpaperDetails,"Added to favorites")
+                        customToast(this@WallpaperDetails, "Added to favorites")
                     } else {
                         isChecked = false
                         deleteFromFavorites()
                         it.setIcon(R.drawable.ic_favorite_unchecked)
-                        customToast(this@WallpaperDetails,"Removed from favorites")
+                        customToast(this@WallpaperDetails, "Removed from favorites")
                     }
 
                     true
@@ -207,14 +211,16 @@ class WallpaperDetails : AppCompatActivity() {
     }
 
     private fun addToFavorites() {
-        photo?.let{
-            val image = FavoriteImages(0,
+        photo?.let {
+            val image = FavoriteImages(
+                0,
                 imageId,
                 it.data.thumbs.original,
                 it.data.path,
                 it.data.purity,
                 it.data.dimension_x,
-                it.data.dimension_y)
+                it.data.dimension_y
+            )
             favoriteViewModel.addImage(image)
         }
     }
@@ -228,10 +234,10 @@ class WallpaperDetails : AppCompatActivity() {
     }
 
     private fun launchUserProfile() {
-        photo?.let{
+        photo?.let {
             val username = it.data.uploader.username
             val intent = Intent(this, UserProfileActivity::class.java)
-            intent.putExtra("userImage",it.data.uploader.avatar.`128px`)
+            intent.putExtra("userImage", it.data.uploader.avatar.`128px`)
             intent.putExtra("username", username)
             startActivity(intent)
         }
@@ -270,7 +276,7 @@ class WallpaperDetails : AppCompatActivity() {
             permissionToRequest.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
         }
         if (!notificationPermissionGranted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                permissionToRequest.add(Manifest.permission.POST_NOTIFICATIONS)
+            permissionToRequest.add(Manifest.permission.POST_NOTIFICATIONS)
         }
         if (!readPermissionGranted) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
@@ -282,7 +288,6 @@ class WallpaperDetails : AppCompatActivity() {
             permissionsLauncher.launch(permissionToRequest.toTypedArray())
         }
     }
-
 
 
     private fun download(s: String) {

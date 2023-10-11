@@ -106,6 +106,10 @@
             </intent-filter>
         </receiver>
 
+        <receiver
+            android:name=".util.download.AndroidDownloader"
+            android:exported="false">
+        </receiver>
         <service
             android:name=".services.MyFirebaseMessagingService"
             android:exported="false">
