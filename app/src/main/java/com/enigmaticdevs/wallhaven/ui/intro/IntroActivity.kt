@@ -1,7 +1,10 @@
 package com.enigmaticdevs.wallhaven.ui.intro
 
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.res.Configuration
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
@@ -21,6 +24,13 @@ class IntroActivity : AppIntro() {
         // You can use AppIntroFragment to use a pre-built fragments
         showStatusBar(true)
         setProgressIndicator()
+        //custom fix for light theme colors not showing correctly
+        if(!isDarkThemeOn()) {
+            setColorSkipButton(getColor(R.color.md_theme_dark_onSecondary))
+            setColorDoneText(getColor(R.color.md_theme_dark_onSecondary))
+            setBackArrowColor(getColor(R.color.md_theme_dark_onSecondary))
+            setNextArrowColor(getColor(R.color.md_theme_dark_onSecondary))
+        }
         addSlide(AppIntroCustomLayoutFragment.newInstance(R.layout.intro_layout_1))
         addSlide(AppIntroCustomLayoutFragment.newInstance(R.layout.intro_layout_2))
         addSlide(AppIntroCustomLayoutFragment.newInstance(R.layout.intro_layout_3))
@@ -42,5 +52,10 @@ class IntroActivity : AppIntro() {
         preferences.edit().putBoolean("intro_done",true).apply()
         startActivity(Intent(this, MainActivity::class.java))
         finish()
+    }
+
+    fun Context.isDarkThemeOn(): Boolean {
+        return resources.configuration.uiMode and
+                Configuration.UI_MODE_NIGHT_MASK == UI_MODE_NIGHT_YES
     }
 }

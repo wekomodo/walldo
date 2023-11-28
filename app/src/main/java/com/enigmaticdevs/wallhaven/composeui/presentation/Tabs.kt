@@ -15,7 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -26,9 +26,14 @@ import com.enigmaticdevs.wallhaven.data.model.Wallpapers
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Tabs(contentPadding: PaddingValues, wallpaperList: Wallpapers?) {
-    var state by remember { mutableStateOf(0) }
+    var state by remember { mutableIntStateOf(0) }
     val titles = listOf("Popular", "Latest")
-    val pagerState = rememberPagerState(0)
+    val pagerState = rememberPagerState(
+        initialPage = 0,
+        initialPageOffsetFraction = 0f
+    ) {
+        titles.size
+    }
     LaunchedEffect(state){
         pagerState.animateScrollToPage(state)
     }
@@ -54,7 +59,7 @@ fun Tabs(contentPadding: PaddingValues, wallpaperList: Wallpapers?) {
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f),
-            pageCount = titles.size) {index ->
+            ) {index ->
                  when(index){
                      0->{
                          ComposeImageItem(photo = wallpaperList?.data ?: emptyList() )
@@ -63,7 +68,7 @@ fun Tabs(contentPadding: PaddingValues, wallpaperList: Wallpapers?) {
                         Text(text = titles[index])
                      }
                  }
-            
+
         }
     }
 }

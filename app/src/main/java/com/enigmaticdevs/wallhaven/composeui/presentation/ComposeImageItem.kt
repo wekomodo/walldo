@@ -1,7 +1,6 @@
 package com.enigmaticdevs.wallhaven.composeui.presentation
 
 import android.util.Log
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.defaultMinSize
@@ -20,12 +19,11 @@ import coil.compose.AsyncImage
 import com.enigmaticdevs.wallhaven.data.model.Wallpaper
 
 
-@OptIn(ExperimentalFoundationApi::class)
+
 @Composable
 fun ComposeImageItem(
     photo: List<Wallpaper>,
 ) {
-
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Fixed(2),
         verticalItemSpacing = 4.dp,

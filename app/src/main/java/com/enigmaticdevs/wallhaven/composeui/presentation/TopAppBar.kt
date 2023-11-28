@@ -12,14 +12,19 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.enigmaticdevs.wallhaven.composeui.navigation.Screen
 import com.enigmaticdevs.wallhaven.composeui.ui.theme.gorditaFontFamily
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopAppBar(title: String, scrollBehavior: TopAppBarScrollBehavior) {
+fun TopAppBar(title: String, scrollBehavior: TopAppBarScrollBehavior,navController : NavController) {
+    val context = LocalContext.current
     Column {
         CenterAlignedTopAppBar(
             scrollBehavior = scrollBehavior,
@@ -39,7 +44,9 @@ fun TopAppBar(title: String, scrollBehavior: TopAppBarScrollBehavior) {
                 )
             },
             actions = {
-                IconButton(onClick = { /* do something */ }) {
+                IconButton(onClick = {
+                    navController.navigate(route = Screen.Search.route)
+                }) {
                     Icon(
                         imageVector = Icons.Rounded.Search,
                         contentDescription = "Search Icon"
@@ -55,7 +62,7 @@ fun TopAppBar(title: String, scrollBehavior: TopAppBarScrollBehavior) {
 @Preview
 @Composable
 fun TopAppBarPreview(){
-
-    TopAppBar(title = "walldo", TopAppBarDefaults.exitUntilCollapsedScrollBehavior())
+    val navController = rememberNavController()
+    TopAppBar(title = "walldo", TopAppBarDefaults.exitUntilCollapsedScrollBehavior(), navController)
 }
 

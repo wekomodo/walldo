@@ -6,7 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import com.enigmaticdevs.wallhaven.R
@@ -19,7 +19,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class BottomSheetSettings : BottomSheetDialogFragment() {
     private lateinit var binding: BottomsheetSettingsBinding
-    private val dataStoreViewModel: DataStoreViewModel? by viewModels()
+    private val dataStoreViewModel: DataStoreViewModel by lazy { ViewModelProvider(this)[DataStoreViewModel::class.java] }
     private lateinit var preferences: SharedPreferences
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,7 +42,7 @@ class BottomSheetSettings : BottomSheetDialogFragment() {
 
 
     private val mPrefsListener =
-        SharedPreferences.OnSharedPreferenceChangeListener { preference, key ->
+        SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
             if (key == "purity_sfw" || key == "purity_sketchy" || key == "purity_nsfw" || key == "general_category" || key == "anime_category" || key == "people_category"|| key == "filter_ratio" || key == "filter_resolution") {
                 //read from sharedPrefs & save to Datastore
                 savePrefsToDatastore()
