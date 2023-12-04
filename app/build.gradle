@@ -17,8 +17,8 @@ android {
         applicationId "com.enigmaticdevs.wallhaven"
         minSdk 24
         targetSdk 34
-        versionCode 23
-        versionName "1.8.1"
+        versionCode 24
+        versionName "1.8.2"
         buildConfigField("String", "GOOGLE_PLAY_LICENSE_KEY", localProperties['googlePlayLicenseKey'])
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -135,4 +135,5 @@ dependencies {
     def nav_version = "2.7.5"
     implementation "androidx.navigation:navigation-compose:$nav_version"
     implementation 'androidx.hilt:hilt-navigation-compose:1.1.0'
+    implementation 'com.github.zedlabs:pastelPlaceholders:1.0.4'
 }

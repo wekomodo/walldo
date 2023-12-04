@@ -20,6 +20,7 @@ import com.enigmaticdevs.wallhaven.util.download.showFileExistsDialog
 import com.enigmaticdevs.wallhaven.util.hasWritePermission
 import com.enigmaticdevs.wallhaven.util.imageview.AspectRatioImageView
 import com.enigmaticdevs.wallhaven.util.imageview.setAspectRatio
+import com.zedlabs.pastelplaceholder.Pastel
 
 class WallpaperAdapter(
     private val context: Context
@@ -86,10 +87,20 @@ class WallpaperAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         getItem(position)?.let { currentItem ->
             holder.photo.setAspectRatio(currentItem.dimension_x, currentItem.dimension_y)
-            Glide.with(context)
-                .load(currentItem.thumbs.original)
-                .placeholder(ColorDrawable(Color.parseColor(currentItem.colors[(0..4).random()])))
-                .into(holder.photo)
+            if(currentItem.colors.isNotEmpty()){
+                Glide.with(context)
+                    .load(currentItem.thumbs.original)
+                    .placeholder(ColorDrawable(Color.parseColor(currentItem.colors[(0..4).random()])))
+                    .into(holder.photo)
+            }
+            else
+            {
+                Glide.with(context)
+                    .load(currentItem.thumbs.original)
+                    .placeholder(Pastel.getColorLight())
+                    .into(holder.photo)
+
+            }
         }
     }
 }
