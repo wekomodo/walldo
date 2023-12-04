@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.Wallhaven" parent="Theme.Material3.DynamicColors.DayNight">
         <!-- Customize your light theme here. -->
@@ -35,6 +35,9 @@
         <item name="dialogCornerRadius">28dp</item>
     </style>
 
-
+    <style name="Preference.SwitchPreferenceCompat" parent="@style/Preference.SwitchPreferenceCompat.Material"
+        tools:ignore="ResourceCycle">
+        <item name="widgetLayout">@layout/material3switch</item>
+    </style>
     <style name="Theme.Wallhaven" parent="Base.Theme.Wallhaven" />
 </resources>
