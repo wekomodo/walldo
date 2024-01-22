@@ -17,8 +17,8 @@ android {
         applicationId "com.enigmaticdevs.wallhaven"
         minSdk 24
         targetSdk 34
-        versionCode 24
-        versionName "1.8.2"
+        versionCode 26
+        versionName "1.8.3"
         buildConfigField("String", "GOOGLE_PLAY_LICENSE_KEY", localProperties['googlePlayLicenseKey'])
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

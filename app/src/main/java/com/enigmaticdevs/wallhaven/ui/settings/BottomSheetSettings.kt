@@ -19,6 +19,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class BottomSheetSettings : BottomSheetDialogFragment() {
     private lateinit var binding: BottomsheetSettingsBinding
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -35,8 +36,11 @@ class BottomSheetSettings : BottomSheetDialogFragment() {
 
     @AndroidEntryPoint
     class LocalFragment : PreferenceFragmentCompat() {
-
         private lateinit var preferences: SharedPreferences
+        override fun onDetach() {
+            preferences.unregisterOnSharedPreferenceChangeListener(mPrefsListener)
+            super.onDetach()
+        }
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             context?.let {
                 preferences = PreferenceManager.getDefaultSharedPreferences(it)
