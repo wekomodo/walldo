@@ -8,9 +8,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.graphics.ImageDecoder
-import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -44,6 +42,7 @@ import com.enigmaticdevs.wallhaven.util.hasReadPermission
 import com.enigmaticdevs.wallhaven.util.hasWritePermission
 import com.enigmaticdevs.wallhaven.util.registerBroadcastReceiver
 import com.enigmaticdevs.wallhaven.util.shareIntent
+import com.zedlabs.pastelplaceholder.Pastel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -342,11 +341,11 @@ class WallpaperDetails : AppCompatActivity() {
             binding.wallpaperDetailAvatarUsername.text = wallpaper.data.uploader.username
             Glide.with(this)
                 .load(wallpaper.data.path)
-                .placeholder(ColorDrawable(Color.parseColor(wallpaper.data.colors[(0..4).random()])))
+                .placeholder(Pastel.getColorLight())
                 .into(binding.wallpaperDetailImage)
             Glide.with(this)
                 .load(wallpaper.data.uploader.avatar.`128px`)
-                .placeholder(ColorDrawable(Color.parseColor(wallpaper.data.colors[(0..4).random()])))
+                .placeholder(Pastel.getColorLight())
                 .into(binding.wallpaperDetailAvatarImage)
         }
 

@@ -136,4 +136,6 @@ dependencies {
     implementation "androidx.navigation:navigation-compose:$nav_version"
     implementation 'androidx.hilt:hilt-navigation-compose:1.1.0'
     implementation 'com.github.zedlabs:pastelPlaceholders:1.0.4'
+    //pastel placeholders
+    implementation 'com.github.zedlabs:pastelPlaceholders:1.0.4'
 }
