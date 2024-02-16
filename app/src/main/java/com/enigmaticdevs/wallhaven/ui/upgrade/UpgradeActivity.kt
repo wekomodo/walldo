@@ -20,7 +20,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class UpgradeActivity : AppCompatActivity() {
 
-    private lateinit var binding : ActivityUpgradeBinding
+    private lateinit var binding: ActivityUpgradeBinding
     private val billingViewModel: UpgradeViewModel by viewModels()
     private lateinit var firebaseAnalytics: FirebaseAnalytics
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,32 +28,31 @@ class UpgradeActivity : AppCompatActivity() {
         binding = ActivityUpgradeBinding.inflate(layoutInflater)
         setContentView(binding.root)
         firebaseAnalytics = Firebase.analytics
-        billingViewModel.canPurchaseLiveData.observe(this) { canPurchase ->
+        billingViewModel.canSubscribeLiveData.observe(this) { canPurchase ->
             binding.upgradeGoPro.isVisible = canPurchase
         }
 
         billingViewModel.proLiveData.observe(this) {
-            if (it?.entitled == true) {
-                showThanksDialog()
+                if (it?.entitled == true) {
+                    showThanksDialog()
+                }
             }
-        }
-
         binding.upgradeGoPro.setOnClickListener {
             observeBillingResponse()
-            billingViewModel.makePurchase(this)
+            billingViewModel.subscribe(this)
         }
 
         binding.upgradeRestorePurchase.setOnClickListener {
             observeBillingResponse()
             billingViewModel.restorePurchase()
         }
-        binding.toolbar4.setNavigationOnClickListener{
+        binding.toolbar4.setNavigationOnClickListener {
             finish()
         }
     }
 
     private fun observeBillingResponse() {
-        billingViewModel.billingMessageLiveData.observeEvent(this) { customToast(this,it) }
+        billingViewModel.billingMessageLiveData.observeEvent(this) { customToast(this, it) }
         billingViewModel.billingErrorLiveData.observeEvent(this) {
             firebaseAnalytics.logEvent("billing_error") {
                 param("response_code", "${it.responseCode}")

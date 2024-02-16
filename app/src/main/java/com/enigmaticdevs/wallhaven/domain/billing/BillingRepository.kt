@@ -22,6 +22,7 @@ import com.android.billingclient.api.QueryPurchasesParams
 import com.enigmaticdevs.wallhaven.data.billing.LocalBillingDb
 import com.enigmaticdevs.wallhaven.data.billing.Sku
 import com.enigmaticdevs.wallhaven.data.billing.Sku.INAPP_PRODUCTS
+import com.enigmaticdevs.wallhaven.data.billing.Sku.SUBSCRIPTIONS
 import com.enigmaticdevs.wallhaven.data.billing.Sku.WALLDO_PRO
 import com.enigmaticdevs.wallhaven.data.billing.models.Donation
 import com.enigmaticdevs.wallhaven.data.billing.models.Entitlement
@@ -52,6 +53,7 @@ class BillingRepository(private val application: Application) :
     private lateinit var localCacheBillingClient: LocalBillingDb
 
     val productsWithProductDetails = MutableLiveData<Map<String, ProductDetails>>()
+    val subscriptionsWithProductDetails = MutableLiveData<Map<String,ProductDetails>>()
 
     private val _purchaseCompleteLiveData = MutableLiveData<Event<Purchase>>()
     val purchaseCompleteLiveData: LiveData<Event<Purchase>> = _purchaseCompleteLiveData
@@ -108,11 +110,60 @@ class BillingRepository(private val application: Application) :
         when (billingResult.responseCode) {
             BillingClient.BillingResponseCode.OK -> {
                 queryProductDetailsAsync()
+                querySubscriptionsDetailsAsync()
                 queryPurchasesAsync()
             }
             BillingClient.BillingResponseCode.BILLING_UNAVAILABLE ->
                 Log.d(LOG_TAG, billingResult.debugMessage)
             else ->  Log.d(LOG_TAG, billingResult.debugMessage)
+        }
+    }
+
+    private fun querySubscriptionsDetailsAsync() {
+            Log.d(LOG_TAG, "querySkuDetailsAsync")
+            val productList = SUBSCRIPTIONS.map {
+                QueryProductDetailsParams.Product.newBuilder()
+                    .setProductId(it)
+                    .setProductType(BillingClient.ProductType.SUBS)
+                    .build()
+            }
+            val params = QueryProductDetailsParams.newBuilder()
+                .setProductList(productList)
+                .build()
+            playStoreBillingClient.queryProductDetailsAsync(params) { billingResult, productDetailsList ->
+                when (billingResult.responseCode) {
+                    BillingClient.BillingResponseCode.OK -> {
+                        if (productDetailsList.isNotEmpty()) {
+                            subscriptionsWithProductDetails.postValue(
+                                productDetailsList.associateBy { it.productId }
+                            )
+                            Log.d(LOG_TAG, "subscriptionsWithProductDetails: $productDetailsList")
+                        } else {
+                            subscriptionsWithProductDetails.postValue(emptyMap())
+                            error("querySubscriptionsDetailsAsync response was empty")
+                        }
+                    }
+                    else -> error(billingResult.debugMessage)
+                }
+            }
+    }
+
+    fun querySubscriptionPurchasesAsync(restore: Boolean = false) {
+        Log.d(LOG_TAG,"querySubscriptionPurchasesAsync")
+        val params = QueryPurchasesParams.newBuilder()
+            .setProductType(BillingClient.ProductType.SUBS)
+            .build()
+        playStoreBillingClient.queryPurchasesAsync(params) { billingResult, purchasesList ->
+            when (billingResult.responseCode) {
+                BillingClient.BillingResponseCode.OK -> {
+                    Log.d(LOG_TAG,"Subscriptions Active: $purchasesList")
+                    if (restore && purchasesList.isEmpty()) {
+                        _billingMessageLiveData.postValue(Event("No subscription active"))
+                    }
+                    processPurchases(purchasesList.toSet())
+                }
+                else -> error(billingResult.debugMessage)
+            }
         }
     }
 
@@ -141,8 +192,10 @@ class BillingRepository(private val application: Application) :
             BillingClient.BillingResponseCode.OK ->
                 purchases?.apply { processPurchases(this.toSet()) }
             BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED -> queryPurchasesAsync()
+            BillingClient.BillingResponseCode.SERVICE_DISCONNECTED -> querySubscriptionsDetailsAsync()
         }
     }
+
 
     fun queryPurchasesAsync(restore: Boolean = false) {
         Log.d(LOG_TAG,"queryPurchasesAsync")
@@ -152,7 +205,7 @@ class BillingRepository(private val application: Application) :
         playStoreBillingClient.queryPurchasesAsync(params) { billingResult, purchasesList ->
             when (billingResult.responseCode) {
                 BillingClient.BillingResponseCode.OK -> {
-                    Log.d(LOG_TAG,"Inapp purchases: $purchasesList")
+                    Log.d(LOG_TAG,"InApp purchases: $purchasesList")
                     if (restore && purchasesList.isEmpty()) {
                         _billingMessageLiveData.postValue(Event("No purchases found"))
                     }
@@ -228,7 +281,7 @@ class BillingRepository(private val application: Application) :
         consumables.forEach {
             Log.d(LOG_TAG, "handleConsumablePurchasesAsync foreach it is $it")
             val params = ConsumeParams.newBuilder().setPurchaseToken(it.purchaseToken).build()
-            playStoreBillingClient.consumeAsync(params) { billingResult, purchaseToken ->
+            playStoreBillingClient.consumeAsync(params) { billingResult, _ ->
                 when (billingResult.responseCode) {
                     BillingClient.BillingResponseCode.OK -> disburseConsumableEntitlement(it)
                     else -> {
@@ -322,12 +375,16 @@ class BillingRepository(private val application: Application) :
     }
 
     fun launchBillingFlow(activity: Activity, productDetails: ProductDetails) {
+        val offerToken = productDetails.subscriptionOfferDetails?.get(0)?.offerToken
         val params = BillingFlowParams.newBuilder()
             .setProductDetailsParamsList(
                 listOf(
-                    BillingFlowParams.ProductDetailsParams.newBuilder()
-                        .setProductDetails(productDetails)
-                        .build()
+                    offerToken?.let {
+                        BillingFlowParams.ProductDetailsParams.newBuilder()
+                            .setProductDetails(productDetails)
+                            .setOfferToken(it)
+                            .build()
+                    }
                 )
             )
             .build()
