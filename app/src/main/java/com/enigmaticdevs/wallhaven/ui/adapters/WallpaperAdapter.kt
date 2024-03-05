@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.bumptech.glide.Glide
 import com.enigmaticdevs.wallhaven.data.model.Wallpaper
 import com.enigmaticdevs.wallhaven.databinding.ItemPhotoBinding
@@ -25,7 +26,6 @@ import com.zedlabs.pastelplaceholder.Pastel
 class WallpaperAdapter(
     private val context: Context
 ) : PagingDataAdapter<Wallpaper, WallpaperAdapter.ViewHolder>(diffCallback) {
-
     companion object {
         val diffCallback = object : DiffUtil.ItemCallback<Wallpaper>() {
             override fun areItemsTheSame(oldItem: Wallpaper, newItem: Wallpaper): Boolean {
@@ -78,23 +78,20 @@ class WallpaperAdapter(
             customToast(context, "Download Started")
             val downloader = AndroidDownloader(context)
             downloader.downloadFile(photo.path, fileName)
-        }
-        else
-            customToast(context,"NO permission")
+        } else
+            customToast(context, "NO permission")
     }
 
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         getItem(position)?.let { currentItem ->
             holder.photo.setAspectRatio(currentItem.dimension_x, currentItem.dimension_y)
-            if(currentItem.colors.isNotEmpty()){
+            if (currentItem.colors.isNotEmpty()) {
                 Glide.with(context)
                     .load(currentItem.thumbs.original)
                     .placeholder(ColorDrawable(Color.parseColor(currentItem.colors[(0..4).random()])))
                     .into(holder.photo)
-            }
-            else
-            {
+            } else {
                 Glide.with(context)
                     .load(currentItem.thumbs.original)
                     .placeholder(Pastel.getColorLight())

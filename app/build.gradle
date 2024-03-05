@@ -131,11 +131,11 @@ dependencies {
     //coil
     implementation("io.coil-kt:coil-compose:2.4.0")
     //lifecycle compose
-    implementation "androidx.lifecycle:lifecycle-runtime-compose:2.6.2"
+    implementation "androidx.lifecycle:lifecycle-runtime-compose:2.7.0"
     //NavController
-    def nav_version = "2.7.5"
+    def nav_version = "2.7.7"
     implementation "androidx.navigation:navigation-compose:$nav_version"
-    implementation 'androidx.hilt:hilt-navigation-compose:1.1.0'
+    implementation 'androidx.hilt:hilt-navigation-compose:1.2.0'
     implementation 'com.github.zedlabs:pastelPlaceholders:1.0.4'
     //pastel placeholders
     implementation 'com.github.zedlabs:pastelPlaceholders:1.0.4'
