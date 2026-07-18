@@ -24,3 +24,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "wallhaven"
 include(":app")
+ 
