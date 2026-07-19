@@ -40,6 +40,9 @@ android {
 dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.material3)
+    implementation(libs.googleFonts)
+    implementation(libs.materialIcons)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
@@ -56,7 +59,17 @@ dependencies {
 
     //ktor
     implementation(libs.bundles.ktor)
+    //metro
+    implementation(libs.bundles.metro)
+    //paging3
+    implementation(libs.bundles.paging)
 
     //datastore
     implementation(libs.datastore)
+
+    //coil
+    implementation(libs.coil)
+
+    //materialKolor
+    implementation(libs.materialKolor)
 }

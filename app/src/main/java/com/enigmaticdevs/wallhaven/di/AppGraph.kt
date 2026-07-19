@@ -9,6 +9,7 @@ import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metrox.viewmodel.ViewModelGraph
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -21,7 +22,7 @@ import kotlinx.serialization.json.Json
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "user_prefs")
 
 @DependencyGraph(AppScope::class)
-interface AppGraph {
+interface AppGraph : ViewModelGraph{
 
     @DependencyGraph.Factory
     interface Factory {
