@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import com.enigmaticdevs.wallhaven.data.Objects.App
+import com.enigmaticdevs.wallhaven.domain.repository.WallpaperRepository
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.Provides
@@ -27,6 +28,12 @@ interface AppGraph : ViewModelGraph{
     @DependencyGraph.Factory
     interface Factory {
         fun create(@Provides context: Context): AppGraph
+    }
+
+    @SingleIn(AppScope::class)
+    @Provides
+    fun provideRepository() : WallpaperRepository {
+        
     }
 
     @SingleIn(AppScope::class)
