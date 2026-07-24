@@ -16,9 +16,8 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fc5b4a0f-179e-44d8-a3ef-9fb433a7a227" name="Changes" comment="-- added metro, paging3, coil, materialkolor&#10;-- Dynamic Image Item added&#10;-- google fonts added&#10;-- HomescreenViewModel added&#10;-- Tabs Updated&#10;-- WallpaperRepository.kt added">
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/domain/WallpaperPagingSource.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="fc5b4a0f-179e-44d8-a3ef-9fb433a7a227" name="Changes" comment="-- added missing project files&#10;-- wip (PagingSource class)">
+      <change beforePath="$PROJECT_DIR$/gradle/libs.versions.toml" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/libs.versions.toml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -90,24 +89,24 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Android App.app.executor": "Run",
-    "Gradle.Upgrade Gradle wrapper.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.cidr.known.project.marker": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.readMode.enableVisualFormatting": "true",
-    "cf.first.check.clang-format": "false",
-    "cidr.known.project.marker": "true",
-    "git-widget-placeholder": "compose-rewrite",
-    "ignore.virus.scanning.warn.message": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/sajsa/AndroidStudioProjects/wallhaven/app/src/main/java/com/enigmaticdevs/wallhaven/ui/presentation",
-    "settings.editor.selected.configurable": "AndroidSdkUpdater"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Android App.app.executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.Upgrade Gradle wrapper.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
+    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;compose-rewrite&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/sajsa/AndroidStudioProjects/wallhaven/app/src/main/java/com/enigmaticdevs/wallhaven/ui/presentation&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;AndroidSdkUpdater&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\sajsa\AndroidStudioProjects\wallhaven\app\src\main\java\com\enigmaticdevs\wallhaven\ui\presentation" />
@@ -227,7 +226,15 @@
       <option name="project" value="LOCAL" />
       <updated>1784495950769</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="-- added missing project files&#10;-- wip (PagingSource class)">
+      <option name="closed" value="true" />
+      <created>1784896070685</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1784896070685</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -235,19 +242,20 @@
     <MESSAGE value="-- added metro and ktor&#10;-- updated dependencies" />
     <MESSAGE value="-- model classes updated&#10;-- API interface added&#10;-- added serialization plugin&#10;-- datastore dependency&#10;-- ktor bundle added" />
     <MESSAGE value="-- added metro, paging3, coil, materialkolor&#10;-- Dynamic Image Item added&#10;-- google fonts added&#10;-- HomescreenViewModel added&#10;-- Tabs Updated&#10;-- WallpaperRepository.kt added" />
-    <option name="LAST_COMMIT_MESSAGE" value="-- added metro, paging3, coil, materialkolor&#10;-- Dynamic Image Item added&#10;-- google fonts added&#10;-- HomescreenViewModel added&#10;-- Tabs Updated&#10;-- WallpaperRepository.kt added" />
+    <MESSAGE value="-- added missing project files&#10;-- wip (PagingSource class)" />
+    <option name="LAST_COMMIT_MESSAGE" value="-- added missing project files&#10;-- wip (PagingSource class)" />
   </component>
   <component name="play_dynamic_filters_status">
     <option name="appIdToCheckInfo">
       <map>
         <entry key="com.enigmaticdevs.wallhaven">
           <value>
-            <CheckInfo lastCheckTimestamp="1784495892284" />
+            <CheckInfo lastCheckTimestamp="1784896064956" />
           </value>
         </entry>
         <entry key="com.enigmaticdevs.wallhaven.test">
           <value>
-            <CheckInfo lastCheckTimestamp="1784495892283" />
+            <CheckInfo lastCheckTimestamp="1784896064948" />
           </value>
         </entry>
       </map>
