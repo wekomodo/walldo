@@ -16,26 +16,9 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fc5b4a0f-179e-44d8-a3ef-9fb433a7a227" name="Changes" comment="-- added metro and ktor&#10;-- updated dependencies">
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/data/Objects/Sorting.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/data/model/AuthenticateAPIkey.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/data/model/Avatar.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/data/model/DataX.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/data/model/Tag.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/data/model/Thumbs.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/data/model/Uploader.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/data/model/Wallpaper.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/data/model/Wallpapers.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/data/model/local/Category.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/data/model/local/Purity.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/data/remote/WallhavenAPI.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/di/ApiKeyProvider.kt" afterDir="false" />
+    <list default="true" id="fc5b4a0f-179e-44d8-a3ef-9fb433a7a227" name="Changes" comment="-- added metro, paging3, coil, materialkolor&#10;-- Dynamic Image Item added&#10;-- google fonts added&#10;-- HomescreenViewModel added&#10;-- Tabs Updated&#10;-- WallpaperRepository.kt added">
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/domain/WallpaperPagingSource.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/app/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/MyApp.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/MyApp.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/di/AppGraph.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/di/AppGraph.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle/libs.versions.toml" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/libs.versions.toml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,7 +28,7 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[PhysicalDevice::serial=58181FDCR006D9]" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[LocalEmulator::path=C:\Users\sajsa\.android\avd\Pixel_9a.avd]" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
@@ -73,8 +56,8 @@
       <list>
         <option value="Class" />
         <option value="Kotlin Interface" />
-        <option value="Kotlin File" />
         <option value="Kotlin Enum" />
+        <option value="Kotlin File" />
         <option value="Kotlin Data Class" />
         <option value="Kotlin Class" />
       </list>
@@ -95,6 +78,9 @@
     &quot;accountId&quot;: &quot;b2c44a69-939e-41bf-887e-2fb2a6c8e6a1&quot;
   }
 }</component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 5,
   &quot;fromUser&quot;: false
@@ -118,10 +104,14 @@
     "git-widget-placeholder": "compose-rewrite",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/sajsa/AndroidStudioProjects/wallhaven/app/src/main/java/com/enigmaticdevs/wallhaven/ui/presentation",
     "settings.editor.selected.configurable": "AndroidSdkUpdater"
   }
 }]]></component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\sajsa\AndroidStudioProjects\wallhaven\app\src\main\java\com\enigmaticdevs\wallhaven\ui\presentation" />
+    </key>
     <key name="CopyKotlinDeclarationDialog.RECENTS_KEY">
       <recent name="com.enigmaticdevs.wallhaven.data.model" />
     </key>
@@ -221,25 +211,43 @@
       <option name="project" value="LOCAL" />
       <updated>1784408065531</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="-- model classes updated&#10;-- API interface added&#10;-- added serialization plugin&#10;-- datastore dependency&#10;-- ktor bundle added">
+      <option name="closed" value="true" />
+      <created>1784421369190</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1784421369190</updated>
+    </task>
+    <task id="LOCAL-00004" summary="-- added metro, paging3, coil, materialkolor&#10;-- Dynamic Image Item added&#10;-- google fonts added&#10;-- HomescreenViewModel added&#10;-- Tabs Updated&#10;-- WallpaperRepository.kt added">
+      <option name="closed" value="true" />
+      <created>1784495950769</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1784495950769</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="-- fixed project, files were missing after &#10;-- it launches on my phone" />
     <MESSAGE value="-- added metro and ktor&#10;-- updated dependencies" />
-    <option name="LAST_COMMIT_MESSAGE" value="-- added metro and ktor&#10;-- updated dependencies" />
+    <MESSAGE value="-- model classes updated&#10;-- API interface added&#10;-- added serialization plugin&#10;-- datastore dependency&#10;-- ktor bundle added" />
+    <MESSAGE value="-- added metro, paging3, coil, materialkolor&#10;-- Dynamic Image Item added&#10;-- google fonts added&#10;-- HomescreenViewModel added&#10;-- Tabs Updated&#10;-- WallpaperRepository.kt added" />
+    <option name="LAST_COMMIT_MESSAGE" value="-- added metro, paging3, coil, materialkolor&#10;-- Dynamic Image Item added&#10;-- google fonts added&#10;-- HomescreenViewModel added&#10;-- Tabs Updated&#10;-- WallpaperRepository.kt added" />
   </component>
   <component name="play_dynamic_filters_status">
     <option name="appIdToCheckInfo">
       <map>
         <entry key="com.enigmaticdevs.wallhaven">
           <value>
-            <CheckInfo lastCheckTimestamp="1784405946701" />
+            <CheckInfo lastCheckTimestamp="1784495892284" />
           </value>
         </entry>
         <entry key="com.enigmaticdevs.wallhaven.test">
           <value>
-            <CheckInfo lastCheckTimestamp="1784405945983" />
+            <CheckInfo lastCheckTimestamp="1784495892283" />
           </value>
         </entry>
       </map>
