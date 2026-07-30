@@ -7,11 +7,14 @@ import com.enigmaticdevs.wallhaven.data.model.Wallpaper
 import com.enigmaticdevs.wallhaven.data.model.Wallpapers
 import com.enigmaticdevs.wallhaven.data.model.local.Category
 import com.enigmaticdevs.wallhaven.data.model.local.Purity
+import dev.zacsweers.metro.Inject
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 
+
+@Inject
 class WallhavenAPI(
     private val client : HttpClient
 ){

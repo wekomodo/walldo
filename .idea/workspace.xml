@@ -5,7 +5,7 @@
       <config />
     </shared>
     <layouts>
-      <layout url="file://$PROJECT_DIR$/app/src/main/res/drawable/ic_launcher_background.xml">
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml">
         <config>
           <theme>@style/Theme.Wallhaven</theme>
         </config>
@@ -16,10 +16,25 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fc5b4a0f-179e-44d8-a3ef-9fb433a7a227" name="Changes" comment="-- added metro and ktor&#10;-- updated dependencies">
+    <list default="true" id="fc5b4a0f-179e-44d8-a3ef-9fb433a7a227" name="Changes" comment="-- updated from laptop (minor changes)">
+      <change afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/assetWizardSettings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/di/MyViewModelFactory.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/wall.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/gradle.properties" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/MainActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/MainActivity.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/MyApp.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/MyApp.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/data/remote/WallhavenAPI.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/data/remote/WallhavenAPI.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/di/ApiKeyProvider.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/di/ApiKeyProvider.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/di/AppGraph.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/di/AppGraph.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/domain/repository/WallpaperRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/domain/repository/WallpaperRepository.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/drawable/ic_launcher_foreground.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -73,12 +88,12 @@
     &quot;assignee&quot;: &quot;wekomodo&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/wekomodo/walldo.git",
-    "accountId": "0da1f846-78d1-44f2-8f1f-b8c61c5705cc"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/wekomodo/walldo.git&quot;,
+    &quot;accountId&quot;: &quot;0da1f846-78d1-44f2-8f1f-b8c61c5705cc&quot;
   }
-}]]></component>
+}</component>
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="CurrentFile" />
   </component>
@@ -101,17 +116,19 @@
     "RunOnceActivity.cidr.known.project.marker": "true",
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
     "git-widget-placeholder": "compose-rewrite",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/sajsa/AndroidStudioProjects/wallhaven/app/src/main/java/com/enigmaticdevs/wallhaven/ui/presentation",
+    "last_opened_file_path": "C:/Users/sajsa/StudioProjects/walldo/app/src/main/res/drawable",
     "settings.editor.selected.configurable": "AndroidSdkUpdater"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\sajsa\StudioProjects\walldo\app\src\main\res\drawable" />
       <recent name="C:\Users\sajsa\AndroidStudioProjects\wallhaven\app\src\main\java\com\enigmaticdevs\wallhaven\ui\presentation" />
     </key>
     <key name="CopyKotlinDeclarationDialog.RECENTS_KEY">
@@ -237,7 +254,15 @@
       <option name="project" value="LOCAL" />
       <updated>1784896070685</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="-- updated from laptop (minor changes)">
+      <option name="closed" value="true" />
+      <created>1784931261996</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1784931261996</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -246,19 +271,20 @@
     <MESSAGE value="-- model classes updated&#10;-- API interface added&#10;-- added serialization plugin&#10;-- datastore dependency&#10;-- ktor bundle added" />
     <MESSAGE value="-- added metro, paging3, coil, materialkolor&#10;-- Dynamic Image Item added&#10;-- google fonts added&#10;-- HomescreenViewModel added&#10;-- Tabs Updated&#10;-- WallpaperRepository.kt added" />
     <MESSAGE value="-- added missing project files&#10;-- wip (PagingSource class)" />
-    <option name="LAST_COMMIT_MESSAGE" value="-- added missing project files&#10;-- wip (PagingSource class)" />
+    <MESSAGE value="-- updated from laptop (minor changes)" />
+    <option name="LAST_COMMIT_MESSAGE" value="-- updated from laptop (minor changes)" />
   </component>
   <component name="play_dynamic_filters_status">
     <option name="appIdToCheckInfo">
       <map>
         <entry key="com.enigmaticdevs.wallhaven">
           <value>
-            <CheckInfo lastCheckTimestamp="1784896064956" />
+            <CheckInfo lastCheckTimestamp="1785394453199" />
           </value>
         </entry>
         <entry key="com.enigmaticdevs.wallhaven.test">
           <value>
-            <CheckInfo lastCheckTimestamp="1784896064948" />
+            <CheckInfo lastCheckTimestamp="1785394453199" />
           </value>
         </entry>
       </map>

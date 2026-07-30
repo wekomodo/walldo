@@ -7,6 +7,8 @@ import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.createGraphFactory
 
 class MyApp(): Application() {
+
+
     lateinit var appGraph: AppGraph
 
     override fun onCreate() {

@@ -4,6 +4,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.CoroutineScope
@@ -12,10 +13,10 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 
-@SingleIn(AppGraph::class)
+@SingleIn(AppScope::class)
 @Inject
 class ApiKeyProvider(
-    private val userPreferences: UserPrefrences,
+    private val userPreferences: UserPreferences,
     scope: CoroutineScope
 ) {
 
@@ -33,7 +34,7 @@ class ApiKeyProvider(
 }
 
 @Inject
-class UserPrefrences(
+class UserPreferences(
     private val dataStore: DataStore<Preferences>
 ) {
     private val API_KEY = stringPreferencesKey("api_key")
