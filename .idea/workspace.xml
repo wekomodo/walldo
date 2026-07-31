@@ -4,37 +4,27 @@
     <shared>
       <config />
     </shared>
-    <layouts>
-      <layout url="file://$PROJECT_DIR$/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml">
-        <config>
-          <theme>@style/Theme.Wallhaven</theme>
-        </config>
-      </layout>
-    </layouts>
   </component>
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fc5b4a0f-179e-44d8-a3ef-9fb433a7a227" name="Changes" comment="-- updated from laptop (minor changes)">
-      <change afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/assetWizardSettings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/di/MyViewModelFactory.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/wall.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gradle.properties" afterDir="false" />
+    <list default="true" id="fc5b4a0f-179e-44d8-a3ef-9fb433a7a227" name="Changes" comment="-- dont ask me, a lot of files were missing.&#10;-- a lot of files changed but it finally launched&#10;-- but still crashed on start">
+      <change afterPath="$PROJECT_DIR$/.idea/modules/app/wallhaven.app.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/data/model/local/WallhavenAPIparams.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/domain/viewmodels/WallpaperListViewModel.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/ui/screens/homescreen/WallpaperListScreen.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/MainActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/MainActivity.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/MyApp.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/MyApp.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/data/model/Wallpapers.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/data/model/Wallpapers.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/data/remote/WallhavenAPI.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/data/remote/WallhavenAPI.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/di/ApiKeyProvider.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/di/ApiKeyProvider.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/di/AppGraph.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/di/AppGraph.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/di/MyViewModelFactory.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/di/MyViewModelFactory.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/domain/repository/WallpaperRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/domain/repository/WallpaperRepository.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/drawable/ic_launcher_foreground.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/domain/viewmodels/HomeScreenViewModel.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/ui/presentation/Tabs.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/ui/presentation/Tabs.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/ui/screens/HomeScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/ui/screens/homescreen/HomeScreen.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -73,9 +63,9 @@
         <option value="Class" />
         <option value="Kotlin Interface" />
         <option value="Kotlin Enum" />
-        <option value="Kotlin File" />
         <option value="Kotlin Data Class" />
         <option value="Kotlin Class" />
+        <option value="Kotlin File" />
       </list>
     </option>
   </component>
@@ -106,26 +96,26 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Android App.app.executor": "Run",
-    "Gradle.Upgrade Gradle wrapper.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.cidr.known.project.marker": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.readMode.enableVisualFormatting": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "cf.first.check.clang-format": "false",
-    "cidr.known.project.marker": "true",
-    "git-widget-placeholder": "compose-rewrite",
-    "ignore.virus.scanning.warn.message": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/sajsa/StudioProjects/walldo/app/src/main/res/drawable",
-    "settings.editor.selected.configurable": "AndroidSdkUpdater"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Android App.app.executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.Upgrade Gradle wrapper.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;compose-rewrite&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/sajsa/StudioProjects/walldo/app/src/main/res/drawable&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;AndroidSdkUpdater&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\sajsa\StudioProjects\walldo\app\src\main\res\drawable" />
@@ -135,6 +125,7 @@
       <recent name="com.enigmaticdevs.wallhaven.data.model" />
     </key>
     <key name="K2MoveDeclarationsDialog.RECENT_PACKAGE_KEY">
+      <recent name="com.enigmaticdevs.wallhaven.ui.screens.homescreen" />
       <recent name="com.enigmaticdevs.wallhaven.data.model.local" />
     </key>
   </component>
@@ -262,7 +253,15 @@
       <option name="project" value="LOCAL" />
       <updated>1784931261996</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="-- dont ask me, a lot of files were missing.&#10;-- a lot of files changed but it finally launched&#10;-- but still crashed on start">
+      <option name="closed" value="true" />
+      <created>1785397253489</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1785397253489</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -272,7 +271,8 @@
     <MESSAGE value="-- added metro, paging3, coil, materialkolor&#10;-- Dynamic Image Item added&#10;-- google fonts added&#10;-- HomescreenViewModel added&#10;-- Tabs Updated&#10;-- WallpaperRepository.kt added" />
     <MESSAGE value="-- added missing project files&#10;-- wip (PagingSource class)" />
     <MESSAGE value="-- updated from laptop (minor changes)" />
-    <option name="LAST_COMMIT_MESSAGE" value="-- updated from laptop (minor changes)" />
+    <MESSAGE value="-- dont ask me, a lot of files were missing.&#10;-- a lot of files changed but it finally launched&#10;-- but still crashed on start" />
+    <option name="LAST_COMMIT_MESSAGE" value="-- dont ask me, a lot of files were missing.&#10;-- a lot of files changed but it finally launched&#10;-- but still crashed on start" />
   </component>
   <component name="play_dynamic_filters_status">
     <option name="appIdToCheckInfo">

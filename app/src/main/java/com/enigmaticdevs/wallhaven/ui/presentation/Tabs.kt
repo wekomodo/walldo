@@ -8,11 +8,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.DateRange
 import androidx.compose.material.icons.rounded.Star
-import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryTabRow
@@ -26,19 +24,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.enigmaticdevs.wallhaven.data.model.Wallpapers
+import com.enigmaticdevs.wallhaven.data.Objects.Sorting
 import com.enigmaticdevs.wallhaven.data.model.local.TabItem
-import com.enigmaticdevs.wallhaven.ui.screens.SpacerX
+import com.enigmaticdevs.wallhaven.domain.viewmodels.WallpaperListViewModel
+import com.enigmaticdevs.wallhaven.ui.screens.homescreen.SpacerX
+import com.enigmaticdevs.wallhaven.ui.screens.homescreen.WallpaperListScreen
 
 @Composable
 fun Tabs(
     contentPaddingValues: PaddingValues,
-    wallpapersList: Wallpapers
+    onPhotoClick : (String) -> Unit
 ) {
-    val titles = listOf<TabItem>(TabItem("Popular",Icons.Rounded.Star), TabItem("Recent",Icons.Rounded.DateRange))
+    val titles = listOf(TabItem("Popular",Icons.Rounded.Star), TabItem("Recent",Icons.Rounded.DateRange))
     var state by remember { mutableIntStateOf(0) }
     val pagerState = rememberPagerState(
         initialPage = 0,
@@ -86,9 +85,11 @@ fun Tabs(
             modifier = Modifier.fillMaxWidth().weight(1f)) { index ->
             when(index){
                 0->{
+                    WallpaperListScreen( sorting = Sorting.topList, onPhotoClick = onPhotoClick)
                     Text("Popular")
                 }
                 1->{
+                    WallpaperListScreen( sorting = Sorting.topList, onPhotoClick = onPhotoClick)
                     Text("Latest")
                 }
             }

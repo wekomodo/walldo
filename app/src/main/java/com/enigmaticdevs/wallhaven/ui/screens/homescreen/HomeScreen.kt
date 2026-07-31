@@ -1,4 +1,4 @@
-package com.enigmaticdevs.wallhaven.ui.screens
+package com.enigmaticdevs.wallhaven.ui.screens.homescreen
 
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -21,25 +21,29 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.enigmaticdevs.wallhaven.R
-import com.enigmaticdevs.wallhaven.data.model.Wallpapers
-import com.enigmaticdevs.wallhaven.domain.viewmodels.HomeScreenViewModel
 import com.enigmaticdevs.wallhaven.ui.presentation.Tabs
-import dev.zacsweers.metrox.viewmodel.metroViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    viewModel : HomeScreenViewModel = metroViewModel()
+    onPhotoClick : (String) -> Unit
 ) {
-   val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+    HomeScreenContent(onPhotoClick = onPhotoClick)
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HomeScreenContent(onPhotoClick: (String) -> Unit) {
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             CenterAlignedTopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
-                   // containerColor = MaterialTheme.colorScheme.surface,
+                    // containerColor = MaterialTheme.colorScheme.surface,
                     titleContentColor = MaterialTheme.colorScheme.primary,
                 ),
                 title = {
@@ -67,17 +71,9 @@ fun HomeScreen(
             )
         }
     ) {
-        innerPadding->
-        Tabs(innerPadding, Wallpapers(emptyList()))
+            innerPadding->
+        Tabs(innerPadding, onPhotoClick = onPhotoClick )
     }
-}
-
-
-@Composable
-fun HomeScreenContent(
-  //  state : Homestate,
-
-){
 
 
 }
@@ -92,5 +88,7 @@ fun SpacerX(height: Int) {
 @Composable
 fun HomeScreenPreview(){
 
-    HomeScreen()
+    HomeScreenContent(
+        onPhotoClick = {}
+    )
 }

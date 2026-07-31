@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import com.enigmaticdevs.wallhaven.data.Objects.App
 import com.enigmaticdevs.wallhaven.data.remote.WallhavenAPI
 import com.enigmaticdevs.wallhaven.domain.repository.WallpaperRepository
+import com.enigmaticdevs.wallhaven.domain.viewmodels.WallpaperListViewModel
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.DependencyGraph
@@ -33,6 +34,7 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "us
 
 @DependencyGraph(AppScope::class)
 interface AppGraph : ViewModelGraph{
+
 
     @Binds
     val MyViewModelFactory.bind: MetroViewModelFactory

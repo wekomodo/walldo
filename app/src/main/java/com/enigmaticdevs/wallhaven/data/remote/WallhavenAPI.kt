@@ -12,6 +12,8 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
+import io.ktor.client.statement.HttpResponse
+import okhttp3.Response
 
 
 @Inject
@@ -20,10 +22,10 @@ class WallhavenAPI(
 ){
 
     suspend fun getWallpapersBySort(
-        sorting: Sorting,
-        purity: Purity,
-        category: Category,
-        topRange: TopRange,
+        sorting: String,
+        purity: String,
+        category: String,
+        topRange: String,
         ratio: String,
         resolution: String,
         page: Int
@@ -35,15 +37,15 @@ class WallhavenAPI(
         parameter("ratios", ratio)
         parameter("atleast", resolution)
         parameter("page", page)
-    }.body()
+    }.body<Wallpapers>()
 
 
     suspend fun getSearchWallpapers(
         query: String,
-        sorting: Sorting,
-        purity: Purity,
-        category: Category,
-        topRange: TopRange,
+        sorting: String,
+        purity: String,
+        category: String,
+        topRange: String,
         ratio: String,
         resolution: String,
         page: Int
@@ -56,13 +58,13 @@ class WallhavenAPI(
         parameter("ratios", ratio)
         parameter("atleast", resolution)
         parameter("page", page)
-    }.body()
+    }.body<Wallpapers>()
 
-    suspend fun getWallpaper(id: String): Wallpaper = client.get("w/$id") {
+    suspend fun getWallpaper(id: String): Wallpaper? = client.get("w/$id") {
         parameter("id", id)
     }.body()
 
-    suspend fun authenticateApiKey(apiKey: String): AuthenticateAPIkey = client.get("settings") {
+    suspend fun authenticateApiKey(apiKey: String): AuthenticateAPIkey? = client.get("settings") {
         parameter("apiKey",apiKey)
     }.body()
 
