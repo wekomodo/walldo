@@ -1,7 +1,6 @@
 # Walldo - Walls from Wallhaven (Android App)
 
-![App
-Logo](https://github.com/wekomodo/walldo/blob/master/images/icon.png)
+![App Logo](images/icon.png)
 
 ## Overview
 
@@ -16,7 +15,7 @@ gradually migrating to Jetpack Compose.
 -   📱 10,000+ Google Play downloads
 -   ⭐ 200+ user reviews
 -   ⭐ 4.3 average rating
--   🌍 Open-source on GitHub
+-   🌍 Open source on GitHub
 
 ## Tech Stack
 
@@ -62,12 +61,12 @@ gradually migrating to Jetpack Compose.
 
 ## Features
 
--   Browse wallpapers from Wallhaven.cc
--   Search wallpapers using the Wallhaven API
+-   Minimal, Material 3 interface
+-   Browse and search wallpapers from Wallhaven.cc
 -   Favorites with local persistence
 -   Automatic wallpaper scheduling using WorkManager
--   Material 3 Dynamic Colors
--   Infinite scrolling using Paging 3
+-   Dynamic color support
+-   Infinite scrolling with Paging 3
 -   Firebase Analytics and Crashlytics integration
 -   Google Play Billing support
 
@@ -75,8 +74,6 @@ gradually migrating to Jetpack Compose.
 
 Walldo follows the MVVM architecture to separate presentation, business
 logic, and data layers.
-
-The project uses:
 
 -   MVVM Architecture
 -   Repository Pattern
@@ -90,15 +87,14 @@ The project uses:
 
 -   Git version control
 -   Open-source development on GitHub
--   Feature-based iterative development
--   Agile-inspired development workflow
+-   Iterative feature development
 -   Modular, maintainable code organization
 -   Technical documentation for setup and maintenance
 
 ## Running the Project
 
 1.  Add `google-services.json` to `app/src/main`.
-2.  Add your `googlePlayLicenseKey` to `local.properties`.
+2.  Add `googlePlayLicenseKey` to `local.properties`.
 3.  Build and run the application.
 
 ## Project Structure
@@ -126,8 +122,8 @@ app/
   Lottie                   Animations
   DataStore                Local preferences
   Firebase Analytics       Usage analytics
-  Crashlytics              Crash reporting
-  Google Play Billing v6   In-app billing
+  Firebase Crashlytics     Crash reporting
+  Google Play Billing v6   In-app purchases
 
 ## Screenshots
 
