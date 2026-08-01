@@ -127,14 +127,15 @@ app/
 
 ## Screenshots
 
-::: {style="display:flex; flex-wrap:wrap;"}
-`<img alt="App image" src="images/walldo1.png" width="30%">`{=html}
-`<img alt="App image" src="images/walldo2.png" width="30%">`{=html}
-`<img alt="App image" src="images/walldo3.png" width="30%">`{=html}
-`<img alt="App image" src="images/walldo4.png" width="30%">`{=html}
-`<img alt="App image" src="images/walldo5.png" width="30%">`{=html}
-`<img alt="App image" src="images/walldo6.png" width="30%">`{=html}
-:::
+<div style="display:flex; flex-wrap:wrap;">
+  <img alt="App image" src="images/walldo1.png" width="30%">
+  <img alt="App image" src="images/walldo2.png" width="30%">
+  <img alt="App image" src="images/walldo3.png" width="30%">
+  <img alt="App image" src="images/walldo4.png" width="30%">
+  <img alt="App image" src="images/walldo5.png" width="30%">
+  <img alt="App image" src="images/walldo6.png" width="30%">
+</div>
+
 
 ## Roadmap
 
