@@ -1,0 +1,16 @@
+
+# Gradle files
+.gradle/
+build/
+
+# Local configuration (your personal SDK path)
+local.properties
+
+# Android Studio / IntelliJ artifacts
+.idea/workspace.xml
+.idea/libraries/
+*.iml
+
+# Keystore signing keys (Never share these!)
+*.jks
+*.keystore
