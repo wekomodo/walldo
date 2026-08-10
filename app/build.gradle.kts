@@ -42,6 +42,7 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.material3)
     implementation(libs.googleFonts)
+    implementation(libs.material3)
     implementation(libs.materialIcons)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.ui)

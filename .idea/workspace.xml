@@ -9,22 +9,11 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fc5b4a0f-179e-44d8-a3ef-9fb433a7a227" name="Changes" comment="-- dont ask me, a lot of files were missing.&#10;-- a lot of files changed but it finally launched&#10;-- but still crashed on start">
-      <change afterPath="$PROJECT_DIR$/.idea/modules/app/wallhaven.app.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/data/model/local/WallhavenAPIparams.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/domain/viewmodels/WallpaperListViewModel.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/ui/screens/homescreen/WallpaperListScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
+    <list default="true" id="fc5b4a0f-179e-44d8-a3ef-9fb433a7a227" name="Changes" comment="-- fixed gitignore&#10;-- updated gradle&#10;--">
+      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/MainActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/MainActivity.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/data/model/Wallpapers.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/data/model/Wallpapers.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/data/remote/WallhavenAPI.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/data/remote/WallhavenAPI.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/di/AppGraph.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/di/AppGraph.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/di/MyViewModelFactory.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/di/MyViewModelFactory.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/domain/repository/WallpaperRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/domain/repository/WallpaperRepository.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/domain/viewmodels/HomeScreenViewModel.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/ui/presentation/Tabs.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/ui/presentation/Tabs.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/ui/screens/HomeScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/enigmaticdevs/wallhaven/ui/screens/homescreen/HomeScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/app/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle/libs.versions.toml" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/libs.versions.toml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -78,12 +67,12 @@
     &quot;assignee&quot;: &quot;wekomodo&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/wekomodo/walldo.git&quot;,
-    &quot;accountId&quot;: &quot;0da1f846-78d1-44f2-8f1f-b8c61c5705cc&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/wekomodo/walldo",
+    "accountId": "b2c44a69-939e-41bf-887e-2fb2a6c8e6a1"
   }
-}</component>
+}]]></component>
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="CurrentFile" />
   </component>
@@ -272,7 +261,8 @@
     <MESSAGE value="-- added missing project files&#10;-- wip (PagingSource class)" />
     <MESSAGE value="-- updated from laptop (minor changes)" />
     <MESSAGE value="-- dont ask me, a lot of files were missing.&#10;-- a lot of files changed but it finally launched&#10;-- but still crashed on start" />
-    <option name="LAST_COMMIT_MESSAGE" value="-- dont ask me, a lot of files were missing.&#10;-- a lot of files changed but it finally launched&#10;-- but still crashed on start" />
+    <MESSAGE value="-- fixed gitignore&#10;-- updated gradle&#10;--" />
+    <option name="LAST_COMMIT_MESSAGE" value="-- fixed gitignore&#10;-- updated gradle&#10;--" />
   </component>
   <component name="play_dynamic_filters_status">
     <option name="appIdToCheckInfo">
