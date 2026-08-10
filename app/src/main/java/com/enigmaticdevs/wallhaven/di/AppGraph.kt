@@ -16,6 +16,7 @@ import dev.zacsweers.metro.Provider
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
 import dev.zacsweers.metrox.viewmodel.MetroViewModelFactory
+import dev.zacsweers.metrox.viewmodel.ViewModelAssistedFactory
 import dev.zacsweers.metrox.viewmodel.ViewModelGraph
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
@@ -41,8 +42,9 @@ interface AppGraph : ViewModelGraph{
 
     @Provides
     fun provideMyViewModelFactory(
-        providers: Map<KClass<out ViewModel>, Provider<ViewModel>>
-    ): MyViewModelFactory = MyViewModelFactory(providers)
+        providers: Map<KClass<out ViewModel>, Provider<ViewModel>>,
+        assistedProviders: Map<KClass<out ViewModel>, Provider<ViewModelAssistedFactory>>
+    ): MyViewModelFactory = MyViewModelFactory(providers,assistedProviders)
 
 
     @DependencyGraph.Factory
