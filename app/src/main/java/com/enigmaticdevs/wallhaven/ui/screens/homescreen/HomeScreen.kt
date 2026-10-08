@@ -24,18 +24,16 @@ import com.enigmaticdevs.wallhaven.R
 import com.enigmaticdevs.wallhaven.ui.presentation.Tabs
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    onPhotoClick : (String) -> Unit
+    onPhotoClick : () -> Unit
 ) {
     HomeScreenContent(onPhotoClick = onPhotoClick)
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreenContent(onPhotoClick: (String) -> Unit) {
+fun HomeScreenContent(onPhotoClick: () -> Unit) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
 
     Scaffold(

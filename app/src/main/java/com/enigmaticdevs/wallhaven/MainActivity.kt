@@ -11,16 +11,13 @@ import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
 
 class MainActivity : ComponentActivity() {
 
-   /* override val defaultViewModelProviderFactory: ViewModelProvider.Factory
-        get() = (application as MyApp).appGraph.metroViewModelFactory*/
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val appGraph = (application as MyApp).appGraph
+        val metroViewModelFactory = (application as MyApp).appGraph.metroViewModelFactory
 
         enableEdgeToEdge()
         setContent {
-            CompositionLocalProvider( LocalMetroViewModelFactory provides appGraph.metroViewModelFactory) {
+            CompositionLocalProvider( LocalMetroViewModelFactory provides metroViewModelFactory) {
                 WallhavenTheme {
                     HomeScreen() {
 

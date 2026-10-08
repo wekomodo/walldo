@@ -15,6 +15,7 @@ import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.Provider
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 import dev.zacsweers.metrox.viewmodel.MetroViewModelFactory
 import dev.zacsweers.metrox.viewmodel.ViewModelAssistedFactory
 import dev.zacsweers.metrox.viewmodel.ViewModelGraph
@@ -34,7 +35,7 @@ import kotlin.reflect.KClass
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "user_prefs")
 
 @DependencyGraph(AppScope::class)
-interface AppGraph : ViewModelGraph{
+interface AppGraph : ViewModelGraph {
 
 
     @Binds
@@ -43,8 +44,10 @@ interface AppGraph : ViewModelGraph{
     @Provides
     fun provideMyViewModelFactory(
         providers: Map<KClass<out ViewModel>, Provider<ViewModel>>,
-        assistedProviders: Map<KClass<out ViewModel>, Provider<ViewModelAssistedFactory>>
-    ): MyViewModelFactory = MyViewModelFactory(providers,assistedProviders)
+        assistedProviders: Map<KClass<out ViewModel>, Provider<ViewModelAssistedFactory>>,
+        manualAssistedFactoryProviders: Map<KClass<out ManualViewModelAssistedFactory>, Provider<ManualViewModelAssistedFactory>>
+    ): MyViewModelFactory =
+        MyViewModelFactory(providers, assistedProviders, manualAssistedFactoryProviders)
 
 
     @DependencyGraph.Factory
@@ -58,21 +61,25 @@ interface AppGraph : ViewModelGraph{
 
     @SingleIn(AppScope::class)
     @Provides
-    fun provideRepository(wallhavenApi : WallhavenAPI) : WallpaperRepository = WallpaperRepository(wallhavenApi)
+    fun provideRepository(wallhavenApi: WallhavenAPI): WallpaperRepository =
+        WallpaperRepository(wallhavenApi)
 
     @SingleIn(AppScope::class)
     @Provides
-    fun provideDatastore(context : Context) : DataStore<Preferences> = context.dataStore
+    fun provideDatastore(context: Context): DataStore<Preferences> = context.dataStore
 
     @Provides
     fun provideKtorClient(apiKeyProvider: ApiKeyProvider): HttpClient = HttpClient(CIO) {
         install(ContentNegotiation) {
-            json(Json { ignoreUnknownKeys= true })
+            json(Json {
+                ignoreUnknownKeys = true
+                isLenient = true
+            })
         }
         defaultRequest {
             url(App.API_URL)
             apiKeyProvider.currentKey?.let {
-                header("apiKey",it)
+                header("apiKey", it)
             }
         }
     }

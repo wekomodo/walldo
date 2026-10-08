@@ -1,5 +1,9 @@
 package com.enigmaticdevs.wallhaven.data.model
 
+import kotlinx.serialization.Serializable
+
+
+@Serializable
 data class DataX(
     val aspect_ratios: List<String>,
     val categories: List<String>,

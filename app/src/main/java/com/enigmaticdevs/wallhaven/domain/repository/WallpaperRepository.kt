@@ -13,9 +13,10 @@ class WallpaperRepository(
     private val wallhavenAPI: WallhavenAPI
 ) {
 
-    suspend fun getWallpapersBySort(params : WallhavenAPIparams
-    ) : Result<Wallpapers> = runCatching{
-         wallhavenAPI.getWallpapersBySort(
+    suspend fun getWallpapersBySort(
+        params: WallhavenAPIparams
+    ): Result<Wallpapers> = runCatching {
+        wallhavenAPI.getWallpapersBySort(
             params.sorting,
             params.purity,
             params.category,
@@ -24,6 +25,11 @@ class WallpaperRepository(
             params.resolution,
             params.page
         )
+    }.recoverCatching { throwable ->
 
+        throw when (throwable) {
+            is Exception -> throwable
+            else -> Exception("Something went wrong")
+        }
     }
 }

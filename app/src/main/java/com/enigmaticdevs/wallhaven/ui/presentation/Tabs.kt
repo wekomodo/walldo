@@ -30,12 +30,13 @@ import com.enigmaticdevs.wallhaven.data.Objects.Sorting
 import com.enigmaticdevs.wallhaven.data.model.local.TabItem
 import com.enigmaticdevs.wallhaven.domain.viewmodels.WallpaperListViewModel
 import com.enigmaticdevs.wallhaven.ui.screens.homescreen.SpacerX
+import com.enigmaticdevs.wallhaven.ui.screens.homescreen.WallpaperListRoute
 import com.enigmaticdevs.wallhaven.ui.screens.homescreen.WallpaperListScreen
 
 @Composable
 fun Tabs(
     contentPaddingValues: PaddingValues,
-    onPhotoClick : (String) -> Unit
+    onPhotoClick : () -> Unit
 ) {
     val titles = listOf(TabItem("Popular",Icons.Rounded.Star), TabItem("Recent",Icons.Rounded.DateRange))
     var state by remember { mutableIntStateOf(0) }
@@ -82,15 +83,16 @@ fun Tabs(
         }
         SpacerX(4)
         HorizontalPager(state = pagerState,
+            beyondViewportPageCount = 2,
             modifier = Modifier.fillMaxWidth().weight(1f)) { index ->
             when(index){
                 0->{
-                    WallpaperListScreen( sorting = Sorting.topList, onPhotoClick = onPhotoClick)
-                    Text("Popular")
+                    WallpaperListRoute( sorting = Sorting.topList, onPhotoClick = onPhotoClick)
+                    //Text("Popular")
                 }
                 1->{
-                    WallpaperListScreen( sorting = Sorting.topList, onPhotoClick = onPhotoClick)
-                    Text("Latest")
+                    WallpaperListRoute( sorting = Sorting.dateAdded, onPhotoClick = onPhotoClick)
+                   // Text("Latest")
                 }
             }
         }

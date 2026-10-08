@@ -69,7 +69,7 @@ dependencies {
     implementation(libs.datastore)
 
     //coil
-    implementation(libs.coil)
+    implementation(libs.bundles.coil)
 
     //materialKolor
     implementation(libs.materialKolor)

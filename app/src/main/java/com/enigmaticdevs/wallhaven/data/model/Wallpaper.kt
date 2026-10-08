@@ -1,5 +1,8 @@
 package com.enigmaticdevs.wallhaven.data.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Wallpaper(
     val category: String,
     val colors: List<String>,
@@ -16,9 +19,9 @@ data class Wallpaper(
     val resolution: String,
     val short_url: String,
     val source: String,
-    val tags: List<Tag>,
+    val tags: List<Tag>? = null,
     val thumbs: Thumbs,
-    val uploader: Uploader,
+    val uploader: Uploader?  = null,
     val url: String,
     val views: Int
 )
