@@ -17,7 +17,6 @@ materialKolor = "5.0.0-alpha07"
 material3 = "1.5.0-alpha25"
 googleFonts = "1.12.1"
 paging = "3.5.2"
-material3Version = "1.4.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -51,7 +50,6 @@ metro-viewModel = {group="dev.zacsweers.metro",name="metrox-viewmodel",version.r
 metro-viewmodel-compose = {group="dev.zacsweers.metro",name="metrox-viewmodel-compose",version.ref="metro"}
 paging-runtime = { module = "androidx.paging:paging-runtime", version.ref = "paging" }
 paging-compose = { module = "androidx.paging:paging-compose", version.ref = "paging" }
-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3Version" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

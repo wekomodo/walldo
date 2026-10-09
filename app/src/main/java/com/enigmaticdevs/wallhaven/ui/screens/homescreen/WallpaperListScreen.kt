@@ -30,6 +30,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
@@ -41,7 +44,6 @@ import com.enigmaticdevs.wallhaven.data.model.local.Purity
 import com.enigmaticdevs.wallhaven.data.model.local.WallhavenAPIparams
 import com.enigmaticdevs.wallhaven.domain.viewmodels.WallpaperListViewModel
 import com.enigmaticdevs.wallhaven.domain.viewmodels.WallpaperListViewModel.Factory
-import com.enigmaticdevs.wallhaven.domain.viewmodels.WallpaperUiState
 import com.enigmaticdevs.wallhaven.ui.presentation.ErrorOccurred
 import com.enigmaticdevs.wallhaven.util.aspectRatio
 import dev.zacsweers.metrox.viewmodel.assistedMetroViewModel
@@ -53,7 +55,7 @@ val TAG = "WallpaperListScreen"
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun WallpaperListScreen(
-    uiState: WallpaperUiState,
+    uiState: LazyPagingItems<Wallpaper>,
     onPhotoClick: () -> Unit,
     onLoadMore: () -> Unit
 ) {
@@ -62,9 +64,9 @@ fun WallpaperListScreen(
         contentAlignment = Alignment.Center
     ) {
 
-        when (uiState) {
+        when (uiState.loadState.refresh) {
 
-            is WallpaperUiState.Success -> {
+            /* is WallpaperUiState.Success -> {
                 val list = uiState.wallpapers.wallpaperList
                 WallpaperListGrid(list, onPhotoClick)
             }
@@ -80,15 +82,24 @@ fun WallpaperListScreen(
             }
             is WallpaperUiState.Loading -> {
                 ContainedLoadingIndicator()
+            }*/
+            is LoadState.Error -> {
+                val message = "Something went wrong!"
+                ErrorOccurred(message) { }
             }
+            is LoadState.Loading ->   ContainedLoadingIndicator()
+            is LoadState.NotLoading -> {
 
+                val list = uiState
+                WallpaperListGrid(list, onPhotoClick)
+            }
         }
     }
 }
 
 
 @Composable
-fun WallpaperListGrid(photos: List<Wallpaper>, onPhotoClick: () -> Unit) {
+fun WallpaperListGrid(photos: LazyPagingItems<Wallpaper>, onPhotoClick: () -> Unit) {
 
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Fixed(2),
@@ -100,8 +111,11 @@ fun WallpaperListGrid(photos: List<Wallpaper>, onPhotoClick: () -> Unit) {
     ) {
        // Log.d("$TAG(wallpaperList)", photos.toString())
 
-        items(photos) {
-            WallpaperCard(it, onPhotoClick)
+        items(count = photos.itemCount) { index ->
+            val wallpaper = photos[index]
+            if (wallpaper != null) {
+                WallpaperCard(wallpaper, onPhotoClick)
+            }
         }
     }
 }
@@ -148,38 +162,23 @@ fun WallpaperListRoute(
         )
     }
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    Log.d(TAG, sorting)
-    val params = WallhavenAPIparams(
-        sorting = sorting,
-        purity = "111",
-        category = "111",
-        topRange = TopRange.oneYear,
-        ratio = "",
-        resolution = "",
-        page = 1
-    )
-
-    LaunchedEffect(key1 = sorting) {
-        viewModel.getWallpapersBySort(params)
-    }
-
+    val lazyWallpapers = viewModel.wallpaperFLow.collectAsLazyPagingItems()
     //passing data to the stateless screen
     WallpaperListScreen(
-        uiState,
+        lazyWallpapers,
         onPhotoClick = onPhotoClick,
         onLoadMore = {
         }
     )
 }
-
+/*
 @Preview
 @Composable
 fun WallpaperListScreenPreview() {
     WallpaperListScreen(
-        uiState = WallpaperUiState.Loading,
+        uiState = LoadState.Loading,
         onPhotoClick = {},
         onLoadMore = {}
     )
-}
+}*/
 

@@ -7,22 +7,50 @@ import com.enigmaticdevs.wallhaven.data.model.Wallpaper
 import com.enigmaticdevs.wallhaven.data.model.Wallpapers
 import com.enigmaticdevs.wallhaven.data.model.local.Category
 import com.enigmaticdevs.wallhaven.data.model.local.Purity
+import com.enigmaticdevs.wallhaven.data.model.local.WallhavenAPIparams
 import com.enigmaticdevs.wallhaven.data.remote.WallhavenAPI
 
-/*
 class WallpaperPagingSource(
     private val api: WallhavenAPI,
-    private val sorting : Sorting,
-    private val purity: Purity,
-    private val category: Category
+    private val apiParams: WallhavenAPIparams
 ) : PagingSource<Int,Wallpaper>(){
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Wallpaper> {
+        val currentPage = params.key ?: 1
 
-    override fun getRefreshKey(state : PagingState<Int, Wallpapers>) : Int? {
+        return try {
+            val response = api.getWallpapersBySort(
+                sorting = apiParams.sorting,
+                purity = apiParams.purity,
+                category = apiParams.category,
+                topRange = apiParams.topRange,
+                ratio = apiParams.ratio,
+                resolution = apiParams.resolution,
+                page = currentPage
+            )
+            val wallpapers = response.wallpaperList
+            val meta = response.meta
 
-        return state.anchorPosition?.let { anchor ->
-            state.closestPageToPosition(anchor)?.prevKey?.plus(1)
-                ?:state.closestPageToPosition(anchor)?.nextKey?.minus(1)
+            //return success with pointers to prev/next pages
+            LoadResult.Page(
+                data = wallpapers,
+                prevKey = if(currentPage==1) null else currentPage-1,
+                nextKey = if(currentPage>=meta.last_page || wallpapers.isEmpty()) null else currentPage + 1
+            )
+
+        }
+        catch (exception : Exception){
+            LoadResult.Error(exception)
+
+
         }
     }
 
-}*/
+    override fun getRefreshKey(state: PagingState<Int, Wallpaper>): Int? {
+        return state.anchorPosition?.let {
+            state.closestPageToPosition(it)?.prevKey?.plus(1)
+                ?: state.closestPageToPosition(anchorPosition = it)?.nextKey?.minus(1)
+        }
+    }
+
+
+}

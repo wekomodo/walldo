@@ -1,12 +1,13 @@
 package com.enigmaticdevs.wallhaven.domain.viewmodels
 
 
-import android.util.Log
-import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.enigmaticdevs.wallhaven.data.model.Wallpapers
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import com.enigmaticdevs.wallhaven.data.model.Wallpaper
 import com.enigmaticdevs.wallhaven.data.model.local.WallhavenAPIparams
+import com.enigmaticdevs.wallhaven.domain.repository.GlobalFilterRepository
 import com.enigmaticdevs.wallhaven.domain.repository.WallpaperRepository
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Assisted
@@ -15,10 +16,16 @@ import dev.zacsweers.metro.AssistedInject
 import dev.zacsweers.metro.ContributesIntoMap
 import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactoryKey
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
+
+// no longer needed with paging3 since it contains loadstates
+/*
 @Immutable // Optimizes Jetpack Compose rendering performance
 sealed interface WallpaperUiState {
 
@@ -42,27 +49,41 @@ sealed interface WallpaperUiState {
         val isTransient: Boolean = false // True if error happened during pagination (keeps old data on screen)
     ) : WallpaperUiState
 }
+*/
 
 
 @AssistedInject
 class WallpaperListViewModel(
     @Assisted private val sorting : String,
+    private val globalFilterRepository: GlobalFilterRepository,
     private val repository: WallpaperRepository
 ) : ViewModel() {
     private val TAG = "WallpaperListViewModel"
-    private val _uiState = MutableStateFlow<WallpaperUiState>(WallpaperUiState.Loading)
-    val uiState : StateFlow<WallpaperUiState> = _uiState
 
-    init {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val wallpaperFLow : Flow<PagingData<Wallpaper>> = globalFilterRepository.filters.map {
+        filters ->
+        WallhavenAPIparams(
+            sorting = sorting,
+            purity = filters.purity,
+            category = filters.category,
+            ratio = filters.ratio,
+            resolution = filters.resolution,
+            topRange =  filters.topRange,
+            page = 1
+        )
+    }.flatMapLatest { mergedParams ->
+        repository.getWallpapersBySort(mergedParams)
+    }.cachedIn(viewModelScope)
 
-    }
-
-    fun getWallpapersBySort(params : WallhavenAPIparams){
-        viewModelScope.launch {
-            _uiState.value = WallpaperUiState.Loading
+    /*fun getWallpapersBySort(params : WallhavenAPIparams){
+        viewModelScope.launch(Dispatchers.IO) {
 
             // calls the api to fetch wallpapers
             val networkResult = repository.getWallpapersBySort(params)
+
+            *//*
+            _uiState.value = WallpaperUiState.Loading
 
             networkResult.onSuccess { it ->
                 _uiState.value = WallpaperUiState.Success(
@@ -72,13 +93,12 @@ class WallpaperListViewModel(
                     isPaginating = false
                 )
 
-                Log.d("Viewmodel Homescreen", it.toString())
             }.onFailure { throwable ->
-                _uiState.value = WallpaperUiState.Error("Something went wrong ${throwable.message}")
+                _uiState.value = WallpaperUiState.Error("Something went wrong")
                 throwable.message?.let { Log.e(TAG+"Error",it) }
-            }
+            }*//*
         }
-    }
+    }*/
 
 
     @AssistedFactory

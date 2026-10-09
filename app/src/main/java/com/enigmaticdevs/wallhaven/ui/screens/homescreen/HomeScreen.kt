@@ -22,6 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.enigmaticdevs.wallhaven.R
 import com.enigmaticdevs.wallhaven.ui.presentation.Tabs
+import com.enigmaticdevs.wallhaven.ui.util.FilterSelectionScreen
 
 
 @Composable
@@ -71,6 +72,7 @@ fun HomeScreenContent(onPhotoClick: () -> Unit) {
     ) {
             innerPadding->
         Tabs(innerPadding, onPhotoClick = onPhotoClick )
+       // FilterSelectionScreen()
     }
 
 
