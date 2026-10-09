@@ -36,7 +36,7 @@ import com.enigmaticdevs.wallhaven.ui.screens.homescreen.WallpaperListScreen
 @Composable
 fun Tabs(
     contentPaddingValues: PaddingValues,
-    onPhotoClick : () -> Unit
+    onPhotoClick : (String) -> Unit
 ) {
     val titles = listOf(TabItem("Popular",Icons.Rounded.Star), TabItem("Recent",Icons.Rounded.DateRange))
     var state by remember { mutableIntStateOf(0) }

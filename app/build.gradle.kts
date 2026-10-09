@@ -72,4 +72,7 @@ dependencies {
 
     //materialKolor
     implementation(libs.materialKolor)
+
+    //nav3
+    implementation(libs.bundles.nav3)
 }

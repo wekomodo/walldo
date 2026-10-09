@@ -4,6 +4,7 @@ import com.enigmaticdevs.wallhaven.data.Objects.Sorting
 import com.enigmaticdevs.wallhaven.data.Objects.TopRange
 import com.enigmaticdevs.wallhaven.data.model.AuthenticateAPIkey
 import com.enigmaticdevs.wallhaven.data.model.Wallpaper
+import com.enigmaticdevs.wallhaven.data.model.WallpaperDetail
 import com.enigmaticdevs.wallhaven.data.model.Wallpapers
 import com.enigmaticdevs.wallhaven.data.model.local.Category
 import com.enigmaticdevs.wallhaven.data.model.local.Purity
@@ -60,7 +61,7 @@ class WallhavenAPI(
         parameter("page", page)
     }.body<Wallpapers>()
 
-    suspend fun getWallpaper(id: String): Wallpaper? = client.get("w/$id") {
+    suspend fun getWallpaper(id: String): WallpaperDetail? = client.get("w/$id") {
         parameter("id", id)
     }.body()
 

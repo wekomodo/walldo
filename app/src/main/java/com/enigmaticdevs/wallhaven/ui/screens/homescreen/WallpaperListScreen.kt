@@ -34,6 +34,7 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil3.compose.AsyncImage
+import coil3.network.httpHeaders
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.enigmaticdevs.wallhaven.data.Objects.TopRange
@@ -56,7 +57,7 @@ val TAG = "WallpaperListScreen"
 @Composable
 fun WallpaperListScreen(
     uiState: LazyPagingItems<Wallpaper>,
-    onPhotoClick: () -> Unit,
+    onPhotoClick: (String) -> Unit,
     onLoadMore: () -> Unit
 ) {
     Box(
@@ -85,7 +86,9 @@ fun WallpaperListScreen(
             }*/
             is LoadState.Error -> {
                 val message = "Something went wrong!"
-                ErrorOccurred(message) { }
+                ErrorOccurred(message) {
+                    uiState.loadState.refresh
+                }
             }
             is LoadState.Loading ->   ContainedLoadingIndicator()
             is LoadState.NotLoading -> {
@@ -99,7 +102,7 @@ fun WallpaperListScreen(
 
 
 @Composable
-fun WallpaperListGrid(photos: LazyPagingItems<Wallpaper>, onPhotoClick: () -> Unit) {
+fun WallpaperListGrid(photos: LazyPagingItems<Wallpaper>, onPhotoClick: (String) -> Unit) {
 
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Fixed(2),
@@ -121,13 +124,13 @@ fun WallpaperListGrid(photos: LazyPagingItems<Wallpaper>, onPhotoClick: () -> Un
 }
 
 @Composable
-fun WallpaperCard(wallpaper: Wallpaper, onPhotoClick: () -> Unit) {
+fun WallpaperCard(wallpaper: Wallpaper, onPhotoClick: (String) -> Unit) {
     val aspectRatio = aspectRatio(wallpaper.dimension_x, wallpaper.dimension_y)
     Card(
         modifier = Modifier
             .fillMaxSize()
             .clickable(
-                onClick = onPhotoClick
+                onClick = { onPhotoClick(wallpaper.id) }
             ),
         shape = CardDefaults.elevatedShape,
 
@@ -144,7 +147,10 @@ fun WallpaperCard(wallpaper: Wallpaper, onPhotoClick: () -> Unit) {
                 .fillMaxSize()
                 .aspectRatio(aspectRatio.toFloat())
                 .defaultMinSize(minHeight = 100.dp),
-            model = wallpaper.thumbs.original,
+            model = ImageRequest.Builder(context)
+                .data(wallpaper.thumbs.original)
+                .memoryCacheKey(wallpaper.id)
+                .build(),
             contentScale = ContentScale.Crop,
             contentDescription = "image_name"
         )
@@ -155,7 +161,7 @@ fun WallpaperCard(wallpaper: Wallpaper, onPhotoClick: () -> Unit) {
 @Composable
 fun WallpaperListRoute(
     sorting: String,
-    onPhotoClick: () -> Unit,
+    onPhotoClick: (String) -> Unit,
     viewModel: WallpaperListViewModel = assistedMetroViewModel<WallpaperListViewModel, Factory> (key = sorting){
         create(
             sorting

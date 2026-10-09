@@ -17,6 +17,7 @@ materialKolor = "5.0.0-alpha07"
 material3 = "1.5.0-alpha25"
 googleFonts = "1.12.1"
 paging = "3.5.2"
+navigation = "1.2.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -50,6 +51,8 @@ metro-viewModel = {group="dev.zacsweers.metro",name="metrox-viewmodel",version.r
 metro-viewmodel-compose = {group="dev.zacsweers.metro",name="metrox-viewmodel-compose",version.ref="metro"}
 paging-runtime = { module = "androidx.paging:paging-runtime", version.ref = "paging" }
 paging-compose = { module = "androidx.paging:paging-compose", version.ref = "paging" }
+nav-ui = {module = "androidx.navigation3:navigation3-ui", version.ref = "navigation"}
+nav-runtime = {module = "androidx.navigation3:navigation3-runtime", version.ref = "navigation"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -62,4 +65,4 @@ ktor = ["ktor-core","ktor-cio","ktor-okhttp","ktor-content-negotiation","ktor-se
 metro= ["metro-viewModel","metro-viewmodel-compose"]
 paging= ["paging-compose","paging-runtime"]
 coil = ["coil","coil-network"]
-
+nav3 = ["nav-runtime","nav-ui"]

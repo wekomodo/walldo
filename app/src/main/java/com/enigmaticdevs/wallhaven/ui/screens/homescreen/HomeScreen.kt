@@ -6,7 +6,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -21,20 +20,24 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.enigmaticdevs.wallhaven.R
+import com.enigmaticdevs.wallhaven.domain.repository.GlobalFilterRepository
 import com.enigmaticdevs.wallhaven.ui.presentation.Tabs
 import com.enigmaticdevs.wallhaven.ui.util.FilterSelectionScreen
 
 
 @Composable
 fun HomeScreen(
-    onPhotoClick : () -> Unit
+    onPhotoClick: (String) -> Unit,
+    onNavigateToSettings: () -> Boolean,
+    onNavigateToSearch: () -> Boolean,
+    globalFilterRepository: GlobalFilterRepository
 ) {
-    HomeScreenContent(onPhotoClick = onPhotoClick)
+    HomeScreenContent(onPhotoClick = onPhotoClick,globalFilterRepository)
 }
 
 
 @Composable
-fun HomeScreenContent(onPhotoClick: () -> Unit) {
+fun HomeScreenContent(onPhotoClick: (String) -> Unit, globalFilterRepository: GlobalFilterRepository) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
 
     Scaffold(
@@ -72,7 +75,7 @@ fun HomeScreenContent(onPhotoClick: () -> Unit) {
     ) {
             innerPadding->
         Tabs(innerPadding, onPhotoClick = onPhotoClick )
-       // FilterSelectionScreen()
+        FilterSelectionScreen(globalFilterRepository)
     }
 
 
@@ -89,6 +92,7 @@ fun SpacerX(height: Int) {
 fun HomeScreenPreview(){
 
     HomeScreenContent(
-        onPhotoClick = {}
+        onPhotoClick = {},
+        GlobalFilterRepository()
     )
 }

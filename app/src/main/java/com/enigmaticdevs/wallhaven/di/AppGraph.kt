@@ -7,6 +7,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.ViewModel
 import com.enigmaticdevs.wallhaven.data.Objects.App
 import com.enigmaticdevs.wallhaven.data.remote.WallhavenAPI
+import com.enigmaticdevs.wallhaven.domain.repository.GlobalFilterRepository
 import com.enigmaticdevs.wallhaven.domain.repository.WallpaperRepository
 import com.enigmaticdevs.wallhaven.domain.viewmodels.WallpaperListViewModel
 import dev.zacsweers.metro.AppScope
@@ -87,6 +88,8 @@ interface AppGraph : ViewModelGraph {
     @Provides
     @SingleIn(AppScope::class)
     fun provideAppScope(): CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-}
 
+    fun provideGlobalFiltersRepository(): GlobalFilterRepository
+
+}
 
