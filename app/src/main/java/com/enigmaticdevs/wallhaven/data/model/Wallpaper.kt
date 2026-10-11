@@ -19,9 +19,9 @@ data class Wallpaper(
     val resolution: String,
     val short_url: String,
     val source: String,
-    val tags: List<Tag>? = null,
+    val tags: List<Tag> = emptyList(),
     val thumbs: Thumbs,
-    val uploader: Uploader?  = null,
+    val uploader: Uploader  = Uploader(),
     val url: String,
     val views: Int
 )
