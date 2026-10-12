@@ -87,7 +87,7 @@ fun WallpaperListScreen(
             is LoadState.Error -> {
                 val message = "Something went wrong!"
                 ErrorOccurred(message) {
-                    uiState.loadState.refresh
+                    uiState.refresh()
                 }
             }
             is LoadState.Loading ->   ContainedLoadingIndicator()
@@ -137,7 +137,7 @@ fun WallpaperCard(wallpaper: Wallpaper, onPhotoClick: (String) -> Unit) {
         ) {
         val context = LocalContext.current
         val imageRequest = ImageRequest.Builder(context)
-            .data(wallpaper.thumbs.original) // Your https://th.wallhaven.cc/... link
+            .data(wallpaper.thumbs.original) // https://th.wallhaven.cc/... link
             .crossfade(true)
             .build()
 

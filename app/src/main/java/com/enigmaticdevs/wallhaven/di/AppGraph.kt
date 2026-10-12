@@ -5,6 +5,11 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.ViewModel
+import coil3.ImageLoader
+import coil3.annotation.ExperimentalCoilApi
+import coil3.disk.DiskCache
+import coil3.memory.MemoryCache
+import coil3.network.ktor3.KtorNetworkFetcherFactory
 import com.enigmaticdevs.wallhaven.data.Objects.App
 import com.enigmaticdevs.wallhaven.data.remote.WallhavenAPI
 import com.enigmaticdevs.wallhaven.domain.repository.GlobalFilterRepository
@@ -31,6 +36,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.serialization.json.Json
+import okio.Path.Companion.toPath
 import kotlin.reflect.KClass
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "user_prefs")
@@ -85,11 +91,43 @@ interface AppGraph : ViewModelGraph {
         }
     }
 
+
+    // --- COIL 3 IMAGE LOADER ADDITION ---
+    @OptIn(ExperimentalCoilApi::class)
+    @SingleIn(AppScope::class)
+    @Provides
+    fun provideImageLoader(
+        context: Context,
+        httpClient: HttpClient
+    ): ImageLoader = ImageLoader.Builder(context)
+        .components {
+            // Reuses your existing configured Ktor client
+            add(KtorNetworkFetcherFactory(httpClient))
+        }
+        .memoryCache {
+            MemoryCache.Builder()
+                .maxSizePercent(context, 0.20)
+                .build()
+        }
+        .diskCache {
+            DiskCache.Builder()
+                .directory(context.cacheDir.resolve("walldo_cache").absolutePath.toPath())
+                .maxSizeBytes(1024L * 1024 * 1024) // 1 GB cache limit for wallpapers
+                .build()
+        }
+        .build()
+
+
+
+
     @Provides
     @SingleIn(AppScope::class)
     fun provideAppScope(): CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     fun provideGlobalFiltersRepository(): GlobalFilterRepository
+
+    // Expose the ImageLoader so your Application class can safely grab it
+    fun provideImageLoaderInstance(): ImageLoader
 
 }
 

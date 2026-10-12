@@ -1,6 +1,7 @@
 package com.enigmaticdevs.wallhaven
 
 import android.app.Application
+import coil3.SingletonImageLoader
 import com.enigmaticdevs.wallhaven.di.AppGraph
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.DependencyGraph
@@ -15,6 +16,12 @@ class MyApp(): Application() {
         super.onCreate()
         appGraph = createGraphFactory<AppGraph.Factory>().create(this)
         // Initialize your Metro Dependency Graph
+
+
+        // 2. Map Metro's ImageLoader instance to Coil's global instance
+        SingletonImageLoader.setSafe {
+            appGraph.provideImageLoaderInstance()
+        }
     }
 
 }
