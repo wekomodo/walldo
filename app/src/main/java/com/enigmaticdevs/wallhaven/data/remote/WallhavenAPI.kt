@@ -22,7 +22,8 @@ class WallhavenAPI(
     private val client : HttpClient
 ){
 
-    suspend fun getWallpapersBySort(
+    suspend fun getWallpapers(
+        query : String ="",
         sorting: String,
         purity: String,
         category: String,
@@ -31,6 +32,8 @@ class WallhavenAPI(
         resolution: String,
         page: Int
     ): Wallpapers = client.get("search") {
+        if(query.isNotBlank())
+            parameter("q",query)
         parameter("sorting", sorting)
         parameter("purity", purity)
         parameter("categories", category)

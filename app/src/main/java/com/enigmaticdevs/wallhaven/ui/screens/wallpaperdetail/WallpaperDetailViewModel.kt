@@ -1,13 +1,10 @@
-package com.enigmaticdevs.wallhaven.domain.viewmodels
+package com.enigmaticdevs.wallhaven.ui.screens.wallpaperdetail
 
 import android.util.Log
 import android.util.LruCache
-import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.enigmaticdevs.wallhaven.data.model.Wallpaper
 import com.enigmaticdevs.wallhaven.data.model.WallpaperDetail
-import com.enigmaticdevs.wallhaven.di.AppGraph
 import com.enigmaticdevs.wallhaven.domain.repository.WallpaperRepository
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesIntoMap

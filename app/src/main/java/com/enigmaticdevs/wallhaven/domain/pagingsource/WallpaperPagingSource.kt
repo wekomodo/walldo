@@ -1,24 +1,22 @@
-package com.enigmaticdevs.wallhaven.domain
+package com.enigmaticdevs.wallhaven.domain.pagingsource
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.enigmaticdevs.wallhaven.data.Objects.Sorting
 import com.enigmaticdevs.wallhaven.data.model.Wallpaper
-import com.enigmaticdevs.wallhaven.data.model.Wallpapers
-import com.enigmaticdevs.wallhaven.data.model.local.Category
-import com.enigmaticdevs.wallhaven.data.model.local.Purity
 import com.enigmaticdevs.wallhaven.data.model.local.WallhavenAPIparams
 import com.enigmaticdevs.wallhaven.data.remote.WallhavenAPI
 
 class WallpaperPagingSource(
     private val api: WallhavenAPI,
-    private val apiParams: WallhavenAPIparams
+    private val apiParams: WallhavenAPIparams,
+    private val query: String
 ) : PagingSource<Int,Wallpaper>(){
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Wallpaper> {
         val currentPage = params.key ?: 1
 
         return try {
-            val response = api.getWallpapersBySort(
+            val response = api.getWallpapers(
+                query = query,
                 sorting = apiParams.sorting,
                 purity = apiParams.purity,
                 category = apiParams.category,

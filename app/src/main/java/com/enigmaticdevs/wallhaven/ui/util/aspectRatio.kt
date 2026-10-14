@@ -1,4 +1,4 @@
-package com.enigmaticdevs.wallhaven.util
+package com.enigmaticdevs.wallhaven.ui.util
 
 
 fun aspectRatio(dimX : Int, dimY : Int ) : Double{

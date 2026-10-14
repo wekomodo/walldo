@@ -14,7 +14,6 @@ import com.enigmaticdevs.wallhaven.data.Objects.App
 import com.enigmaticdevs.wallhaven.data.remote.WallhavenAPI
 import com.enigmaticdevs.wallhaven.domain.repository.GlobalFilterRepository
 import com.enigmaticdevs.wallhaven.domain.repository.WallpaperRepository
-import com.enigmaticdevs.wallhaven.domain.viewmodels.WallpaperListViewModel
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.DependencyGraph
@@ -30,7 +29,6 @@ import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.header
-import io.ktor.http.parameters
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

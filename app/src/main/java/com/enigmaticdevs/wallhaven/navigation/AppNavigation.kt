@@ -6,9 +6,8 @@ import androidx.compose.runtime.remember
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.enigmaticdevs.wallhaven.domain.repository.GlobalFilterRepository
-import com.enigmaticdevs.wallhaven.ui.screens.detail.WallpaperDetailScreen
+import com.enigmaticdevs.wallhaven.ui.screens.wallpaperdetail.WallpaperDetailScreen
 import com.enigmaticdevs.wallhaven.ui.screens.homescreen.HomeScreen
-import com.enigmaticdevs.wallhaven.ui.screens.searchscreen.SearchScreen
 import com.enigmaticdevs.wallhaven.ui.screens.settings.SettingsScreen
 
 
@@ -33,12 +32,13 @@ fun AppNavigation(
                 )
             }
 
-            entry<Screen.Search> {
+           /* entry<Screen.Search> {
                 SearchScreen(
+                    globalFilterRepository = globalFilterRepository,
                     onWallpaperClick = { id -> backStack.add(Screen.WallpaperDetail(id)) },
                     onBack = { backStack.removeAt(backStack.lastIndex) }
                 )
-            }
+            }*/
 
             entry<Screen.Settings> {
                 SettingsScreen(

@@ -1,4 +1,4 @@
-package com.enigmaticdevs.wallhaven.ui.screens.detail
+package com.enigmaticdevs.wallhaven.ui.screens.wallpaperdetail
 
 import android.content.ClipData
 import android.content.Context
@@ -6,25 +6,20 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.rounded.Info
-import androidx.compose.material3.Card
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -54,16 +49,14 @@ import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.enigmaticdevs.wallhaven.R
 import com.enigmaticdevs.wallhaven.data.model.WallpaperDetail
-import com.enigmaticdevs.wallhaven.domain.viewmodels.WallpaperDetailViewModel
 import com.enigmaticdevs.wallhaven.navigation.Screen
-import com.enigmaticdevs.wallhaven.ui.presentation.InfoBottomSheet
+import com.enigmaticdevs.wallhaven.ui.screens.wallpaperdetail.bottomsheet.InfoBottomSheet
 import com.enigmaticdevs.wallhaven.ui.util.PhotoView
 import com.wekomodo.huntshowdownwiki.ui.components.ZoomableBox
 import dev.zacsweers.metrox.viewmodel.metroViewModel
@@ -95,7 +88,7 @@ fun WallpaperDetailScreenContent(wallpaper: WallpaperDetail?, onBack: () -> Scre
     val context = LocalContext.current
     val clipboardManager = LocalClipboard.current
     var favorite by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope() // 1. Grab the scope
+    val scope = rememberCoroutineScope()
     Scaffold(
         topBar = {
             TopAppBar(

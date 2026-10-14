@@ -9,6 +9,5 @@ data class WallhavenAPIparams(
     val category: String,
     val topRange: String,
     val ratio: String,
-    val resolution: String,
-    val page: Int
+    val resolution: String
 )
