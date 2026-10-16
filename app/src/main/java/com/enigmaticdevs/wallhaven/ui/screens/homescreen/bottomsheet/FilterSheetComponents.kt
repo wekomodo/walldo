@@ -34,16 +34,6 @@ import androidx.compose.ui.unit.dp
 
 
 
-@Composable
-fun CategoryTitle(text: String) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.titleMedium,
-        fontWeight = FontWeight.SemiBold,
-        modifier = Modifier.padding(bottom = 8.dp, start = 8.dp)
-    )
-}
-
 
 // Used in FilterBottomSheet
 @Composable
@@ -150,30 +140,3 @@ fun MultiChoiceSegmentedButton(
 
 }
 
-
-// Clickable Prefs replicated to feel like Old xml Prefs
-@Composable
-fun ClickablePref(text: String, description: String, icon: Int, onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(enabled = true, onClick = onClick)
-            .padding(8.dp)
-    ) {
-        Icon(
-            modifier = Modifier.padding(vertical = 16.dp, horizontal = 8.dp),
-            painter = painterResource(icon),
-            contentDescription = text
-        )
-        Column(
-            modifier = Modifier
-                .wrapContentSize()
-                .padding(start = 8.dp, top = 8.dp)
-        ) {
-            Text(text = text, style = MaterialTheme.typography.bodyLarge)
-            Text(text = description, style = MaterialTheme.typography.bodySmall)
-
-        }
-    }
-
-}

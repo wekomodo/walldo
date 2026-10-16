@@ -20,6 +20,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.enigmaticdevs.wallhaven.R
 import com.enigmaticdevs.wallhaven.domain.repository.FilterState
 import com.enigmaticdevs.wallhaven.domain.repository.GlobalFilterRepository
+import com.enigmaticdevs.wallhaven.ui.presentation.CategoryTitle
+import com.enigmaticdevs.wallhaven.ui.presentation.ClickablePref
 import com.enigmaticdevs.wallhaven.ui.util.ratioOptions
 import com.enigmaticdevs.wallhaven.ui.util.resolutionOptions
 

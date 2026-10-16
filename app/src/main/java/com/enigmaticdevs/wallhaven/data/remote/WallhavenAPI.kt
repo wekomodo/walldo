@@ -8,12 +8,16 @@ import com.enigmaticdevs.wallhaven.data.model.WallpaperDetail
 import com.enigmaticdevs.wallhaven.data.model.Wallpapers
 import com.enigmaticdevs.wallhaven.data.model.local.Category
 import com.enigmaticdevs.wallhaven.data.model.local.Purity
+import com.enigmaticdevs.wallhaven.di.flag.SkipSavedApiKey
 import dev.zacsweers.metro.Inject
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
+import io.ktor.client.request.header
 import io.ktor.client.request.parameter
 import io.ktor.client.statement.HttpResponse
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.isSuccess
 import okhttp3.Response
 
 
@@ -68,8 +72,16 @@ class WallhavenAPI(
         parameter("id", id)
     }.body()
 
-    suspend fun authenticateApiKey(apiKey: String): AuthenticateAPIkey? = client.get("settings") {
-        parameter("apiKey",apiKey)
-    }.body()
+    suspend fun authenticateApiKey(apiKey: String): AuthenticateAPIkey? {
+        val response = client.get("settings") {
+            attributes.put(SkipSavedApiKey, true)
+            header("X-API-Key", apiKey)
+        }
+        return when {
+            response.status == HttpStatusCode.Unauthorized -> null
+            response.status.isSuccess() -> response.body()
+            else -> error("HTTP ${response.status}")
+        }
+    }
 
 }

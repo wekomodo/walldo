@@ -33,3 +33,11 @@ fun WallhavenTheme(
         typography = Typography
     )
 }
+
+enum class ThemeMode {
+    System, Light, Dark;
+
+    companion object {
+        fun from(name: String?) = entries.firstOrNull { it.name == name } ?: System
+    }
+}

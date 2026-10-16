@@ -21,13 +21,14 @@ class ApiKeyProvider(
 ) {
 
 
+    @Volatile
     var currentKey: String? = null
         private set
 
     init {
         scope.launch {
-            userPreferences.apiKey.collect{
-                currentKey = it
+            userPreferences.apiKey.collect { raw ->
+                currentKey = raw?.trim()?.takeIf { it.isNotEmpty() }
             }
         }
     }

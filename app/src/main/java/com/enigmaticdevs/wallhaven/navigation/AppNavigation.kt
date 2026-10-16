@@ -1,59 +1,186 @@
 package com.enigmaticdevs.wallhaven.navigation
 
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
+import com.enigmaticdevs.wallhaven.R
 import com.enigmaticdevs.wallhaven.domain.repository.GlobalFilterRepository
-import com.enigmaticdevs.wallhaven.ui.screens.wallpaperdetail.WallpaperDetailScreen
 import com.enigmaticdevs.wallhaven.ui.screens.homescreen.HomeScreen
 import com.enigmaticdevs.wallhaven.ui.screens.settings.SettingsScreen
+import com.enigmaticdevs.wallhaven.ui.screens.features.autowallpaper.AutoWallpaperRoute
+import com.enigmaticdevs.wallhaven.ui.screens.features.favorites.FavoritesRoute
+import com.enigmaticdevs.wallhaven.ui.screens.wallpaperdetail.WallpaperDetailScreen
+import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 
+
+sealed interface Screen : NavKey {
+    @Serializable
+    data object Home : Screen
+    @Serializable
+    data object AutoWallpaper : Screen // New Tab
+    @Serializable
+    data object Favorites : Screen // New Tab
+    @Serializable
+    data object Settings : Screen
+    @Serializable
+    data class WallpaperDetail(val wallpaperId: String) : Screen
+}
 
 @Composable
 fun AppNavigation(
     globalFilterRepository: GlobalFilterRepository
 ) {
     val backStack = remember { mutableStateListOf<Screen>(Screen.Home) }
+    val currentScreen = backStack.lastOrNull()
 
-    NavDisplay(
-        backStack = backStack,
-        onBack = { if (backStack.size > 1) backStack.removeAt(backStack.lastIndex) },
-        // Use entryProvider block to securely map key models to composable items
-        entryProvider = entryProvider {
+    //drawerState
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
 
-            entry<Screen.Home> {
-                HomeScreen(
-                    globalFilterRepository = globalFilterRepository,
-                    onNavigateToSearch = { backStack.add(Screen.Search) },
-                    onNavigateToSettings = { backStack.add(Screen.Settings) },
-                    onPhotoClick = { id -> backStack.add(Screen.WallpaperDetail(id)) }
+
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet {
+                Spacer(Modifier.height(16.dp))
+                Text(
+                    text = "Walldo",
+                    modifier = Modifier.padding(16.dp),
+                    style = MaterialTheme.typography.headlineMedium
                 )
-            }
+                HorizontalDivider()
 
-           /* entry<Screen.Search> {
-                SearchScreen(
-                    globalFilterRepository = globalFilterRepository,
-                    onWallpaperClick = { id -> backStack.add(Screen.WallpaperDetail(id)) },
-                    onBack = { backStack.removeAt(backStack.lastIndex) }
+                NavigationDrawerItem(
+                    label = { Text("Home") },
+                    selected = currentScreen is Screen.Home,
+                    icon = { Icon(Icons.Filled.Home, contentDescription = "Home") },
+                    onClick = {
+                        scope.launch { drawerState.close() }
+                        if (currentScreen !is Screen.Home) {
+                            backStack.clear()
+                            backStack.add(Screen.Home)
+                        }
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
                 )
-            }*/
 
-            entry<Screen.Settings> {
-                SettingsScreen(
-                    //globalFilterRepository = globalFilterRepository,
-                    onBack = { backStack.removeAt(backStack.lastIndex) }
+                NavigationDrawerItem(
+                    label = { Text("Auto-Wallpaper") },
+                    selected = currentScreen is Screen.AutoWallpaper,
+                    icon = { Icon(painter = painterResource(R.drawable.ic_auto_wallpaper), contentDescription = "Auto") },
+                    onClick = {
+                        scope.launch { drawerState.close() }
+                        if (currentScreen !is Screen.AutoWallpaper) {
+                            backStack.add(Screen.AutoWallpaper)
+                        }
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
                 )
-            }
 
-            // Extract route properties securely for parametric screens
-            entry<Screen.WallpaperDetail> { route ->
-                WallpaperDetailScreen(
-                    wallpaperId = route.wallpaperId,
-                    onBack = {backStack.removeAt(backStack.lastIndex) }
+                NavigationDrawerItem(
+                    label = { Text("Favorites") },
+                    selected = currentScreen is Screen.Favorites,
+                    icon = { Icon(Icons.Filled.Favorite, contentDescription = "Favorites") },
+                    onClick = {
+                        scope.launch { drawerState.close() }
+                        if (currentScreen !is Screen.Favorites) {
+                            backStack.add(Screen.Favorites)
+                        }
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+                )
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+                NavigationDrawerItem(
+                    label = { Text("Settings") },
+                    selected = currentScreen is Screen.Settings,
+                    icon = { Icon(Icons.Filled.Settings, contentDescription = "Settings") },
+                    onClick = {
+                        scope.launch { drawerState.close() }
+                        if (currentScreen !is Screen.Settings) {
+                            backStack.add(Screen.Settings)
+                        }
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
                 )
             }
         }
-    )
+    ) {
+
+        NavDisplay(
+            backStack = backStack,
+            onBack = { if (backStack.size > 1) backStack.removeAt(backStack.lastIndex) },
+            // Use entryProvider block to securely map key models to composable items
+            entryProvider = entryProvider {
+
+                entry<Screen.Home> {
+                    HomeScreen(
+                        globalFilterRepository = globalFilterRepository,
+                        //onNavigateToSearch = { backStack.add(Screen.Search) },
+                        onNavigateToSettings = { backStack.add(Screen.Settings) },
+                        onPhotoClick = { id -> backStack.add(Screen.WallpaperDetail(id)) },
+                        onOpenDrawer = {
+                            scope.launch {  drawerState.open()}
+                        }
+                    )
+                }
+
+                entry<Screen.AutoWallpaper>{
+                    AutoWallpaperRoute(
+                        onOpenDrawer = {
+                            scope.launch {  drawerState.open()}
+                        }
+                        //onBack = { backStack.removeAt(backStack.lastIndex)}
+                    )
+                }
+                entry<Screen.Favorites>{
+                    FavoritesRoute(
+                        onOpenDrawer = {
+                            scope.launch {  drawerState.open()}
+                        }
+                    )
+                }
+                entry<Screen.Settings> {
+                    SettingsScreen(
+                        //globalFilterRepository = globalFilterRepository,
+                        onBack = { backStack.removeAt(backStack.lastIndex) }
+                    )
+                }
+
+                // Extract route properties securely for parametric screens
+                entry<Screen.WallpaperDetail> { route ->
+                    WallpaperDetailScreen(
+                        wallpaperId = route.wallpaperId,
+                        onBack = { backStack.removeAt(backStack.lastIndex) }
+                    )
+                }
+            }
+        )
+    }
 }
+

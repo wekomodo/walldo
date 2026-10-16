@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import com.enigmaticdevs.wallhaven.data.model.AuthenticateAPIkey
 import com.enigmaticdevs.wallhaven.data.model.Wallpaper
 import com.enigmaticdevs.wallhaven.data.model.WallpaperDetail
 import com.enigmaticdevs.wallhaven.data.model.local.WallhavenAPIparams
@@ -46,4 +47,7 @@ class WallpaperRepository(
         }
         return null
     }
+
+
+
 }

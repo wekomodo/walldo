@@ -54,7 +54,8 @@ import dev.zacsweers.metrox.viewmodel.metroViewModel
 fun HomeScreen(
     onPhotoClick: (String) -> Unit,
     onNavigateToSettings: () -> Boolean,
-    onNavigateToSearch: () -> Boolean,
+   // onNavigateToSearch: () -> Boolean,
+    onOpenDrawer :() -> Unit,
     globalFilterRepository: GlobalFilterRepository,
     viewModel: HomeViewModel = metroViewModel()
 ) {
@@ -79,7 +80,10 @@ fun HomeScreen(
         globalFilterRepository,
         onNavigateToSettings,
         updateSort = {viewModel.updateSort(it)},
-        onSearch = {viewModel.triggerSearch(it)})
+        onSearch = {viewModel.triggerSearch(it)},
+        onOpenDrawer = onOpenDrawer
+    )
+
 }
 
 
@@ -92,7 +96,8 @@ fun HomeScreenContent(
     globalFilterRepository: GlobalFilterRepository,
     onNavigateToSettings: () -> Boolean,
     updateSort : (String) -> Unit,
-    onSearch : (String) -> Unit
+    onSearch : (String) -> Unit,
+    onOpenDrawer: () -> Unit
 ) {
     val textFieldState = rememberTextFieldState("")
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
@@ -117,7 +122,7 @@ fun HomeScreenContent(
                 },
                 navigationIcon = {
                     IconButton(
-                        onClick = {}) {
+                        onClick = onOpenDrawer) {
                         Icon(
                             imageVector = Icons.Filled.Menu,
                             contentDescription = "Menu Button"

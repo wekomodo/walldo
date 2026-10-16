@@ -12,11 +12,13 @@ import coil3.memory.MemoryCache
 import coil3.network.ktor3.KtorNetworkFetcherFactory
 import com.enigmaticdevs.wallhaven.data.Objects.App
 import com.enigmaticdevs.wallhaven.data.remote.WallhavenAPI
+import com.enigmaticdevs.wallhaven.di.flag.savedApiKeyPlugin
 import com.enigmaticdevs.wallhaven.domain.repository.GlobalFilterRepository
 import com.enigmaticdevs.wallhaven.domain.repository.WallpaperRepository
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.DependencyGraph
+import dev.zacsweers.metro.Named
 import dev.zacsweers.metro.Provider
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
@@ -73,6 +75,7 @@ interface AppGraph : ViewModelGraph {
     @Provides
     fun provideDatastore(context: Context): DataStore<Preferences> = context.dataStore
 
+    @SingleIn(AppScope::class)
     @Provides
     fun provideKtorClient(apiKeyProvider: ApiKeyProvider): HttpClient = HttpClient(CIO) {
         install(ContentNegotiation) {
@@ -83,11 +86,15 @@ interface AppGraph : ViewModelGraph {
         }
         defaultRequest {
             url(App.API_URL)
-            apiKeyProvider.currentKey?.let {
-                header("apiKey", it)
-            }
         }
+        install(savedApiKeyPlugin(apiKeyProvider))
     }
+
+    // Image client: plain, no API headers, no JSON plugin
+    @Named("images")
+    @SingleIn(AppScope::class)
+    @Provides
+    fun provideImageHttpClient(): HttpClient = HttpClient(CIO)
 
 
     // --- COIL 3 IMAGE LOADER ADDITION ---
@@ -96,7 +103,7 @@ interface AppGraph : ViewModelGraph {
     @Provides
     fun provideImageLoader(
         context: Context,
-        httpClient: HttpClient
+        @Named("images")httpClient: HttpClient
     ): ImageLoader = ImageLoader.Builder(context)
         .components {
             // Reuses your existing configured Ktor client
