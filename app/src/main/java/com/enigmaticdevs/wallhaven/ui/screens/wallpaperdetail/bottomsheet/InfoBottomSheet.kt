@@ -26,11 +26,11 @@ import com.enigmaticdevs.wallhaven.data.model.Wallpaper
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InfoBottomSheet(wallpaperInfo: Wallpaper, onDismiss: () -> Unit) {
+fun InfoBottomSheet(wallpaperInfo: Wallpaper, onDismiss: () -> Unit, onTagClick: (String) -> Unit) {
     val sheetState = rememberBottomSheetState(
         initialValue = SheetValue.Hidden,
 
-    )
+        )
     // val scope = rememberCoroutineScope()
     ModalBottomSheet(
         onDismissRequest = {
@@ -38,19 +38,28 @@ fun InfoBottomSheet(wallpaperInfo: Wallpaper, onDismiss: () -> Unit) {
         },
         sheetState = sheetState
     ) {
-       // Text("THIS IS BOTTOM SHEET YEEEHAW")
+        // Text("THIS IS BOTTOM SHEET YEEEHAW")
         BottomSheetContent(
             wallpaperInfo.id,
             wallpaperInfo.resolution,
             wallpaperInfo.colors,
-            wallpaperInfo.tags
+            wallpaperInfo.tags,
+            onTagClick,
+            onDismiss
         )
 
     }
 }
 
 @Composable
-fun BottomSheetContent(id: String, resolution: String, colors: List<String>, tags: List<Tag>) {
+fun BottomSheetContent(
+    id: String,
+    resolution: String,
+    colors: List<String>,
+    tags: List<Tag>,
+    onTagClick: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
     Column(
         modifier = Modifier
             .wrapContentSize()
@@ -64,9 +73,11 @@ fun BottomSheetContent(id: String, resolution: String, colors: List<String>, tag
             modifier = Modifier.padding(bottom = 8.dp)
         )
         Column(
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
-         //   horizontalAlignment = Alignment.SpaceBetween,
+            //   horizontalAlignment = Alignment.SpaceBetween,
         ) {
             InfoItem(title = "ID", value = id)
             HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
@@ -89,7 +100,9 @@ fun BottomSheetContent(id: String, resolution: String, colors: List<String>, tag
         ) {
             tags.forEach {
                 AssistChip(
-                    onClick = { /* Optional: Navigate to search screen with this tag */ },
+                    onClick = {
+                        onTagClick(it.name)
+                        onDismiss()},
                     label = { Text(it.name) },
                     //elevation = AssistChipDefaults.elevatedAssistChipElevation(8.dp)
                 )
@@ -122,6 +135,8 @@ fun InfoBottomSheetPreview() {
         "12355",
         "1920x1080",
         listOf("red", "black", "yellow"),
-        listOf(Tag(id = 1), Tag(id = 2))
+        listOf(Tag(id = 1), Tag(id = 2)),
+        onTagClick = { },
+        onDismiss = {}
     )
 }

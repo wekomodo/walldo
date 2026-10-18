@@ -1,5 +1,6 @@
 package com.enigmaticdevs.wallhaven.navigation
 
+import android.util.Log
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -39,13 +40,17 @@ import kotlinx.serialization.Serializable
 
 sealed interface Screen : NavKey {
     @Serializable
-    data object Home : Screen
+    data class Home(val initialQuery: String? = null) : Screen
+
     @Serializable
     data object AutoWallpaper : Screen // New Tab
+
     @Serializable
     data object Favorites : Screen // New Tab
+
     @Serializable
     data object Settings : Screen
+
     @Serializable
     data class WallpaperDetail(val wallpaperId: String) : Screen
 }
@@ -54,7 +59,7 @@ sealed interface Screen : NavKey {
 fun AppNavigation(
     globalFilterRepository: GlobalFilterRepository
 ) {
-    val backStack = remember { mutableStateListOf<Screen>(Screen.Home) }
+    val backStack = remember { mutableStateListOf<Screen>(Screen.Home()) }
     val currentScreen = backStack.lastOrNull()
 
     //drawerState
@@ -82,7 +87,7 @@ fun AppNavigation(
                         scope.launch { drawerState.close() }
                         if (currentScreen !is Screen.Home) {
                             backStack.clear()
-                            backStack.add(Screen.Home)
+                            backStack.add(Screen.Home())
                         }
                     },
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
@@ -91,7 +96,12 @@ fun AppNavigation(
                 NavigationDrawerItem(
                     label = { Text("Auto-Wallpaper") },
                     selected = currentScreen is Screen.AutoWallpaper,
-                    icon = { Icon(painter = painterResource(R.drawable.ic_auto_wallpaper), contentDescription = "Auto") },
+                    icon = {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_auto_wallpaper),
+                            contentDescription = "Auto"
+                        )
+                    },
                     onClick = {
                         scope.launch { drawerState.close() }
                         if (currentScreen !is Screen.AutoWallpaper) {
@@ -138,37 +148,39 @@ fun AppNavigation(
             // Use entryProvider block to securely map key models to composable items
             entryProvider = entryProvider {
 
-                entry<Screen.Home> {
+                entry<Screen.Home> { route ->
                     HomeScreen(
+                        initialQuery = route.initialQuery,
                         globalFilterRepository = globalFilterRepository,
                         //onNavigateToSearch = { backStack.add(Screen.Search) },
                         onNavigateToSettings = { backStack.add(Screen.Settings) },
                         onPhotoClick = { id -> backStack.add(Screen.WallpaperDetail(id)) },
                         onOpenDrawer = {
-                            scope.launch {  drawerState.open()}
+                            scope.launch { drawerState.open() }
                         }
                     )
                 }
 
-                entry<Screen.AutoWallpaper>{
+                entry<Screen.AutoWallpaper> {
                     AutoWallpaperRoute(
                         onOpenDrawer = {
-                            scope.launch {  drawerState.open()}
+                            scope.launch { drawerState.open() }
                         }
                         //onBack = { backStack.removeAt(backStack.lastIndex)}
                     )
                 }
-                entry<Screen.Favorites>{
+                entry<Screen.Favorites> {
                     FavoritesRoute(
                         onOpenDrawer = {
-                            scope.launch {  drawerState.open()}
+                            scope.launch { drawerState.open() }
                         }
                     )
                 }
                 entry<Screen.Settings> {
                     SettingsScreen(
                         //globalFilterRepository = globalFilterRepository,
-                        onBack = { backStack.removeAt(backStack.lastIndex) }
+                        onBack = {
+                            backStack.removeAt(backStack.lastIndex) }
                     )
                 }
 
@@ -176,7 +188,12 @@ fun AppNavigation(
                 entry<Screen.WallpaperDetail> { route ->
                     WallpaperDetailScreen(
                         wallpaperId = route.wallpaperId,
-                        onBack = { backStack.removeAt(backStack.lastIndex) }
+                        onBack = { backStack.removeAt(backStack.lastIndex) },
+                        onTagClick = { tag ->
+                            Log.d("APP nav",tag)
+                            backStack.clear()
+                            backStack.add(Screen.Home(tag))
+                        }
                     )
                 }
             }

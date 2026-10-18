@@ -3,6 +3,7 @@ package com.enigmaticdevs.wallhaven.ui.screens.settings
 import android.content.Context
 import android.util.Log
 import androidx.activity.contextaware.ContextAware
+import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import coil3.ImageLoader
@@ -16,11 +17,13 @@ import dev.zacsweers.metro.SingleIn
 import dev.zacsweers.metrox.viewmodel.ViewModelKey
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -90,7 +93,6 @@ class SettingsViewModel(
     fun updateTheme(mode: ThemeMode) {
         viewModelScope.launch { repository.updateTheme(mode.name) }
     }
-
     fun authenticateAPIkey(apiKey: String) {
         val key = apiKey.trim()
         if (_keyCheck.value == KeyCheck.Checking) return
@@ -124,10 +126,6 @@ class SettingsViewModel(
 
     fun resetKeyCheck() {
         _keyCheck.value = KeyCheck.Idle
-    }
-
-    fun updateApiKey(newKey: String) {
-        viewModelScope.launch { repository.updateApiKey(newKey.trim()) }
     }
 
     fun clearImageCache() {

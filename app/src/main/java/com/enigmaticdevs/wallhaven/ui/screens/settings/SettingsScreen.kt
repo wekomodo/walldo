@@ -1,5 +1,6 @@
 package com.enigmaticdevs.wallhaven.ui.screens.settings
 
+import android.R.id.mask
 import android.text.format.Formatter
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,6 +11,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -24,8 +27,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -35,7 +43,9 @@ import com.enigmaticdevs.wallhaven.navigation.Screen
 import com.enigmaticdevs.wallhaven.ui.presentation.CategoryTitle
 import com.enigmaticdevs.wallhaven.ui.presentation.ClickablePref
 import com.enigmaticdevs.wallhaven.ui.presentation.PrefTopAppBar
+import com.enigmaticdevs.wallhaven.ui.screens.settings.presentation.MaskExceptLastNVisualTransformation
 import dev.zacsweers.metrox.viewmodel.metroViewModel
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @Composable
@@ -51,9 +61,11 @@ fun SettingsScreen(
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
     val scope = rememberCoroutineScope()
+    //val currentKey by viewModel.currentKey.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         viewModel.events.collect { snackBarHostState.showSnackbar(it) }
+        //  viewModel.getCurrentKey()
     }
 
     // Close the dialog once the key is saved
@@ -137,7 +149,7 @@ fun SettingsScreen(
 
     if (showApiKeyDialog) {
         ApiKeyDialog(
-            currentKey = "", // pass from ViewModel
+            currentKey = state.apiKey, // pass from ViewModel
             onSave = viewModel::authenticateAPIkey,
             keyCheck = keyCheck,
             onDismiss = {
@@ -156,8 +168,16 @@ fun ApiKeyDialog(
     keyCheck: KeyCheck,
     onDismiss: () -> Unit
 ) {
-    var keyText by remember { mutableStateOf(currentKey) }
+    var keyText by remember(currentKey) { mutableStateOf(currentKey) }
     val checking = keyCheck == KeyCheck.Checking
+    var isKeyVisible by remember { mutableStateOf(false) }
+    val maskedTransformation = remember { MaskExceptLastNVisualTransformation(4) }
+    val brush = remember {
+        Brush.linearGradient(
+            colors = listOf(Color.Red, Color.Yellow, Color.Green, Color.Blue, Color.Magenta)
+        )
+    }
+
 
     AlertDialog(
         onDismissRequest = { if (!checking) onDismiss() },
@@ -165,17 +185,36 @@ fun ApiKeyDialog(
         text = {
             OutlinedTextField(
                 value = keyText,
+                // visualTransformation = VisualTransformation.None,
+                // textStyle = TextStyle(brush),
                 onValueChange = { keyText = it },
                 label = { Text("API Key") },
                 singleLine = true,
+                visualTransformation = if(isKeyVisible){
+                    VisualTransformation.None
+                }else
+                    maskedTransformation,
                 isError = keyCheck == KeyCheck.Invalid || keyCheck == KeyCheck.NetworkError,
                 supportingText = {
                     when (keyCheck) {
-                        KeyCheck.Invalid -> Text("Invalid API key")
-                        KeyCheck.NetworkError -> Text("Couldn't reach Wallhaven. Check your connection.")
+                        KeyCheck.NetworkError -> Text("Invalid API key")
+                       // KeyCheck.NetworkError -> Text("Couldn't reach Wallhaven. Check your connection.")
                         else -> {
 
                         }
+                    }
+                },
+                trailingIcon = {
+                    IconButton(
+                        onClick = {
+                            isKeyVisible = !isKeyVisible
+                        }
+                    ) {
+                        Icon(
+                            painter = painterResource(
+                                if (isKeyVisible) R.drawable.ic_visibility_on else R.drawable.ic_visibility_off
+                            ), contentDescription = "visibility modifier"
+                        )
                     }
                 },
                 modifier = Modifier.fillMaxWidth()

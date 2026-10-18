@@ -1,5 +1,7 @@
 package com.enigmaticdevs.wallhaven.ui.screens.homescreen
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -50,9 +52,12 @@ import com.enigmaticdevs.wallhaven.ui.screens.homescreen.components.SortChipRow
 import dev.zacsweers.metrox.viewmodel.metroViewModel
 
 
+val TAG = "Homescreen"
+
 @Composable
 fun HomeScreen(
     onPhotoClick: (String) -> Unit,
+    initialQuery: String? = null,
     onNavigateToSettings: () -> Boolean,
    // onNavigateToSearch: () -> Boolean,
     onOpenDrawer :() -> Unit,
@@ -62,6 +67,14 @@ fun HomeScreen(
     val currentFilters by viewModel.globalFilterRepository.filters.collectAsState()
     val lazyWallpapers = viewModel.wallpapers.collectAsLazyPagingItems()
     val activeSort by viewModel.activeSort.collectAsState()
+
+    LaunchedEffect(initialQuery) {
+        initialQuery?.let {
+            viewModel.triggerSearch(initialQuery)
+            Log.d(TAG, "Initial Query: $initialQuery")
+        }
+
+    }
     LaunchedEffect(key1 =currentFilters) {
         val params = WallhavenAPIparams(
             sorting = activeSort,
@@ -71,9 +84,9 @@ fun HomeScreen(
             resolution = currentFilters.resolution,
             topRange = currentFilters.topRange
         )
-        viewModel
     }
     HomeScreenContent(
+        initialQuery = initialQuery,
         activeSort = activeSort,
         wallpapers = lazyWallpapers,
         onPhotoClick = onPhotoClick,
@@ -90,6 +103,7 @@ fun HomeScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreenContent(
+    initialQuery: String?,
     activeSort : String,
     wallpapers : LazyPagingItems<Wallpaper>,
     onPhotoClick: (String) -> Unit,
@@ -99,7 +113,7 @@ fun HomeScreenContent(
     onSearch : (String) -> Unit,
     onOpenDrawer: () -> Unit
 ) {
-    val textFieldState = rememberTextFieldState("")
+    val textFieldState = rememberTextFieldState(initialQuery?: "")
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
     var showFilterSheet by remember { mutableStateOf(false) }
     Scaffold(

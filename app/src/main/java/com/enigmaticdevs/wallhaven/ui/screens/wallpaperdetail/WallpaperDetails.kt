@@ -71,6 +71,7 @@ private val TAG = "WallpaperDetailScreen"
 fun WallpaperDetailScreen(
     wallpaperId: String,
     onBack: () -> Screen,
+    onTagClick : (String) -> Unit,
     viewModel: WallpaperDetailViewModel = metroViewModel()
 ) {
     Log.d("$TAG(wallpaperId)", wallpaperId)
@@ -78,12 +79,12 @@ fun WallpaperDetailScreen(
         viewModel.getWallpaperDetails(wallpaperId)
     }
     val wallpaper = viewModel.wallpaper.collectAsState().value
-    WallpaperDetailScreenContent(wallpaper, onBack)
+    WallpaperDetailScreenContent(wallpaper, onBack, onTagClick = onTagClick)
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun WallpaperDetailScreenContent(wallpaper: WallpaperDetail?, onBack: () -> Screen) {
+fun WallpaperDetailScreenContent(wallpaper: WallpaperDetail?, onBack: () -> Screen,onTagClick: (String) -> Unit) {
     var showInfoSheet by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val clipboardManager = LocalClipboard.current
@@ -154,9 +155,11 @@ fun WallpaperDetailScreenContent(wallpaper: WallpaperDetail?, onBack: () -> Scre
                             )
                         }
                         if (showInfoSheet)
-                            InfoBottomSheet(wallpaper.data) {
+                            InfoBottomSheet(wallpaperInfo = wallpaper.data,
+                                onTagClick = onTagClick,
+                                onDismiss = {
                                 showInfoSheet = false
-                            }
+                            })
                     } ?: run {
                         CenteredLoadingIndicator()
                     }
@@ -285,5 +288,5 @@ fun CircleColorPalette(colors: List<String>, onClick: (String) -> Unit) {
 @Preview
 @Composable
 fun WallpaperDetailContentPreview() {
-    WallpaperDetailScreenContent(null, onBack = { Screen.Home })
+    WallpaperDetailScreenContent(null, onBack = { Screen.Home() }, onTagClick = {})
 }

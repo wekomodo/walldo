@@ -38,3 +38,10 @@ val resolutionOptions = listOf(
     "1280x1024 (5:4)" to "1280x1024",
     "None" to ""
 )
+
+val searchInfoMessage =  "• tagname (Search fuzzily for a tag) \n" +
+        "• -tagname (exludes a tag/keyword)\n" +
+        "• +tag1+tag2 (must have tag1 and tag2)\n" +
+        "• @username (useruploads)\n" +
+        "• id:123 (Exact tag search(not ImageID))\n" +
+        "• like:wallpaper ID (Find wallpapers with similar tags)"

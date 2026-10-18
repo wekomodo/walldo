@@ -24,6 +24,14 @@ android {
     buildTypes {
         release {
             optimization {
+                isMinifyEnabled =true
+                isShrinkResources = true
+                proguardFiles(
+                    getDefaultProguardFile("proguard-android-optimize.txt"),
+                    "proguard-rules.pro"
+                )
+                // Optional: sign with debug keystore so you can test easily on your device
+                signingConfig = signingConfigs.getByName("debug")
                 enable = false
             }
         }
@@ -75,4 +83,10 @@ dependencies {
 
     //nav3
     implementation(libs.bundles.nav3)
+}
+
+// In Kotlin 2.0+ with the Jetpack Compose Compiler plugin:
+composeCompiler {
+    reportsDestination = layout.buildDirectory.dir("compose_compiler")
+    metricsDestination = layout.buildDirectory.dir("compose_compiler")
 }

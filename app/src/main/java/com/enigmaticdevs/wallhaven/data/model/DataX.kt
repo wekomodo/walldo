@@ -1,8 +1,10 @@
 package com.enigmaticdevs.wallhaven.data.model
 
+import androidx.compose.runtime.Immutable
 import kotlinx.serialization.Serializable
 
 
+@Immutable
 @Serializable
 data class DataX(
     val aspect_ratios: List<String>,

@@ -16,6 +16,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.rounded.Clear
+import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExpandedFullScreenSearchBar
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -24,6 +26,7 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberSearchBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -40,6 +43,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.unit.dp
 import com.enigmaticdevs.wallhaven.data.Objects.Sorting
+import com.enigmaticdevs.wallhaven.ui.util.searchInfoMessage
 import kotlinx.coroutines.launch
 
 
@@ -114,6 +118,7 @@ fun SimpleSearchBar(
     val searchBarState = rememberSearchBarState()
     val scope = rememberCoroutineScope()
     var showSearchBar by remember { mutableStateOf(true) }
+    var showInfoDialog by remember { mutableStateOf(false) }
     //  val focusRequester = remember { FocusRequester() }
 
     // 2. Fire the focus request the moment this composable enters the screen
@@ -135,8 +140,10 @@ fun SimpleSearchBar(
                     IconButton(
                         onClick = {
                             // Clears the text field
-                            textFieldState.edit { replace(0, length, "")
-                            onSearch("")}
+                            textFieldState.edit {
+                                replace(0, length, "")
+                                onSearch("")
+                            }
                         }
                     ) {
                         Icon(
@@ -159,13 +166,28 @@ fun SimpleSearchBar(
                 isTraversalGroup = true
             })
     {
-        SearchBar(
-            state = searchBarState,
-            inputField = inputField,
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .semantics { traversalIndex = 0f }
-        )
+        Row(
+            Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            SearchBar(
+                state = searchBarState,
+                inputField = inputField,
+                modifier = Modifier
+                    .padding(start = 8.dp)
+                    .semantics { traversalIndex = 0f }
+            )
+            IconButton(
+                onClick = {
+                    showInfoDialog = !showInfoDialog
+                }
+            ) {
+                Icon(imageVector = Icons.Rounded.Info, "Search Info")
+            }
+        }
+        if(showInfoDialog)
+            InfoAlertDialog { showInfoDialog = false }
         ExpandedFullScreenSearchBar(
             state = searchBarState,
             inputField = inputField
@@ -208,6 +230,26 @@ fun SimpleSearchBar(
         }
 
     }
+}
+
+@Composable
+fun InfoAlertDialog(
+    onDismissRequest : () -> Unit,
+){
+   AlertDialog(
+        onDismissRequest = onDismissRequest,
+        title = {
+            Text("Ways to find what you're looking for")
+        },
+       text = {
+           Text(searchInfoMessage)
+       },
+       confirmButton = {
+           TextButton(onClick = onDismissRequest) {
+               Text("Okay")
+           }
+       }
+    )
 }
 
 @Composable
