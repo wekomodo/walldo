@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.ViewModel
 import com.enigmaticdevs.wallhaven.R
 import com.enigmaticdevs.wallhaven.domain.repository.FilterState
 import com.enigmaticdevs.wallhaven.domain.repository.GlobalFilterRepository
@@ -24,16 +25,20 @@ import com.enigmaticdevs.wallhaven.ui.presentation.CategoryTitle
 import com.enigmaticdevs.wallhaven.ui.presentation.ClickablePref
 import com.enigmaticdevs.wallhaven.ui.util.ratioOptions
 import com.enigmaticdevs.wallhaven.ui.util.resolutionOptions
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FilterBottomSheet(globalFilterRepository: GlobalFilterRepository, onDismiss: () -> Unit) {
+fun FilterBottomSheet(
+    onDismiss: () -> Unit,
+    viewModel : FilterViewModel = metroViewModel()
+) {
     val sheetState = rememberBottomSheetState(
         initialValue = SheetValue.Hidden,
 
         )
-    val filterState by globalFilterRepository.filters.collectAsState()
+    val filterState by viewModel.filters.collectAsState()
 // val scope = rememberCoroutineScope()
     ModalBottomSheet(
         onDismissRequest = {
@@ -43,10 +48,10 @@ fun FilterBottomSheet(globalFilterRepository: GlobalFilterRepository, onDismiss:
         // Text("THIS IS BOTTOM SHEET YEEEHAW")
         FilterBottomSheetContent(
             filterState = filterState,
-            onResolutionChange = { globalFilterRepository.updateResolutions(it) },
-            onRatioChange = { globalFilterRepository.updateRatios(it) },
-            onCategoryChange = { globalFilterRepository.updateCategory(it) },
-            onPurityChange = { globalFilterRepository.updatePurity(it) },
+            onResolutionChange = viewModel::updateResolutions ,
+            onRatioChange = viewModel::updateRatios,
+            onCategoryChange = viewModel::updateCategory,
+            onPurityChange = viewModel::updatePurity,
         )
 
     }
@@ -66,7 +71,8 @@ fun FilterBottomSheetContent(
     val categories = listOf("General", "Anime", "People")
     val purity = listOf("SFW", "SKETCHY", "NSFW (API)")
     val currentRatioLabel = ratioOptions.find { it.second == filterState.ratio }?.first ?: "None"
-    val currentResolutionLabel = resolutionOptions.find { it.second == filterState.resolution }?.first?: "None"
+    val currentResolutionLabel =
+        resolutionOptions.find { it.second == filterState.resolution }?.first ?: "None"
 
     Column(
         modifier = Modifier
@@ -83,14 +89,14 @@ fun FilterBottomSheetContent(
                 text = "Resolution Filter",
                 description = "Only greater than your chosen resolution will be shown",
                 icon = R.drawable.ic_resolution,
-                onClick = { showResolutionDialog = true}
+                onClick = { showResolutionDialog = true }
             )
             HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
             ClickablePref(
                 text = "Ratio Filter",
                 description = "Selected Ratios will be shown",
                 icon = R.drawable.ic_ratio,
-                onClick = { showRatioDialog = true})
+                onClick = { showRatioDialog = true })
         }
 
         HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
@@ -132,11 +138,8 @@ fun FilterBottomSheetContent(
 }
 
 
-
-
-
 @Preview
 @Composable
 fun FilterBottomSheetPreview() {
-   // FilterBottomSheetContent()
+    // FilterBottomSheetContent()
 }

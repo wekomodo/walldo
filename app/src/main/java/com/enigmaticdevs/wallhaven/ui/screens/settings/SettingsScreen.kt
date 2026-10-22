@@ -3,17 +3,26 @@ package com.enigmaticdevs.wallhaven.ui.screens.settings
 import android.R.id.mask
 import android.text.format.Formatter
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -26,6 +35,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -44,6 +54,7 @@ import com.enigmaticdevs.wallhaven.ui.presentation.CategoryTitle
 import com.enigmaticdevs.wallhaven.ui.presentation.ClickablePref
 import com.enigmaticdevs.wallhaven.ui.presentation.PrefTopAppBar
 import com.enigmaticdevs.wallhaven.ui.screens.settings.presentation.MaskExceptLastNVisualTransformation
+import com.enigmaticdevs.wallhaven.ui.theme.ThemeMode
 import dev.zacsweers.metrox.viewmodel.metroViewModel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -146,6 +157,13 @@ fun SettingsScreen(
 
         }
     }
+    if(showThemeDialog){
+        ThemeSelectionDialog(
+            currentTheme = state.theme,
+            onThemeSelected = viewModel::updateTheme,
+            onDismiss = { showThemeDialog = false }
+        )
+    }
 
     if (showApiKeyDialog) {
         ApiKeyDialog(
@@ -190,15 +208,15 @@ fun ApiKeyDialog(
                 onValueChange = { keyText = it },
                 label = { Text("API Key") },
                 singleLine = true,
-                visualTransformation = if(isKeyVisible){
+                visualTransformation = if (isKeyVisible) {
                     VisualTransformation.None
-                }else
+                } else
                     maskedTransformation,
                 isError = keyCheck == KeyCheck.Invalid || keyCheck == KeyCheck.NetworkError,
                 supportingText = {
                     when (keyCheck) {
                         KeyCheck.NetworkError -> Text("Invalid API key")
-                       // KeyCheck.NetworkError -> Text("Couldn't reach Wallhaven. Check your connection.")
+                        // KeyCheck.NetworkError -> Text("Couldn't reach Wallhaven. Check your connection.")
                         else -> {
 
                         }
@@ -239,7 +257,50 @@ fun ApiKeyDialog(
 }
 
 @Composable
-fun Content() {
+fun ThemeSelectionDialog(
+    currentTheme: ThemeMode,
+    onThemeSelected: (ThemeMode) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val themeOptions = ThemeMode.entries
 
 
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Choose Theme") },
+        text = {
+            Column(Modifier.selectableGroup().wrapContentSize()) {
+                themeOptions.forEach { theme ->
+                    val isSelected = (theme == currentTheme)
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                            .selectable(
+                                selected = currentTheme == theme,
+                                onClick = {
+                                    onThemeSelected(theme)
+                                }),
+                        verticalAlignment = Alignment.CenterVertically
+                    ){
+                        RadioButton(
+                            selected = isSelected,
+                            onClick = null
+                        )
+                        (Spacer(Modifier.width(12.dp)))
+                        Text(
+                            text = theme.name,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+
+    )
 }

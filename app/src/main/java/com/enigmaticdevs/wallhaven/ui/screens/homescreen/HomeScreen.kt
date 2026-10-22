@@ -11,7 +11,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.rounded.Settings
@@ -50,6 +52,7 @@ import com.enigmaticdevs.wallhaven.ui.screens.homescreen.components.WallpaperLis
 import com.enigmaticdevs.wallhaven.ui.screens.homescreen.components.SimpleSearchBar
 import com.enigmaticdevs.wallhaven.ui.screens.homescreen.components.SortChipRow
 import dev.zacsweers.metrox.viewmodel.metroViewModel
+import kotlinx.coroutines.flow.filterNotNull
 
 
 val TAG = "Homescreen"
@@ -57,25 +60,20 @@ val TAG = "Homescreen"
 @Composable
 fun HomeScreen(
     onPhotoClick: (String) -> Unit,
-    initialQuery: String? = null,
-    onNavigateToSettings: () -> Boolean,
-   // onNavigateToSearch: () -> Boolean,
-    onOpenDrawer :() -> Unit,
-    globalFilterRepository: GlobalFilterRepository,
+    onOpenDrawer: () -> Unit,
     viewModel: HomeViewModel = metroViewModel()
 ) {
     val currentFilters by viewModel.globalFilterRepository.filters.collectAsState()
     val lazyWallpapers = viewModel.wallpapers.collectAsLazyPagingItems()
     val activeSort by viewModel.activeSort.collectAsState()
-
-    LaunchedEffect(initialQuery) {
-        initialQuery?.let {
-            viewModel.triggerSearch(initialQuery)
-            Log.d(TAG, "Initial Query: $initialQuery")
+    val textFieldState = rememberTextFieldState()
+    LaunchedEffect(Unit) {
+        viewModel.savedQuery.filterNotNull().collect {
+            textFieldState.setTextAndPlaceCursorAtEnd(it)
         }
-
     }
-    LaunchedEffect(key1 =currentFilters) {
+
+    LaunchedEffect(key1 = currentFilters) {
         val params = WallhavenAPIparams(
             sorting = activeSort,
             purity = currentFilters.purity,
@@ -86,14 +84,12 @@ fun HomeScreen(
         )
     }
     HomeScreenContent(
-        initialQuery = initialQuery,
+        textFieldState = textFieldState,
         activeSort = activeSort,
         wallpapers = lazyWallpapers,
         onPhotoClick = onPhotoClick,
-        globalFilterRepository,
-        onNavigateToSettings,
-        updateSort = {viewModel.updateSort(it)},
-        onSearch = {viewModel.triggerSearch(it)},
+        updateSort = { viewModel.updateSort(it) },
+        onSearch = { viewModel.triggerSearch(it) },
         onOpenDrawer = onOpenDrawer
     )
 
@@ -103,17 +99,15 @@ fun HomeScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreenContent(
-    initialQuery: String?,
-    activeSort : String,
-    wallpapers : LazyPagingItems<Wallpaper>,
+    textFieldState : TextFieldState,
+    activeSort: String,
+    wallpapers: LazyPagingItems<Wallpaper>,
     onPhotoClick: (String) -> Unit,
-    globalFilterRepository: GlobalFilterRepository,
-    onNavigateToSettings: () -> Boolean,
-    updateSort : (String) -> Unit,
-    onSearch : (String) -> Unit,
+    updateSort: (String) -> Unit,
+    onSearch: (String) -> Unit,
     onOpenDrawer: () -> Unit
 ) {
-    val textFieldState = rememberTextFieldState(initialQuery?: "")
+
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
     var showFilterSheet by remember { mutableStateOf(false) }
     Scaffold(
@@ -128,15 +122,22 @@ fun HomeScreenContent(
                     Row(
                         modifier = Modifier.wrapContentSize()
                     ) {
-                        Icon(modifier = Modifier.size(24.dp), painter = painterResource(R.drawable.wall), contentDescription = "")
-                        Text(stringResource(R.string.app_name),
-                            style = MaterialTheme.typography.titleLarge)
+                        Icon(
+                            modifier = Modifier.size(24.dp),
+                            painter = painterResource(R.drawable.wall),
+                            contentDescription = ""
+                        )
+                        Text(
+                            stringResource(R.string.app_name),
+                            style = MaterialTheme.typography.titleLarge
+                        )
                     }
 
                 },
                 navigationIcon = {
                     IconButton(
-                        onClick = onOpenDrawer) {
+                        onClick = onOpenDrawer
+                    ) {
                         Icon(
                             imageVector = Icons.Filled.Menu,
                             contentDescription = "Menu Button"
@@ -156,14 +157,14 @@ fun HomeScreenContent(
             }
 
         }
-    ) {
-            innerPadding->
+    ) { innerPadding ->
 
         //old way using two tabs
-       // Tabs(innerPadding, onPhotoClick = onPhotoClick )
+        // Tabs(innerPadding, onPhotoClick = onPhotoClick )
 
         Column(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
                 .padding(innerPadding)
                 .background(MaterialTheme.colorScheme.background)
         ) {
@@ -172,11 +173,13 @@ fun HomeScreenContent(
             SimpleSearchBar(
                 textFieldState = textFieldState,
                 searchResults = emptyList(), // Hook this up to local search history later
-                onSearch = { query -> onSearch(query)
-                    if(query.isNotBlank())
-                updateSort(Sorting.relevance)
-                else
-                updateSort(Sorting.topList)},
+                onSearch = { query ->
+                    onSearch(query)
+                    /*if (query.isNotBlank())
+                        updateSort(Sorting.relevance)
+                    else
+                        updateSort(Sorting.topList)*/
+                },
                 onBack = { FocusRequester() }
             )
 
@@ -195,10 +198,8 @@ fun HomeScreenContent(
 
 
         }
-        if(showFilterSheet)
-        FilterBottomSheet(globalFilterRepository) {
-            showFilterSheet = false
-        }
+        if (showFilterSheet)
+            FilterBottomSheet(onDismiss = { showFilterSheet = false })
 
     }
 

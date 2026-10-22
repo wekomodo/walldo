@@ -39,8 +39,11 @@ import kotlinx.serialization.json.Json
 import okio.Path.Companion.toPath
 import kotlin.reflect.KClass
 
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "user_prefs")
+val Context.filterDataStore: DataStore<Preferences> by preferencesDataStore(name = "filters")
 
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
+    name = "com.enigmaticdevs.wallhaven_dataStore"
+)
 @DependencyGraph(AppScope::class)
 interface AppGraph : ViewModelGraph {
 
@@ -75,6 +78,13 @@ interface AppGraph : ViewModelGraph {
     @Provides
     fun provideDatastore(context: Context): DataStore<Preferences> = context.dataStore
 
+
+    // not used yet
+    @Named("filters")
+    @SingleIn(AppScope::class)
+    @Provides
+    fun provideFilterDataStore(context: Context): DataStore<Preferences> = context.filterDataStore
+
     @SingleIn(AppScope::class)
     @Provides
     fun provideKtorClient(apiKeyProvider: ApiKeyProvider): HttpClient = HttpClient(CIO) {
@@ -106,7 +116,7 @@ interface AppGraph : ViewModelGraph {
         @Named("images")httpClient: HttpClient
     ): ImageLoader = ImageLoader.Builder(context)
         .components {
-            // Reuses your existing configured Ktor client
+            // uses a new ktor client that doesnt need headers
             add(KtorNetworkFetcherFactory(httpClient))
         }
         .memoryCache {

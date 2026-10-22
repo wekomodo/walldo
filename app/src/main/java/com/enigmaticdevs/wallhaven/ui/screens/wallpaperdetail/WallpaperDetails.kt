@@ -71,7 +71,7 @@ private val TAG = "WallpaperDetailScreen"
 fun WallpaperDetailScreen(
     wallpaperId: String,
     onBack: () -> Screen,
-    onTagClick : (String) -> Unit,
+    onTagClick : () -> Unit,
     viewModel: WallpaperDetailViewModel = metroViewModel()
 ) {
     Log.d("$TAG(wallpaperId)", wallpaperId)
@@ -79,10 +79,12 @@ fun WallpaperDetailScreen(
         viewModel.getWallpaperDetails(wallpaperId)
     }
     val wallpaper = viewModel.wallpaper.collectAsState().value
-    WallpaperDetailScreenContent(wallpaper, onBack, onTagClick = onTagClick)
+    WallpaperDetailScreenContent(wallpaper, onBack, onTagClick = { tag ->
+        viewModel.searchTag(tag)
+        onTagClick()
+    })
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun WallpaperDetailScreenContent(wallpaper: WallpaperDetail?, onBack: () -> Screen,onTagClick: (String) -> Unit) {
     var showInfoSheet by remember { mutableStateOf(false) }
@@ -288,5 +290,5 @@ fun CircleColorPalette(colors: List<String>, onClick: (String) -> Unit) {
 @Preview
 @Composable
 fun WallpaperDetailContentPreview() {
-    WallpaperDetailScreenContent(null, onBack = { Screen.Home() }, onTagClick = {})
+    WallpaperDetailScreenContent(null, onBack = { Screen.Home}, onTagClick = {})
 }

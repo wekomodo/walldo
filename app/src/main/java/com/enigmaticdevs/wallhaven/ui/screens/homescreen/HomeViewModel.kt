@@ -9,6 +9,8 @@ import com.enigmaticdevs.wallhaven.data.model.Wallpaper
 import com.enigmaticdevs.wallhaven.data.model.local.WallhavenAPIparams
 import com.enigmaticdevs.wallhaven.domain.repository.GlobalFilterRepository
 import com.enigmaticdevs.wallhaven.domain.repository.WallpaperRepository
+import com.enigmaticdevs.wallhaven.ui.screens.homescreen.components.QueryNames
+import com.enigmaticdevs.wallhaven.ui.screens.homescreen.components.SavedQueries
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesIntoMap
 import dev.zacsweers.metro.Inject
@@ -16,9 +18,13 @@ import dev.zacsweers.metrox.viewmodel.ViewModelKey
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.stateIn
 
 
 @Inject
@@ -26,12 +32,15 @@ import kotlinx.coroutines.flow.flatMapLatest
 @ViewModelKey(HomeViewModel::class)
 class HomeViewModel(
     val globalFilterRepository: GlobalFilterRepository,
-    private val repository: WallpaperRepository
+    private val repository: WallpaperRepository,
+    private val savedQueries : SavedQueries
 
 ): ViewModel() {
 
     //Search Query State (blank by default
-    private val _searchQuery = MutableStateFlow("")
+    val savedQuery : StateFlow<String?> = savedQueries.observe(QueryNames.HOME)
+        .stateIn(viewModelScope, SharingStarted.Eagerly,null)
+    private val query = savedQuery.filterNotNull()
 
     //sort chip State
     private val _activeSort = MutableStateFlow(Sorting.topList)
@@ -39,7 +48,7 @@ class HomeViewModel(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val wallpapers: Flow<PagingData<Wallpaper>> = combine(
-        _searchQuery,
+        query,
         _activeSort,
         globalFilterRepository.filters
     ) { query, sort, filters ->
@@ -59,14 +68,10 @@ class HomeViewModel(
 
     }.cachedIn(viewModelScope)
 
-    fun triggerSearch(query: String) {
-        _searchQuery.value = query
-    }
+    fun triggerSearch(query: String) = savedQueries.set(QueryNames.HOME,query)
 
     fun updateSort(newSort: String) {
         _activeSort.value = newSort
     }
-
-
 
 }

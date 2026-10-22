@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.enigmaticdevs.wallhaven.data.model.WallpaperDetail
 import com.enigmaticdevs.wallhaven.domain.repository.WallpaperRepository
+import com.enigmaticdevs.wallhaven.ui.screens.homescreen.components.QueryNames
+import com.enigmaticdevs.wallhaven.ui.screens.homescreen.components.SavedQueries
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesIntoMap
 import dev.zacsweers.metro.Inject
@@ -47,7 +49,8 @@ sealed interface WallpaperDetailUiState{
 @ContributesIntoMap(AppScope::class)
 @ViewModelKey(WallpaperDetailViewModel::class)
 class WallpaperDetailViewModel (
-    private val repository: WallpaperRepository
+    private val repository: WallpaperRepository,
+    private val savedQueries: SavedQueries
 ) : ViewModel() {
     private val TAG = "WallpaperDetailViewModel"
     private val _wallpaper = MutableStateFlow<WallpaperDetail?>(null)
@@ -56,7 +59,7 @@ class WallpaperDetailViewModel (
     // 1. Create a cache that holds a maximum of 30 wallpapers in memory
     private val wallpaperCache = LruCache<String, WallpaperDetail>(30)
 
-
+    fun searchTag(tag: String) = savedQueries.set(QueryNames.HOME, tag)
     fun getWallpaperDetails(id : String) {
 
         wallpaperCache.get(id)?.let { cachedWallpaper ->
