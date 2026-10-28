@@ -5,12 +5,16 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.ViewModel
+import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteDatabase
 import coil3.ImageLoader
 import coil3.annotation.ExperimentalCoilApi
 import coil3.disk.DiskCache
 import coil3.memory.MemoryCache
 import coil3.network.ktor3.KtorNetworkFetcherFactory
 import com.enigmaticdevs.wallhaven.data.Objects.App
+import com.enigmaticdevs.wallhaven.data.collections.CollectionsDatabase
 import com.enigmaticdevs.wallhaven.data.remote.WallhavenAPI
 import com.enigmaticdevs.wallhaven.di.flag.savedApiKeyPlugin
 import com.enigmaticdevs.wallhaven.domain.repository.GlobalFilterRepository
@@ -131,6 +135,22 @@ interface AppGraph : ViewModelGraph {
                 .build()
         }
         .build()
+
+    // Provide Room Db
+    @SingleIn(AppScope::class)
+    @Provides
+    fun provideCollectionsDatabase(context : Context): CollectionsDatabase =
+        Room.databaseBuilder(context, CollectionsDatabase::class.java, "walldo_collections.db")
+            .addCallback(object : RoomDatabase.Callback() {
+                // runs once, when the file is first created: guarantees exactly one "Favorites"
+                override fun onCreate(db: SupportSQLiteDatabase) {
+                    db.execSQL(
+                        "INSERT INTO collections (name, isDefault, createdAt) " +
+                                "VALUES ('Favorites', 1, ${System.currentTimeMillis()})"
+                    )
+                }
+            })
+            .build()
 
 
 

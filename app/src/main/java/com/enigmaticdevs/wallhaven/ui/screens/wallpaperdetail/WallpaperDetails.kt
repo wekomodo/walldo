@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -35,6 +36,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -61,6 +63,16 @@ import com.enigmaticdevs.wallhaven.ui.util.PhotoView
 import com.wekomodo.huntshowdownwiki.ui.components.ZoomableBox
 import dev.zacsweers.metrox.viewmodel.metroViewModel
 import androidx.core.graphics.toColorInt
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.Uri
+import com.enigmaticdevs.wallhaven.LocalToastTrigger
+import com.enigmaticdevs.wallhaven.ui.screens.wallpaperdetail.bottomsheet.CollectionsSheet
+import com.enigmaticdevs.wallhaven.ui.util.DownloadListener
+import com.enigmaticdevs.wallhaven.ui.util.DownloadUtils
+import com.enigmaticdevs.wallhaven.ui.util.downloadWallpaper
+import com.enigmaticdevs.wallhaven.ui.util.launchSystemWallpaperSetter
+import com.enigmaticdevs.wallhaven.ui.util.rememberDownloadStarter
+import com.enigmaticdevs.wallhaven.ui.util.setAsWallpaperWithSystem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -70,28 +82,92 @@ private val TAG = "WallpaperDetailScreen"
 @Composable
 fun WallpaperDetailScreen(
     wallpaperId: String,
-    onBack: () -> Screen,
-    onTagClick : () -> Unit,
+    onBack: () -> Unit,
+    onTagClick: () -> Unit,
     viewModel: WallpaperDetailViewModel = metroViewModel()
 ) {
     Log.d("$TAG(wallpaperId)", wallpaperId)
-    LaunchedEffect(wallpaperId) {
-        viewModel.getWallpaperDetails(wallpaperId)
-    }
     val wallpaper = viewModel.wallpaper.collectAsState().value
-    WallpaperDetailScreenContent(wallpaper, onBack, onTagClick = { tag ->
-        viewModel.searchTag(tag)
-        onTagClick()
-    })
+    val memerShips by viewModel.memberships.collectAsStateWithLifecycle()
+    var showSheet by remember { mutableStateOf(false) }
+    val favorites = memerShips.firstOrNull() { it.collection.isDefault }
+
+    LaunchedEffect(wallpaperId) { viewModel.getWallpaperDetails(wallpaperId) }
+    WallpaperDetailScreenContent(
+        isFavorite = favorites?.contains,
+        onFavoriteClick = {
+            favorites?.let {
+                viewModel.setMembership(
+                    it.collection.id,
+                    !it.contains
+                )
+            }
+        },
+        wallpaper = wallpaper,
+        onCollectionsClick = { showSheet = true },
+        onBack = onBack,
+        onTagClick = { tag ->
+            viewModel.searchTag(tag)
+            onTagClick()
+        })
+
+    if (showSheet) {
+        CollectionsSheet(
+            memberships = memerShips,
+            onToggle = viewModel::setMembership,
+            onCreate = viewModel::createCollectionAndAdd,
+            onDismiss = { showSheet = false }
+        )
+    }
 }
 
 @Composable
-fun WallpaperDetailScreenContent(wallpaper: WallpaperDetail?, onBack: () -> Screen,onTagClick: (String) -> Unit) {
+fun WallpaperDetailScreenContent(
+    isFavorite: Boolean?,
+    onFavoriteClick: () -> Unit,
+    onCollectionsClick: () -> Unit,
+    wallpaper: WallpaperDetail?,
+    onBack: () -> Unit,
+    onTagClick: (String) -> Unit
+) {
     var showInfoSheet by remember { mutableStateOf(false) }
+    var currentDownload by remember { mutableLongStateOf(-1L) }
+    var setAfterDownload by remember { mutableStateOf(false) }
+    val startDownload = rememberDownloadStarter()
+    val scope = rememberCoroutineScope()
+    val showToast = LocalToastTrigger.current
     val context = LocalContext.current
     val clipboardManager = LocalClipboard.current
-    var favorite by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
+
+    if (currentDownload != -1L) {
+        DownloadListener(currentDownload) { uri ->
+            when {
+                uri == null -> showToast("Download Failed")
+                setAfterDownload -> setAsWallpaperWithSystem(context, uri)
+                else -> showToast("Saved to Pictures/Walldo")
+            }
+            setAfterDownload = false
+            currentDownload = -1L
+        }
+    }
+
+    fun runDownload(w: WallpaperDetail, thenSetWallpaper: Boolean) {
+        startDownload {
+            when (val result = downloadWallpaper(context, w.data.path, w.data.id)) {
+                is DownloadUtils.AlreadyDownloaded -> {
+                    if (thenSetWallpaper) setAsWallpaperWithSystem(context,
+                        android.net.Uri.fromFile(result.file)
+                    )
+                    else showToast("Already Downloaded")
+                }
+                is DownloadUtils.Started -> {
+                    setAfterDownload = thenSetWallpaper
+                    currentDownload = result.id
+                    showToast(if(thenSetWallpaper) "Downloading, then opening..." else "Download Started")
+                }
+            }
+        }
+    }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -107,7 +183,9 @@ fun WallpaperDetailScreenContent(wallpaper: WallpaperDetail?, onBack: () -> Scre
                 },
                 actions = {
                     IconButton(onClick = {
-
+                        wallpaper?.let {
+                            runDownload(it,false)
+                        }
                     }) {
                         Icon(
                             painter = painterResource(R.drawable.ic_download),
@@ -144,24 +222,25 @@ fun WallpaperDetailScreenContent(wallpaper: WallpaperDetail?, onBack: () -> Scre
                 ) {
 
                     wallpaper?.let {
-                        ZoomableBox(
+                        /*  ZoomableBox(
+                              modifier = Modifier.fillMaxSize()
+                          ) {*/
+                        PhotoView(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(wallpaper.data.path).crossfade(true)
+                                .placeholderMemoryCacheKey(it.data.id).build(),
+                            // contentDescription = "Wallpaper Image",
+                            fillScreen = true,
                             modifier = Modifier.fillMaxSize()
-                        ) {
-                            PhotoView(
-                                model = ImageRequest.Builder(LocalContext.current)
-                                    .data(wallpaper.data.path).crossfade(true)
-                                    .placeholderMemoryCacheKey(wallpaper.data.id).build(),
-                                // contentDescription = "Wallpaper Image",
-                                fillScreen = true,
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        }
+                        )
+                        /* }*/
                         if (showInfoSheet)
-                            InfoBottomSheet(wallpaperInfo = wallpaper.data,
+                            InfoBottomSheet(
+                                wallpaperInfo = wallpaper.data,
                                 onTagClick = onTagClick,
                                 onDismiss = {
-                                showInfoSheet = false
-                            })
+                                    showInfoSheet = false
+                                })
                     } ?: run {
                         CenteredLoadingIndicator()
                     }
@@ -171,7 +250,11 @@ fun WallpaperDetailScreenContent(wallpaper: WallpaperDetail?, onBack: () -> Scre
                             .padding(end = 8.dp, bottom = 8.dp)
                             .align(Alignment.BottomEnd),
                         elevation = FloatingActionButtonDefaults.elevation(8.dp),
-                        onClick = {},
+                        onClick = {
+                            wallpaper?.let {
+                               runDownload(it,true)
+                            }
+                        },
                         icon = {
                             Icon(
                                 painter = painterResource(R.drawable.ic_wallpaper),
@@ -207,11 +290,11 @@ fun WallpaperDetailScreenContent(wallpaper: WallpaperDetail?, onBack: () -> Scre
                     FilledTonalIconButton(
                         modifier = Modifier.fillMaxSize(),
                         onClick = {
-                            favorite= !favorite
-                            Toast.makeText(context, "Favorite Clicked : $favorite", Toast.LENGTH_SHORT).show()
+                            onCollectionsClick()
+                            // Toast.makeText(context, "Favorite Clicked : $isFavorite", Toast.LENGTH_SHORT).show()
                         }
                     ) {
-                        if (favorite)
+                        if (isFavorite == true)
                             Icon(
                                 painterResource(R.drawable.ic_heart_filled),
                                 contentDescription = "Favorite Icon"
@@ -290,5 +373,5 @@ fun CircleColorPalette(colors: List<String>, onClick: (String) -> Unit) {
 @Preview
 @Composable
 fun WallpaperDetailContentPreview() {
-    WallpaperDetailScreenContent(null, onBack = { Screen.Home}, onTagClick = {})
+    // WallpaperDetailScreenContent(null, onBack = { Screen.Home}, onTagClick = {})
 }

@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.metro)
     alias(libs.plugins.serialization )
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -63,7 +64,7 @@ dependencies {
    // androidTestImplementation(libs.androidx.espresso.core)
   //  androidTestImplementation(libs.androidx.junit)
   //  debugImplementation(libs.androidx.compose.ui.test.manifest)
- //   debugImplementation(libs.androidx.compose.ui.tooling)
+    debugImplementation(libs.androidx.compose.ui.tooling)
 
     //ktor
     implementation(libs.bundles.ktor)
@@ -83,7 +84,12 @@ dependencies {
 
     //nav3
     implementation(libs.bundles.nav3)
+    //room
+    implementation(libs.bundles.room)
+    ksp(libs.androidx.room.compiler)
 }
+
+ksp { arg("room.schemaLocation", "$projectDir/schemas") }
 
 // In Kotlin 2.0+ with the Jetpack Compose Compiler plugin:
 composeCompiler {

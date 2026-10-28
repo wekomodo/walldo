@@ -36,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -125,7 +126,8 @@ fun HomeScreenContent(
                         Icon(
                             modifier = Modifier.size(24.dp),
                             painter = painterResource(R.drawable.wall),
-                            contentDescription = ""
+                            contentDescription = "",
+                            tint = Color.Unspecified
                         )
                         Text(
                             stringResource(R.string.app_name),

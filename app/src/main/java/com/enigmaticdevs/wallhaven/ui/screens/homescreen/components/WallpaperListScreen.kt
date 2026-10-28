@@ -1,29 +1,55 @@
 package com.enigmaticdevs.wallhaven.ui.screens.homescreen.components
 
+import android.Manifest
 import android.graphics.Color.HSVToColor
 import android.graphics.Color.colorToHSV
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ContainedLoadingIndicator
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedIconButton
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
@@ -34,6 +60,15 @@ import com.enigmaticdevs.wallhaven.data.model.Wallpaper
 import com.enigmaticdevs.wallhaven.ui.presentation.ErrorOccurred
 import com.enigmaticdevs.wallhaven.ui.util.aspectRatio
 import androidx.core.graphics.toColorInt
+import com.enigmaticdevs.wallhaven.LocalToastTrigger
+import com.enigmaticdevs.wallhaven.R
+import com.enigmaticdevs.wallhaven.ui.presentation.DynamicToastOverlay
+import com.enigmaticdevs.wallhaven.ui.util.downloadWallpaper
+import com.enigmaticdevs.wallhaven.ui.util.rememberDownloadStarter
+import com.enigmaticdevs.wallhaven.ui.util.rememberPermissionUtilsState
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 
 val TAG = "WallpaperListScreen"
@@ -76,11 +111,11 @@ fun WallpaperListScreen(
                     uiState.refresh()
                 }
             }
-            is LoadState.Loading ->   ContainedLoadingIndicator()
+
+            is LoadState.Loading -> ContainedLoadingIndicator()
             is LoadState.NotLoading -> {
 
-                val list = uiState
-                WallpaperListGrid(list, onPhotoClick, Modifier)
+                WallpaperListGrid(uiState, onPhotoClick, Modifier)
             }
         }
     }
@@ -88,66 +123,114 @@ fun WallpaperListScreen(
 
 
 @Composable
-fun WallpaperListGrid(photos: LazyPagingItems<Wallpaper>, onPhotoClick: (String) -> Unit, modifier: Modifier) {
+fun WallpaperListGrid(
+    photos: LazyPagingItems<Wallpaper>,
+    onPhotoClick: (String) -> Unit,
+    modifier: Modifier
+) {
 
-    if(photos.itemCount == 0){
+    if (photos.itemCount == 0) {
         Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text("Try moving a few filters")
-            }
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text("Try moving a few filters")
         }
-    else
-    LazyVerticalStaggeredGrid(
-        columns = StaggeredGridCells.Fixed(2),
-        verticalItemSpacing = 8.dp,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = modifier
-            .fillMaxSize()
-            .padding(4.dp)
-    ) {
-       // Log.d("$TAG(wallpaperList)", photos.toString())
+    } else
+        LazyVerticalStaggeredGrid(
+            columns = StaggeredGridCells.Fixed(2),
+            verticalItemSpacing = 8.dp,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = modifier
+                .fillMaxSize()
+                .padding(4.dp)
+        ) {
+            // Log.d("$TAG(wallpaperList)", photos.toString())
 
-        items(count = photos.itemCount) { index ->
-            val wallpaper = photos[index]
-            if (wallpaper != null) {
-                WallpaperCard(wallpaper, onPhotoClick)
+            items(count = photos.itemCount) { index ->
+                val wallpaper = photos[index]
+                if (wallpaper != null) {
+                    WallpaperCard(wallpaper, onPhotoClick)
+                }
             }
         }
-    }
 }
 
 @Composable
 fun WallpaperCard(wallpaper: Wallpaper, onPhotoClick: (String) -> Unit) {
     val aspectRatio = aspectRatio(wallpaper.dimension_x, wallpaper.dimension_y)
-    Card(
-        modifier = Modifier
-            .fillMaxSize()
-            .clickable(
-                onClick = { onPhotoClick(wallpaper.id) }
-            ),
-        shape = CardDefaults.elevatedShape,
-
-        ) {
-        val context = LocalContext.current
-       // Log.d("$TAG(wallpaperCard)", wallpaper.thumbs.original)
-                AsyncImage(
+    val startDownload = rememberDownloadStarter()
+    val context = LocalContext.current
+    val showToast = LocalToastTrigger.current
+    val permissionState = rememberPermissionUtilsState()
+    Box(modifier = Modifier.fillMaxSize()) {
+        Card(
             modifier = Modifier
                 .fillMaxSize()
-                .aspectRatio(aspectRatio.toFloat())
-                .defaultMinSize(minHeight = 100.dp),
-            model = ImageRequest.Builder(context)
-                .data(wallpaper.thumbs.original)  // https://th.wallhaven.cc/... link
-                .crossfade(true)
-                .memoryCacheKey(wallpaper.id)
-                .build(),
-            placeholder = ColorPainter(getGreenShade(wallpaper.colors[0])),
-            contentScale = ContentScale.Crop,
-            contentDescription = "image_name"
-        )
+                .clickable(
+                    onClick = { onPhotoClick(wallpaper.id) }
+                ),
+            shape = CardDefaults.elevatedShape,
 
+            ) {
+            // Log.d("$TAG(wallpaperCard)", wallpaper.thumbs.original)
+            AsyncImage(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .aspectRatio(aspectRatio.toFloat())
+                    .defaultMinSize(minHeight = 100.dp),
+                model = ImageRequest.Builder(context)
+                    .data(wallpaper.thumbs.original)  // https://th.wallhaven.cc/... link
+                    .crossfade(true)
+                    .memoryCacheKey(wallpaper.id)
+                    .build(),
+                placeholder = ColorPainter(getGreenShade(wallpaper.colors[0])),
+                contentScale = ContentScale.Crop,
+                contentDescription = "image_name"
+            )
+        }
+
+        IconButton(
+            modifier = Modifier.align(Alignment.BottomEnd),
+            onClick = {
+
+            }
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_download),
+                contentDescription = "favorite toggle"
+            )
+        }
+
+    }
+
+
+    /*      Column(
+              modifier = Modifier.fillMaxSize()
+          ) {
+              Row(
+                  modifier = Modifier.fillMaxWidth(),
+                  horizontalArrangement = Arrangement.End
+              ) {
+                  IconButton(
+                      onClick = {}
+                  ) {
+                      Icon(imageVector = Icons.Rounded.Favorite, contentDescription = "favorite toggle")
+                  }
+              }
+          }
+  */
+
+
+}
+
+
+@Composable
+fun SnackText(text: String) {
+    val snackBarHostState = remember { SnackbarHostState() }
+    LaunchedEffect(text) {
+        snackBarHostState.showSnackbar("Already Downloaded")
     }
 }
 
