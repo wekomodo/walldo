@@ -20,8 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.enigmaticdevs.wallhaven.data.model.Tag
-import com.enigmaticdevs.wallhaven.data.model.Wallpaper
+import com.enigmaticdevs.wallhaven.data.remote.model.Tag
+import com.enigmaticdevs.wallhaven.data.remote.model.Wallpaper
 
 
 @OptIn(ExperimentalMaterial3Api::class)

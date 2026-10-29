@@ -4,11 +4,11 @@ import android.util.Log
 import android.util.LruCache
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.enigmaticdevs.wallhaven.data.collections.WallpaperEntity
-import com.enigmaticdevs.wallhaven.data.model.WallpaperDetail
-import com.enigmaticdevs.wallhaven.domain.repository.CollectionMembership
-import com.enigmaticdevs.wallhaven.domain.repository.CollectionsRepository
-import com.enigmaticdevs.wallhaven.domain.repository.WallpaperRepository
+import com.enigmaticdevs.wallhaven.data.local.collections.WallpaperEntity
+import com.enigmaticdevs.wallhaven.data.remote.model.WallpaperDetail
+import com.enigmaticdevs.wallhaven.data.repository.CollectionMembership
+import com.enigmaticdevs.wallhaven.data.repository.CollectionsRepository
+import com.enigmaticdevs.wallhaven.data.repository.WallpaperRepository
 import com.enigmaticdevs.wallhaven.ui.screens.homescreen.components.QueryNames
 import com.enigmaticdevs.wallhaven.ui.screens.homescreen.components.SavedQueries
 import dev.zacsweers.metro.AppScope

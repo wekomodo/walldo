@@ -1,8 +1,8 @@
 package com.enigmaticdevs.wallhaven.ui.screens.homescreen.bottomsheet
 
 import androidx.lifecycle.ViewModel
-import com.enigmaticdevs.wallhaven.domain.repository.FilterState
-import com.enigmaticdevs.wallhaven.domain.repository.GlobalFilterRepository
+import com.enigmaticdevs.wallhaven.data.repository.FilterState
+import com.enigmaticdevs.wallhaven.data.repository.GlobalFilterRepository
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesIntoMap
 import dev.zacsweers.metro.Inject

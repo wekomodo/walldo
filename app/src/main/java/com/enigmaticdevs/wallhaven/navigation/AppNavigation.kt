@@ -1,6 +1,5 @@
 package com.enigmaticdevs.wallhaven.navigation
 
-import android.util.Log
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -33,7 +32,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.enigmaticdevs.wallhaven.LocalToastTrigger
 import com.enigmaticdevs.wallhaven.R
-import com.enigmaticdevs.wallhaven.domain.repository.GlobalFilterRepository
+import com.enigmaticdevs.wallhaven.data.repository.GlobalFilterRepository
 import com.enigmaticdevs.wallhaven.ui.presentation.DynamicToastOverlay
 import com.enigmaticdevs.wallhaven.ui.screens.homescreen.HomeScreen
 import com.enigmaticdevs.wallhaven.ui.screens.settings.SettingsScreen

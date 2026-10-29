@@ -1,14 +1,10 @@
 package com.enigmaticdevs.wallhaven.ui.screens.settings
 
-import android.content.Context
 import android.util.Log
-import androidx.activity.contextaware.ContextAware
-import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import coil3.ImageLoader
-import com.enigmaticdevs.wallhaven.domain.repository.SettingsRepository
-import com.enigmaticdevs.wallhaven.domain.repository.WallpaperRepository
+import com.enigmaticdevs.wallhaven.data.repository.SettingsRepository
 import com.enigmaticdevs.wallhaven.ui.theme.ThemeMode
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesIntoMap
@@ -17,13 +13,11 @@ import dev.zacsweers.metro.SingleIn
 import dev.zacsweers.metrox.viewmodel.ViewModelKey
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch

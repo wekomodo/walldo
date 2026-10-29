@@ -4,11 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import com.enigmaticdevs.wallhaven.data.Objects.Sorting
-import com.enigmaticdevs.wallhaven.data.model.Wallpaper
-import com.enigmaticdevs.wallhaven.data.model.local.WallhavenAPIparams
-import com.enigmaticdevs.wallhaven.domain.repository.GlobalFilterRepository
-import com.enigmaticdevs.wallhaven.domain.repository.WallpaperRepository
+import com.enigmaticdevs.wallhaven.data.remote.model.Objects.Sorting
+import com.enigmaticdevs.wallhaven.data.remote.model.Wallpaper
+import com.enigmaticdevs.wallhaven.data.remote.model.local.WallhavenAPIparams
+import com.enigmaticdevs.wallhaven.data.repository.GlobalFilterRepository
+import com.enigmaticdevs.wallhaven.data.repository.WallpaperRepository
 import com.enigmaticdevs.wallhaven.ui.screens.homescreen.components.QueryNames
 import com.enigmaticdevs.wallhaven.ui.screens.homescreen.components.SavedQueries
 import dev.zacsweers.metro.AppScope

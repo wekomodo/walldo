@@ -50,7 +50,8 @@ import com.enigmaticdevs.wallhaven.ui.presentation.CategoryTitle
 import com.enigmaticdevs.wallhaven.ui.presentation.ClickablePref
 import com.enigmaticdevs.wallhaven.ui.presentation.ClickablePrefWithButton
 import com.enigmaticdevs.wallhaven.ui.presentation.PrefTopAppBar
-import com.enigmaticdevs.wallhaven.ui.screens.settings.presentation.MaskExceptLastNVisualTransformation
+import com.enigmaticdevs.wallhaven.ui.presentation.MaskExceptLastNVisualTransformation
+import com.enigmaticdevs.wallhaven.ui.presentation.asSource
 import com.enigmaticdevs.wallhaven.ui.theme.ThemeMode
 import dev.zacsweers.metrox.viewmodel.metroViewModel
 import kotlinx.coroutines.launch
@@ -105,7 +106,7 @@ fun SettingsScreen(
                 isChecked = state.dynamicColors,
                 text = "Dynamic Colors",
                 description = "Accents from system",
-                icon = Icons.Rounded.Face,
+                imageSource = Icons.Rounded.Face.asSource(),
                 onCheckedChange = { viewModel.updateDynamicColors(!state.dynamicColors) }
             )
             HorizontalDivider()

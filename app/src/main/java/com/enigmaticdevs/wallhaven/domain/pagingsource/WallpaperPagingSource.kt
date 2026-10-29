@@ -2,8 +2,8 @@ package com.enigmaticdevs.wallhaven.domain.pagingsource
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.enigmaticdevs.wallhaven.data.model.Wallpaper
-import com.enigmaticdevs.wallhaven.data.model.local.WallhavenAPIparams
+import com.enigmaticdevs.wallhaven.data.remote.model.Wallpaper
+import com.enigmaticdevs.wallhaven.data.remote.model.local.WallhavenAPIparams
 import com.enigmaticdevs.wallhaven.data.remote.WallhavenAPI
 
 class WallpaperPagingSource(

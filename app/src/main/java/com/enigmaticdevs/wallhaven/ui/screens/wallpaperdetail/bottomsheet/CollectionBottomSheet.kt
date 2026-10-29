@@ -25,7 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.enigmaticdevs.wallhaven.domain.repository.CollectionMembership
+import com.enigmaticdevs.wallhaven.data.repository.CollectionMembership
 
 
 @OptIn(ExperimentalMaterial3Api::class)

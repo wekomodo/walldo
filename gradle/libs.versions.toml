@@ -20,6 +20,7 @@ paging = "3.5.3"
 navigation = "1.2.0"
 room = "2.8.5"
 ksp = "2.3.12"
+annotation = "1.11.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -59,6 +60,7 @@ room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 # Optional: KTX extensions for coroutines support
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+androidx-annotation = { group = "androidx.annotation", name = "annotation", version.ref = "annotation" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

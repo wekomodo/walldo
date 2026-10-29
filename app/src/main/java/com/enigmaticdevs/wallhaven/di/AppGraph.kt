@@ -13,12 +13,12 @@ import coil3.annotation.ExperimentalCoilApi
 import coil3.disk.DiskCache
 import coil3.memory.MemoryCache
 import coil3.network.ktor3.KtorNetworkFetcherFactory
-import com.enigmaticdevs.wallhaven.data.Objects.App
-import com.enigmaticdevs.wallhaven.data.collections.CollectionsDatabase
+import com.enigmaticdevs.wallhaven.data.remote.model.Objects.App
+import com.enigmaticdevs.wallhaven.data.local.collections.CollectionsDatabase
 import com.enigmaticdevs.wallhaven.data.remote.WallhavenAPI
 import com.enigmaticdevs.wallhaven.di.flag.savedApiKeyPlugin
-import com.enigmaticdevs.wallhaven.domain.repository.GlobalFilterRepository
-import com.enigmaticdevs.wallhaven.domain.repository.WallpaperRepository
+import com.enigmaticdevs.wallhaven.data.repository.GlobalFilterRepository
+import com.enigmaticdevs.wallhaven.data.repository.WallpaperRepository
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.DependencyGraph
@@ -34,7 +34,6 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
-import io.ktor.client.request.header
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

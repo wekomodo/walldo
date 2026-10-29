@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">walldo</string>
 
+
+
+
+    <string name="onWifi">On Wifi</string>
 </resources>

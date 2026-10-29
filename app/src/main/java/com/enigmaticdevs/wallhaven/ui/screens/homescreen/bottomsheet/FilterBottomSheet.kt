@@ -17,10 +17,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.ViewModel
 import com.enigmaticdevs.wallhaven.R
-import com.enigmaticdevs.wallhaven.domain.repository.FilterState
-import com.enigmaticdevs.wallhaven.domain.repository.GlobalFilterRepository
+import com.enigmaticdevs.wallhaven.data.repository.FilterState
 import com.enigmaticdevs.wallhaven.ui.presentation.CategoryTitle
 import com.enigmaticdevs.wallhaven.ui.presentation.ClickablePref
 import com.enigmaticdevs.wallhaven.ui.util.ratioOptions

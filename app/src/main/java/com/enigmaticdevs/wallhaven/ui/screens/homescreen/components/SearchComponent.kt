@@ -42,7 +42,7 @@ import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.unit.dp
-import com.enigmaticdevs.wallhaven.data.Objects.Sorting
+import com.enigmaticdevs.wallhaven.data.remote.model.Objects.Sorting
 import com.enigmaticdevs.wallhaven.ui.util.searchInfoMessage
 import kotlinx.coroutines.launch
 

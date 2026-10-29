@@ -1,7 +1,5 @@
 package com.enigmaticdevs.wallhaven.ui.screens.homescreen
 
-import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -44,10 +42,8 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.enigmaticdevs.wallhaven.R
-import com.enigmaticdevs.wallhaven.data.Objects.Sorting
-import com.enigmaticdevs.wallhaven.data.model.Wallpaper
-import com.enigmaticdevs.wallhaven.data.model.local.WallhavenAPIparams
-import com.enigmaticdevs.wallhaven.domain.repository.GlobalFilterRepository
+import com.enigmaticdevs.wallhaven.data.remote.model.Wallpaper
+import com.enigmaticdevs.wallhaven.data.remote.model.local.WallhavenAPIparams
 import com.enigmaticdevs.wallhaven.ui.screens.homescreen.bottomsheet.FilterBottomSheet
 import com.enigmaticdevs.wallhaven.ui.screens.homescreen.components.WallpaperListScreen
 import com.enigmaticdevs.wallhaven.ui.screens.homescreen.components.SimpleSearchBar

@@ -1,7 +1,7 @@
 package com.enigmaticdevs.wallhaven.ui.util
 
 import androidx.compose.runtime.Composable
-import com.enigmaticdevs.wallhaven.domain.repository.GlobalFilterRepository
+import com.enigmaticdevs.wallhaven.data.repository.GlobalFilterRepository
 
 
 @Composable
