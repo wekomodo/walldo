@@ -46,6 +46,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.platform.LocalClipboard
@@ -73,8 +74,11 @@ import com.enigmaticdevs.wallhaven.ui.util.downloadWallpaper
 import com.enigmaticdevs.wallhaven.ui.util.launchSystemWallpaperSetter
 import com.enigmaticdevs.wallhaven.ui.util.rememberDownloadStarter
 import com.enigmaticdevs.wallhaven.ui.util.setAsWallpaperWithSystem
+import com.enigmaticdevs.wallhaven.ui.util.toContentUri
+import com.enigmaticdevs.wallhaven.ui.util.toMediaUri
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlin.coroutines.cancellation.CancellationException
 
 
 private val TAG = "WallpaperDetailScreen"
@@ -91,6 +95,10 @@ fun WallpaperDetailScreen(
     val memerShips by viewModel.memberships.collectAsStateWithLifecycle()
     var showSheet by remember { mutableStateOf(false) }
     val favorites = memerShips.firstOrNull() { it.collection.isDefault }
+    val scope = rememberCoroutineScope()
+    var isPreparing by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val showToast = LocalToastTrigger.current
 
     LaunchedEffect(wallpaperId) { viewModel.getWallpaperDetails(wallpaperId) }
     WallpaperDetailScreenContent(
@@ -109,7 +117,27 @@ fun WallpaperDetailScreen(
         onTagClick = { tag ->
             viewModel.searchTag(tag)
             onTagClick()
+        },
+        onSetAsWallpaperClick = {
+            wallpaper?.let { w ->
+                if (!isPreparing) scope.launch {
+                    isPreparing = true
+                    try {
+                        val uri = viewModel.shareableWallpapers.uriFor(w.data.id, w.data.path)
+                        setAsWallpaperWithSystem(context, uri)
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Set wallpaper failed", e)
+                        showToast("Couldn't prepare the wallpaper")
+                    } finally {
+                        isPreparing = false
+                    }
+                }
+            }
+
         })
+    if(isPreparing) PreparingOverlay()
 
     if (showSheet) {
         CollectionsSheet(
@@ -128,11 +156,11 @@ fun WallpaperDetailScreenContent(
     onCollectionsClick: () -> Unit,
     wallpaper: WallpaperDetail?,
     onBack: () -> Unit,
-    onTagClick: (String) -> Unit
+    onTagClick: (String) -> Unit,
+    onSetAsWallpaperClick: () -> Unit
 ) {
     var showInfoSheet by remember { mutableStateOf(false) }
     var currentDownload by remember { mutableLongStateOf(-1L) }
-    var setAfterDownload by remember { mutableStateOf(false) }
     val startDownload = rememberDownloadStarter()
     val scope = rememberCoroutineScope()
     val showToast = LocalToastTrigger.current
@@ -143,27 +171,19 @@ fun WallpaperDetailScreenContent(
         DownloadListener(currentDownload) { uri ->
             when {
                 uri == null -> showToast("Download Failed")
-                setAfterDownload -> setAsWallpaperWithSystem(context, uri)
                 else -> showToast("Saved to Pictures/Walldo")
             }
-            setAfterDownload = false
             currentDownload = -1L
         }
     }
 
-    fun runDownload(w: WallpaperDetail, thenSetWallpaper: Boolean) {
+    fun runDownload(w: WallpaperDetail) {
         startDownload {
             when (val result = downloadWallpaper(context, w.data.path, w.data.id)) {
-                is DownloadUtils.AlreadyDownloaded -> {
-                    if (thenSetWallpaper) setAsWallpaperWithSystem(context,
-                        android.net.Uri.fromFile(result.file)
-                    )
-                    else showToast("Already Downloaded")
-                }
+                is DownloadUtils.AlreadyDownloaded -> showToast("Already Downloaded")
                 is DownloadUtils.Started -> {
-                    setAfterDownload = thenSetWallpaper
                     currentDownload = result.id
-                    showToast(if(thenSetWallpaper) "Downloading, then opening..." else "Download Started")
+                    showToast("Download Started")
                 }
             }
         }
@@ -184,7 +204,7 @@ fun WallpaperDetailScreenContent(
                 actions = {
                     IconButton(onClick = {
                         wallpaper?.let {
-                            runDownload(it,false)
+                            runDownload(it)
                         }
                     }) {
                         Icon(
@@ -251,9 +271,7 @@ fun WallpaperDetailScreenContent(
                             .align(Alignment.BottomEnd),
                         elevation = FloatingActionButtonDefaults.elevation(8.dp),
                         onClick = {
-                            wallpaper?.let {
-                               runDownload(it,true)
-                            }
+                            onSetAsWallpaperClick()
                         },
                         icon = {
                             Icon(
@@ -367,6 +385,17 @@ fun CircleColorPalette(colors: List<String>, onClick: (String) -> Unit) {
 
             )
         }
+    }
+}
+@Composable
+fun PreparingOverlay() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.4f))
+            .pointerInput(Unit) {}   // swallows touches so nothing underneath is clickable
+    ) {
+        CenteredLoadingIndicator()
     }
 }
 

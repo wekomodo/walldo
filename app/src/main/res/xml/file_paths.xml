@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
 <paths>
     <external-path name="walldo_pictures" path="Pictures/Walldo/" />
+    <cache-path name="shared_wallpapers" path="shared_wallpapers/" />
 </paths>

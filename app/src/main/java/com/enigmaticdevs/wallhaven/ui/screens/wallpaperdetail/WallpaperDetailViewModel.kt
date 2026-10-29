@@ -60,7 +60,8 @@ sealed interface WallpaperDetailUiState{
 class WallpaperDetailViewModel (
     private val repository: WallpaperRepository,
     private val collectionsRepository: CollectionsRepository,
-    private val savedQueries: SavedQueries
+    private val savedQueries: SavedQueries,
+    val shareableWallpapers: ShareableWallpapers
 ) : ViewModel() {
     private val TAG = "WallpaperDetailViewModel"
     private val _wallpaper = MutableStateFlow<WallpaperDetail?>(null)
