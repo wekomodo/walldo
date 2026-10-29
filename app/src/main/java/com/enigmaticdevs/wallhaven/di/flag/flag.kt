@@ -1,6 +1,6 @@
 package com.enigmaticdevs.wallhaven.di.flag
 
-import com.enigmaticdevs.wallhaven.di.ApiKeyProvider
+import com.enigmaticdevs.wallhaven.data.remote.ApiKeyProvider
 import io.ktor.client.plugins.api.createClientPlugin
 import io.ktor.client.request.header
 import io.ktor.util.AttributeKey

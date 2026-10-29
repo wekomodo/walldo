@@ -1,4 +1,4 @@
-package com.enigmaticdevs.wallhaven.di
+package com.enigmaticdevs.wallhaven.data.remote
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences

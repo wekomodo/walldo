@@ -1,5 +1,7 @@
 package com.enigmaticdevs.wallhaven.navigation
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -25,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
@@ -38,6 +41,8 @@ import com.enigmaticdevs.wallhaven.ui.screens.homescreen.HomeScreen
 import com.enigmaticdevs.wallhaven.ui.screens.settings.SettingsScreen
 import com.enigmaticdevs.wallhaven.ui.screens.features.autowallpaper.AutoWallpaperRoute
 import com.enigmaticdevs.wallhaven.ui.screens.features.favorites.FavoritesRoute
+import com.enigmaticdevs.wallhaven.ui.screens.features.login.WallhavenLoginRoute
+import com.enigmaticdevs.wallhaven.ui.screens.features.login.WallhavenLoginScreen
 import com.enigmaticdevs.wallhaven.ui.screens.wallpaperdetail.WallpaperDetailScreen
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -59,15 +64,20 @@ sealed interface Screen : NavKey {
     data object Settings : Screen
 
     @Serializable
+    data object WallhavenLogin : Screen
+
+    @Serializable
     data class WallpaperDetail(val wallpaperId: String) : Screen
 }
 
 @Composable
 fun AppNavigation(
-    globalFilterRepository: GlobalFilterRepository
+    globalFilterRepository: GlobalFilterRepository,
+
 ) {
     val backStack = remember { mutableStateListOf<Screen>(Screen.Home) }
     val currentScreen = backStack.lastOrNull()
+    val context = LocalContext.current
 
     //drawerState
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -157,6 +167,18 @@ fun AppNavigation(
                         },
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
                     )
+                    NavigationDrawerItem(
+                        label = { Text("Login") },
+                        selected = currentScreen is Screen.WallhavenLogin,
+                        icon = { Icon(Icons.Filled.Settings, contentDescription = "Settings") },
+                        onClick = {
+                            scope.launch { drawerState.close() }
+                            if (currentScreen !is Screen.WallhavenLogin) {
+                                backStack.add(Screen.WallhavenLogin)
+                            }
+                        },
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+                    )
                 }
             }
         ) {
@@ -209,6 +231,12 @@ fun AppNavigation(
                                 backStack.clear()
                                 backStack.add(Screen.Home)
                             }
+                        )
+                    }
+                    entry<Screen.WallhavenLogin> {
+                        WallhavenLoginRoute(
+                            onBack = {  backStack.clear()
+                                backStack.add(Screen.Home) }
                         )
                     }
                 }

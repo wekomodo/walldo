@@ -9,8 +9,8 @@ activityCompose = "1.13.0"
 kotlin = "2.4.21"
 composeBom = "2026.09.00"
 materialIcons = "1.7.8"
-metro = "1.4.5"
-ktor = "3.6.0"
+metro = "1.5.1"
+ktor = "3.6.1"
 datastore = "1.3.0"
 coil = "3.6.3"
 materialKolor = "5.0.0-alpha07"
@@ -21,6 +21,8 @@ navigation = "1.2.0"
 room = "2.8.5"
 ksp = "2.3.12"
 annotation = "1.11.0"
+android-crypto = "1.1.0"
+jsoup = "1.23.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -61,6 +63,9 @@ androidx-room-compiler = { group = "androidx.room", name = "room-compiler", vers
 # Optional: KTX extensions for coroutines support
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 androidx-annotation = { group = "androidx.annotation", name = "annotation", version.ref = "annotation" }
+jsoup = { group = "org.jsoup", name = "jsoup", version.ref = "jsoup" }
+androidcrypto = { group = "androidx.security", name = "security-crypto", version.ref = "android-crypto" }
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

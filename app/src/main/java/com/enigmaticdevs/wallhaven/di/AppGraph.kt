@@ -1,5 +1,6 @@
 package com.enigmaticdevs.wallhaven.di
 
+import android.app.Application
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -13,14 +14,17 @@ import coil3.annotation.ExperimentalCoilApi
 import coil3.disk.DiskCache
 import coil3.memory.MemoryCache
 import coil3.network.ktor3.KtorNetworkFetcherFactory
+import com.enigmaticdevs.wallhaven.data.local.SecureStorage
 import com.enigmaticdevs.wallhaven.data.remote.model.Objects.App
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionsDatabase
+import com.enigmaticdevs.wallhaven.data.remote.ApiKeyProvider
 import com.enigmaticdevs.wallhaven.data.remote.WallhavenAPI
 import com.enigmaticdevs.wallhaven.di.flag.savedApiKeyPlugin
 import com.enigmaticdevs.wallhaven.data.repository.GlobalFilterRepository
 import com.enigmaticdevs.wallhaven.data.repository.WallpaperRepository
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Binds
+import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.Named
 import dev.zacsweers.metro.Provider
@@ -47,6 +51,15 @@ val Context.filterDataStore: DataStore<Preferences> by preferencesDataStore(name
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
     name = "com.enigmaticdevs.wallhaven_dataStore"
 )
+
+@ContributesTo(AppScope::class)
+interface StorageModule {
+    @Provides
+    @SingleIn(AppScope::class)
+    fun provideSecureStorage(application: Application): SecureStorage {
+        return SecureStorage(application)
+    }
+}
 @DependencyGraph(AppScope::class)
 interface AppGraph : ViewModelGraph {
 
@@ -65,7 +78,8 @@ interface AppGraph : ViewModelGraph {
 
     @DependencyGraph.Factory
     interface Factory {
-        fun create(@Provides context: Context): AppGraph
+        fun create(@Provides context: Context,
+                   @Provides application: Application): AppGraph
     }
 
     /*@SingleIn(AppScope::class)
@@ -116,7 +130,7 @@ interface AppGraph : ViewModelGraph {
     @Provides
     fun provideImageLoader(
         context: Context,
-        @Named("images")httpClient: HttpClient
+        @Named("images") httpClient: HttpClient
     ): ImageLoader = ImageLoader.Builder(context)
         .components {
             // uses a new ktor client that doesnt need headers
@@ -130,7 +144,7 @@ interface AppGraph : ViewModelGraph {
         .diskCache {
             DiskCache.Builder()
                 .directory(context.cacheDir.resolve("walldo_cache").absolutePath.toPath())
-                .maxSizeBytes(1024L * 1024 * 1024) // 1 GB cache limit for wallpapers
+                .maxSizeBytes(1024L*1024*1024) // 1 GB cache limit for wallpapers
                 .build()
         }
         .build()
@@ -138,7 +152,7 @@ interface AppGraph : ViewModelGraph {
     // Provide Room Db
     @SingleIn(AppScope::class)
     @Provides
-    fun provideCollectionsDatabase(context : Context): CollectionsDatabase =
+    fun provideCollectionsDatabase(context: Context): CollectionsDatabase =
         Room.databaseBuilder(context, CollectionsDatabase::class.java, "walldo_collections.db")
             .addCallback(object : RoomDatabase.Callback() {
                 // runs once, when the file is first created: guarantees exactly one "Favorites"
@@ -150,8 +164,6 @@ interface AppGraph : ViewModelGraph {
                 }
             })
             .build()
-
-
 
 
     @Provides

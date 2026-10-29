@@ -88,6 +88,10 @@ dependencies {
     //room
     implementation(libs.bundles.room)
     ksp(libs.androidx.room.compiler)
+    //Jsouo
+    implementation(libs.jsoup)
+    //android crypto
+    implementation(libs.androidcrypto)
 }
 
 ksp { arg("room.schemaLocation", "$projectDir/schemas") }

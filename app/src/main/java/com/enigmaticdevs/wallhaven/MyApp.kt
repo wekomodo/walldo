@@ -14,7 +14,7 @@ class MyApp(): Application() {
 
     override fun onCreate() {
         super.onCreate()
-        appGraph = createGraphFactory<AppGraph.Factory>().create(this)
+        appGraph = createGraphFactory<AppGraph.Factory>().create(this,this)
         // Initialize your Metro Dependency Graph
 
 

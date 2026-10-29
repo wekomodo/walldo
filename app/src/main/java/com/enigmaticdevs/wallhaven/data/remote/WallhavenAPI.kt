@@ -10,8 +10,11 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
+import io.ktor.client.request.post
+import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.isSuccess
+import okhttp3.Response
 
 
 @Inject
@@ -76,5 +79,11 @@ class WallhavenAPI(
             else -> error("HTTP ${response.status}")
         }
     }
+
+    suspend fun createCollection(label : String,public : Boolean, token: String): HttpResponse = client.post("collection/new"){
+       // parameter()
+
+
+    }.body()
 
 }
