@@ -31,6 +31,7 @@ import kotlinx.coroutines.withContext
 
 
 data class SettingsUiState(
+    val dynamicColors : Boolean = false,
     val theme: ThemeMode = ThemeMode.System,
     val apiKey: String = "",
     val wallpaperSetter: String = "native",
@@ -66,12 +67,14 @@ class SettingsViewModel(
     private val _keyCheck = MutableStateFlow(KeyCheck.Idle)
     val keyCheck: StateFlow<KeyCheck> = _keyCheck.asStateFlow()
     val uiState: StateFlow<SettingsUiState> = combine(
+        repository.dynamicColorsFlow,
         repository.themeFlow,
         repository.wallpaperSetterFlow,
         repository.apiKeyFlow,
         cacheSize
-    ) { theme, wallpaperSetter, key, size ->
+    ) { dynamicColors,theme, wallpaperSetter, key, size ->
         SettingsUiState(
+            dynamicColors = dynamicColors,
             theme = ThemeMode.from(theme),
             apiKey = key,
             wallpaperSetter = wallpaperSetter,
@@ -92,6 +95,10 @@ class SettingsViewModel(
 
     fun updateTheme(mode: ThemeMode) {
         viewModelScope.launch { repository.updateTheme(mode.name) }
+    }
+
+    fun updateDynamicColors(value: Boolean){
+        viewModelScope.launch { repository.updateDynamicColors(value) }
     }
     fun authenticateAPIkey(apiKey: String) {
         val key = apiKey.trim()

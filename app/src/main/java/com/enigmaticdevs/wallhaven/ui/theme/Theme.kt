@@ -33,10 +33,12 @@ fun WallhavenTheme(
     content: @Composable () -> Unit
     ) {
     //enable dynamic theme
+
     val activeSeedColor = rememberDynamicSeedColor(fallbackSeed = SeedColor)
 
     //change theme based on settings
     val uiState = viewmodel.uiState.collectAsState()
+    val dynamicColors = uiState.value.dynamicColors
     val isDark = when (uiState.value.theme) {
         ThemeMode.System -> darkTheme
         ThemeMode.Light -> false
@@ -60,7 +62,7 @@ fun WallhavenTheme(
         isDark = isDark,
         style = PaletteStyle.Expressive,
         specVersion = ColorSpec.SpecVersion.SPEC_2025,
-        seedColor = activeSeedColor,
+        seedColor = if(dynamicColors) activeSeedColor else SeedColor
     )
     DynamicMaterialExpressiveTheme(
         state = dynamicThemeState,

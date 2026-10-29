@@ -1,13 +1,11 @@
 package com.enigmaticdevs.wallhaven.ui.screens.settings
 
-import android.R.id.mask
 import android.text.format.Formatter
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -15,6 +13,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Face
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -42,21 +41,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import coil3.imageLoader
 import com.enigmaticdevs.wallhaven.R
 import com.enigmaticdevs.wallhaven.navigation.Screen
 import com.enigmaticdevs.wallhaven.ui.presentation.CategoryTitle
 import com.enigmaticdevs.wallhaven.ui.presentation.ClickablePref
+import com.enigmaticdevs.wallhaven.ui.presentation.ClickablePrefWithButton
 import com.enigmaticdevs.wallhaven.ui.presentation.PrefTopAppBar
 import com.enigmaticdevs.wallhaven.ui.screens.settings.presentation.MaskExceptLastNVisualTransformation
 import com.enigmaticdevs.wallhaven.ui.theme.ThemeMode
 import dev.zacsweers.metrox.viewmodel.metroViewModel
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @Composable
@@ -105,6 +101,14 @@ fun SettingsScreen(
                 .padding(paddingValues)
         ) {
             CategoryTitle("Appearance")
+            ClickablePrefWithButton(
+                isChecked = state.dynamicColors,
+                text = "Dynamic Colors",
+                description = "Accents from system",
+                icon = Icons.Rounded.Face,
+                onCheckedChange = { viewModel.updateDynamicColors(!state.dynamicColors) }
+            )
+            HorizontalDivider()
             ClickablePref(
                 text = "Theme",
                 description = "Change the theme of the app",
@@ -112,8 +116,6 @@ fun SettingsScreen(
             ) {
                 showThemeDialog = true
             }
-
-
             HorizontalDivider()
 
             // Account
@@ -144,7 +146,7 @@ fun SettingsScreen(
                     snackBarHostState.showSnackbar("Cache Cleared")
                 }
             }
-
+            HorizontalDivider()
 
             CategoryTitle("About")
             ClickablePref(
@@ -157,7 +159,7 @@ fun SettingsScreen(
 
         }
     }
-    if(showThemeDialog){
+    if (showThemeDialog) {
         ThemeSelectionDialog(
             currentTheme = state.theme,
             onThemeSelected = viewModel::updateTheme,
@@ -269,7 +271,9 @@ fun ThemeSelectionDialog(
         onDismissRequest = onDismiss,
         title = { Text("Choose Theme") },
         text = {
-            Column(Modifier.selectableGroup().wrapContentSize()) {
+            Column(Modifier
+                .selectableGroup()
+                .wrapContentSize()) {
                 themeOptions.forEach { theme ->
                     val isSelected = (theme == currentTheme)
                     Row(
@@ -282,7 +286,7 @@ fun ThemeSelectionDialog(
                                     onThemeSelected(theme)
                                 }),
                         verticalAlignment = Alignment.CenterVertically
-                    ){
+                    ) {
                         RadioButton(
                             selected = isSelected,
                             onClick = null
