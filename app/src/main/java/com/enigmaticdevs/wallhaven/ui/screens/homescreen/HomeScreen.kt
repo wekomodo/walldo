@@ -1,6 +1,7 @@
 package com.enigmaticdevs.wallhaven.ui.screens.homescreen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,6 +18,8 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,7 +35,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -44,6 +49,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.enigmaticdevs.wallhaven.R
 import com.enigmaticdevs.wallhaven.data.remote.model.Wallpaper
 import com.enigmaticdevs.wallhaven.data.remote.model.local.WallhavenAPIparams
+import com.enigmaticdevs.wallhaven.ui.presentation.FloatingNavBar
 import com.enigmaticdevs.wallhaven.ui.screens.homescreen.bottomsheet.FilterBottomSheet
 import com.enigmaticdevs.wallhaven.ui.screens.homescreen.components.WallpaperListScreen
 import com.enigmaticdevs.wallhaven.ui.screens.homescreen.components.SimpleSearchBar
@@ -142,10 +148,22 @@ fun HomeScreenContent(
                         )
                     }
                 },
+                actions = {
+                    FilledIconButton(
+                        onClick = {
+                            showFilterSheet = true
+                        }
+                    ) {
+                        Icon(painter = painterResource(R.drawable.ic_filter_tune_v2), contentDescription = "Filter Button")
+
+                    }
+                },
                 scrollBehavior = scrollBehavior
             )
-        },
-        floatingActionButton = {
+        }
+
+        //old ui floating button for filters sheet
+        /*floatingActionButton = {
             FloatingActionButton(
                 onClick = {
                     showFilterSheet = true
@@ -153,52 +171,55 @@ fun HomeScreenContent(
             ) {
                 Icon(imageVector = Icons.Rounded.Settings, contentDescription = "Settings")
             }
-
-        }
+        }*/
     ) { innerPadding ->
 
         //old way using two tabs
         // Tabs(innerPadding, onPhotoClick = onPhotoClick )
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .background(MaterialTheme.colorScheme.background)
+        Box(
+            modifier = Modifier.fillMaxSize().padding(innerPadding)
         ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+            ) {
 
-            // 1. The Search Bar
-            SimpleSearchBar(
-                textFieldState = textFieldState,
-                searchResults = emptyList(), // Hook this up to local search history later
-                onSearch = { query ->
-                    onSearch(query)
-                    /*if (query.isNotBlank())
+                // 1. The Search Bar
+                SimpleSearchBar(
+                    textFieldState = textFieldState,
+                    searchResults = emptyList(), // Hook this up to local search history later
+                    onSearch = { query ->
+                        onSearch(query)
+                        /*if (query.isNotBlank())
                         updateSort(Sorting.relevance)
                     else
                         updateSort(Sorting.topList)*/
-                },
-                onBack = { FocusRequester() }
+                    },
+                    onBack = { FocusRequester() }
+                )
+
+                // 2. The Sort Chips
+                SortChipRow(
+                    currentSort = activeSort,
+                    onSortSelected = { newSort -> updateSort(newSort) }
+                )
+
+
+                // 3. The Paging Grid (Takes remaining space)
+                WallpaperListScreen(
+                    uiState = wallpapers,
+                    onPhotoClick = onPhotoClick,
+                    onLoadMore = {}
+                )
+            }
+            if (showFilterSheet)
+                FilterBottomSheet(onDismiss = { showFilterSheet = false })
+            FloatingNavBar(
+                modifier = Modifier.align(Alignment.BottomCenter)
             )
-
-            // 2. The Sort Chips
-            SortChipRow(
-                currentSort = activeSort,
-                onSortSelected = { newSort -> updateSort(newSort) }
-            )
-
-            // 3. The Paging Grid (Takes remaining space)
-            WallpaperListScreen(
-                uiState = wallpapers,
-                onPhotoClick = onPhotoClick,
-                onLoadMore = {}
-            )
-
-
         }
-        if (showFilterSheet)
-            FilterBottomSheet(onDismiss = { showFilterSheet = false })
-
     }
 
 

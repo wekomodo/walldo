@@ -2,6 +2,7 @@ package com.enigmaticdevs.wallhaven.ui.screens.features.login
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
+import android.util.Log
 import android.webkit.CookieManager
 import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
@@ -18,16 +19,23 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import com.enigmaticdevs.wallhaven.LocalToastTrigger
 import com.enigmaticdevs.wallhaven.ui.presentation.PrefTopAppBar
+import com.enigmaticdevs.wallhaven.ui.util.WALLHAVEN_UA
 import dev.zacsweers.metrox.viewmodel.metroViewModel
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 private const val TAG = "WallhavenLogin"
 
@@ -36,17 +44,18 @@ private const val TAG = "WallhavenLogin"
 fun WallhavenLoginRoute(
     onBack: () -> Unit,
     viewmodel: WallhavenLoginViewModel = metroViewModel()
-){
+) {
     val showToast = LocalToastTrigger.current
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { PrefTopAppBar("Wallhaven login form",onBack = onBack) },
+        topBar = { PrefTopAppBar("Wallhaven login form", onBack = onBack) },
     ) { paddingValues ->
 
         WallhavenLoginScreen(
             paddingValues = paddingValues,
             onLoginSuccess = { cookies, csrfToken ->
-                viewmodel.onLoginCredentialsReceived(cookies,csrfToken)
+                runSpike("testing webview")
+                viewmodel.onLoginCredentialsReceived(cookies, csrfToken)
                 showToast("Logged in & API Key saved!")
                 onBack()
             },
@@ -55,6 +64,18 @@ fun WallhavenLoginRoute(
     }
 
 }
+
+@OptIn(DelicateCoroutinesApi::class)
+fun runSpike(label : String) {
+    GlobalScope.launch(Dispatchers.IO) {
+        try {
+            WallhavenSpike().run(label)
+        } catch (e: Throwable) {
+            Log.e("Spike", "Spike failed", e)
+        }
+    }
+}
+
 private const val HOST = "wallhaven.cc"
 
 @SuppressLint("SetJavaScriptEnabled")
@@ -83,7 +104,9 @@ fun WallhavenLoginScreen(
         }
     }
 
-    Box(Modifier.fillMaxSize().padding(paddingValues)) {
+    Box(Modifier
+        .fillMaxSize()
+        .padding(paddingValues)) {
         AndroidView(
             modifier = Modifier.fillMaxSize(),
             factory = { context ->
@@ -93,9 +116,12 @@ fun WallhavenLoginScreen(
                     cookieManager.setAcceptThirdPartyCookies(this, false)
 
                     settings.apply {
+                        userAgentString = WALLHAVEN_UA
                         javaScriptEnabled = true          // set false if login works without it
                         domStorageEnabled = true
                         allowFileAccess = false
+                        setSupportZoom(true)
+                        builtInZoomControls = true
                         allowContentAccess = false
                         mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
                         //safeBrowsingEnabled = true
@@ -134,9 +160,9 @@ fun WallhavenLoginScreen(
                                 val csrf = raw?.trim('"')
                                     ?.takeIf { it.isNotBlank() && it != "null" }
                                 onLoginSuccess(cookies, csrf)
-                                // Credentials are stored now; wipe the WebView's copy
-                                cookieManager.removeAllCookies(null)
-                                cookieManager.flush()
+                                // Credentials are stored now; we use webview to make further calls
+                                /*cookieManager.removeAllCookies(null)
+                                cookieManager.flush()*/
                             }
                         }
                     }
@@ -148,7 +174,10 @@ fun WallhavenLoginScreen(
         )
 
         if (isLoading) {
-            LinearProgressIndicator(Modifier.fillMaxWidth().align(Alignment.TopCenter))
+            LinearProgressIndicator(Modifier
+                .fillMaxWidth()
+                .align(Alignment.TopCenter))
         }
     }
 }
+

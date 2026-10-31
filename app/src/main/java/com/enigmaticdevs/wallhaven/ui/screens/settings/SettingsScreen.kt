@@ -52,6 +52,7 @@ import com.enigmaticdevs.wallhaven.ui.presentation.ClickablePrefWithButton
 import com.enigmaticdevs.wallhaven.ui.presentation.PrefTopAppBar
 import com.enigmaticdevs.wallhaven.ui.presentation.MaskExceptLastNVisualTransformation
 import com.enigmaticdevs.wallhaven.ui.presentation.asSource
+import com.enigmaticdevs.wallhaven.ui.screens.features.login.runSpike
 import com.enigmaticdevs.wallhaven.ui.theme.ThemeMode
 import dev.zacsweers.metrox.viewmodel.metroViewModel
 import kotlinx.coroutines.launch
@@ -70,7 +71,7 @@ fun SettingsScreen(
     val uriHandler = LocalUriHandler.current
     val scope = rememberCoroutineScope()
     //val currentKey by viewModel.currentKey.collectAsStateWithLifecycle()
-
+    runSpike("test3")
     LaunchedEffect(Unit) {
         viewModel.events.collect { snackBarHostState.showSnackbar(it) }
         //  viewModel.getCurrentKey()
