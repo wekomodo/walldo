@@ -22,6 +22,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
@@ -29,6 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
 
 
 sealed interface ImageSource {
@@ -43,22 +45,22 @@ fun Int.asSource() = ImageSource.Resource(this)
 
 sealed interface UiText {
     data class DynamicString(val value: String) : UiText
-    class ResourceString(@StringRes val resId: Int) : UiText
+    class ResourceString(@StringRes val resId: Int,vararg val args: Any) : UiText
 
     @Composable
     fun asString(): String {
         return when (this) {
             is DynamicString -> value
-            is ResourceString -> stringResource(resId)
+            is ResourceString -> stringResource(resId,*args)
         }
     }
 }
 
 // title for different categories
 @Composable
-fun CategoryTitle(text: String) {
+fun CategoryTitle(text: UiText) {
     Text(
-        text = text,
+        text = text.asString(),
         style = MaterialTheme.typography.titleMedium,
         fontWeight = FontWeight.SemiBold,
         modifier = Modifier.padding(bottom = 8.dp, start = 8.dp)
@@ -69,7 +71,7 @@ fun CategoryTitle(text: String) {
 
 // Clickable Prefs replicated to feel like Old xml Prefs
 @Composable
-fun ClickablePref(text: String, description: String, icon: Int, onClick: () -> Unit) {
+fun ClickablePref(text: UiText, description: UiText, icon: Int, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -80,15 +82,15 @@ fun ClickablePref(text: String, description: String, icon: Int, onClick: () -> U
         Icon(
             modifier = Modifier.padding(vertical = 16.dp, horizontal = 8.dp),
             painter = painterResource(icon),
-            contentDescription = text
+            contentDescription = text.asString()
         )
         Column(
             modifier = Modifier
                 .wrapContentSize()
                 .padding(start = 8.dp, top = 8.dp)
         ) {
-            Text(text = text, style = MaterialTheme.typography.bodyLarge)
-            Text(text = description, style = MaterialTheme.typography.bodySmall)
+            Text(text = text.asString(), style = MaterialTheme.typography.bodyLarge)
+            Text(text = description.asString(), style = MaterialTheme.typography.bodySmall)
 
         }
     }
@@ -101,12 +103,13 @@ fun ClickablePref(text: String, description: String, icon: Int, onClick: () -> U
 @Composable
 fun ClickablePrefWithButton(
     isChecked: Boolean,
-    text: String,
-    description: String,
+    text: UiText,
+    description: UiText,
     imageSource: ImageSource,
-    onCheckedChange: () -> Unit
+    onCheckedChange: () -> Unit,
+    isEnabled : Boolean
 ) {
-
+    val contentAlpha = if (isEnabled) 1f else 0.38f
     val painter = when (imageSource) {
         is ImageSource.Vector -> androidx.compose.ui.graphics.vector.rememberVectorPainter(imageSource.imageVector)
         is ImageSource.Resource -> painterResource(id = imageSource.resId)
@@ -115,29 +118,30 @@ fun ClickablePrefWithButton(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(enabled = true, onClick = onCheckedChange)
+            .alpha(contentAlpha)
+            .clickable(enabled = isEnabled, onClick = onCheckedChange)
             .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
             modifier = Modifier.padding(vertical = 16.dp, horizontal = 8.dp),
             painter = painter,
-            contentDescription = text
+            contentDescription = text.asString()
         )
         Column(
             modifier = Modifier
-                .wrapContentSize()
+                .weight(1f)
                 .padding(start = 8.dp, top = 8.dp)
         ) {
-            Text(text = text, style = MaterialTheme.typography.bodyLarge)
-            Text(text = description, style = MaterialTheme.typography.bodySmall)
-
+            Text(text = text.asString(), style = MaterialTheme.typography.bodyLarge)
+            Text(text = description.asString(), style = MaterialTheme.typography.bodySmall)
         }
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.padding(start = 8.dp),
             horizontalArrangement = Arrangement.End
         ) {
             Switch(
+                enabled = isEnabled,
                 checked = isChecked,
                 onCheckedChange = { onCheckedChange() }
             )
@@ -203,10 +207,11 @@ fun ClickablePrefsPreview(){
 Column(){
     ClickablePrefWithButton(
         true,
-        "Dynamic colors",
-        "Accent colors from system",
+        UiText.DynamicString("Dynamic colors"),
+        UiText.DynamicString("Accent colors from system"),
         Icons.Rounded.Face.asSource(),
-        onCheckedChange = {}
+        onCheckedChange = {},
+        isEnabled = true
     )
 
     ClickablePrefWithCheckbox(

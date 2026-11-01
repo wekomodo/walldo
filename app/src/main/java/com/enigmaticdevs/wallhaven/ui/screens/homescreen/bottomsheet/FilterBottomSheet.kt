@@ -21,6 +21,7 @@ import com.enigmaticdevs.wallhaven.R
 import com.enigmaticdevs.wallhaven.data.repository.FilterState
 import com.enigmaticdevs.wallhaven.ui.presentation.CategoryTitle
 import com.enigmaticdevs.wallhaven.ui.presentation.ClickablePref
+import com.enigmaticdevs.wallhaven.ui.presentation.UiText.ResourceString
 import com.enigmaticdevs.wallhaven.ui.util.ratioOptions
 import com.enigmaticdevs.wallhaven.ui.util.resolutionOptions
 import dev.zacsweers.metrox.viewmodel.metroViewModel
@@ -78,34 +79,34 @@ fun FilterBottomSheetContent(
             .wrapContentSize()
     ) {
 
-        CategoryTitle("General")
+        CategoryTitle(ResourceString(R.string.filter_category_general))
         HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {
             ClickablePref(
-                text = "Resolution Filter",
-                description = "Only greater than your chosen resolution will be shown",
+                text = ResourceString(R.string.filter_resolution_filter),
+                description = ResourceString(R.string.filter_resolution_filter_desc),
                 icon = R.drawable.ic_resolution,
                 onClick = { showResolutionDialog = true }
             )
             HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
             ClickablePref(
-                text = "Ratio Filter",
-                description = "Selected Ratios will be shown",
+                text = ResourceString(R.string.filter_ratio_title),
+                description = ResourceString(R.string.filter_ratio_desc),
                 icon = R.drawable.ic_ratio,
                 onClick = { showRatioDialog = true })
         }
 
         HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
-        CategoryTitle("Category Filter")
+        CategoryTitle(ResourceString(R.string.filter_category_filter))
         MultiChoiceSegmentedButton(
             options = categories,
             currentSelection = filterState.category,
             onStringChanged = onCategoryChange
         )
         HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
-        CategoryTitle("Purity Filter")
+        CategoryTitle(ResourceString(R.string.filter_purity_filter))
         MultiChoiceSegmentedButton(
             options = purity,
             currentSelection = filterState.purity,

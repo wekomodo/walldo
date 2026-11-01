@@ -48,22 +48,10 @@ class WallhavenLoginViewModel(
             else
                 Log.e(TAG,"API Key fetch failed")
 
+
+
             // 3. Emit success event to trigger navigation
             _events.send(LoginEvent.Success)
-        }
-    }
-
-    fun logout() {
-        viewModelScope.launch {
-            // Clear encrypted session tokens
-            secureStorage.clearSession()
-            // Clear the API key from DataStore
-            settingsRepository.updateApiKey("")
-            // Wipe Android's WebKit CookieManager so WebView doesn't auto-login next time
-            android.webkit.CookieManager.getInstance().removeAllCookies(null)
-            android.webkit.CookieManager.getInstance().flush()
-
-            _events.send(LoginEvent.Logout)
         }
     }
 

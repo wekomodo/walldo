@@ -5,6 +5,8 @@ package com.enigmaticdevs.wallhaven.ui.util
 
 const val WALLHAVEN_UA = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 " +
         "(KHTML, like Gecko) Chrome/141.0.0.0 Mobile Safari/537.36"
+
+
 val ratioOptions = listOf(
     "9x16 (portrait)" to "9x16",
     "10x16 (portrait)" to "10x16",

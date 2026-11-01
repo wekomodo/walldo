@@ -1,13 +1,31 @@
 package com.enigmaticdevs.wallhaven.data.repository
 
+import androidx.datastore.core.DataStore
+import androidx.datastore.core.IOException
+import androidx.datastore.preferences.core.MutablePreferences
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
+import dev.zacsweers.metro.Inject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 
 
 data class AutoWallpaperState(
-    val switch : String = "off",
-    val condition : Conditions = Conditions(onCharging = false, onWifi = false, onIdle = false),
-    val interval : String = "",
+    val switch : Boolean = false,
+    val onWifi: Boolean = false,
+    val onCharging: Boolean = false,
+    val onIdle : Boolean = false,
+   // val condition : Conditions = Conditions(onCharging = false, onWifi = false, onIdle = false),
+    val interval : String = AutoWallpaperInterval.MINS_15.name,
     val pauseOnLowBattery : Boolean = true,
     val ifLowOnStorage : Boolean = true
 )
@@ -22,10 +40,68 @@ private object AutoWallpaperKeys{
     val SWITCH = booleanPreferencesKey("auto_wallpaper_switch")
     val ON_CHARGING = booleanPreferencesKey("auto_wallpaper_charging")
     val ON_WIFI = booleanPreferencesKey("auto_wallpaper_wifi")
-    val IDLE = booleanPreferencesKey("auto_wallpaper_idle")
+    val ON_IDLE = booleanPreferencesKey("auto_wallpaper_idle")
     val INTERVAL = stringPreferencesKey("auto_wallpaper_interval")
 }
 
 
-class AutoWallpaperRepository {
+@Inject
+class AutoWallpaperRepository(
+    private val dataStore: DataStore<Preferences>,
+    private val scope : CoroutineScope
+) {
+
+    private val defaults = AutoWallpaperState()
+
+    val state : StateFlow<AutoWallpaperState> = dataStore.data.catch {
+        if(it is IOException) emit(emptyPreferences()) else throw it
+    }.map {
+        AutoWallpaperState(
+            switch = it[AutoWallpaperKeys.SWITCH] ?: defaults.switch,
+            onWifi = it[AutoWallpaperKeys.ON_WIFI] ?: defaults.onWifi,
+            onCharging = it[AutoWallpaperKeys.ON_CHARGING] ?: defaults.onCharging,
+            onIdle = it[AutoWallpaperKeys.ON_IDLE] ?: defaults.onIdle,
+            interval = it[AutoWallpaperKeys.INTERVAL] ?: defaults.interval
+        )
+    }.stateIn(
+        scope = scope,
+        started = SharingStarted.Eagerly,
+        initialValue = defaults
+    )
+
+
+    private fun save( block : (MutablePreferences) -> Unit) {
+        scope.launch { dataStore.edit { block(it) } }
+    }
+
+    fun updateSwitch(switch : Boolean) = save { it[AutoWallpaperKeys.SWITCH] = switch }
+    fun updateOnCharging(switch : Boolean) = save { it[AutoWallpaperKeys.ON_CHARGING] = switch }
+    fun updateOnWifi(switch : Boolean) = save { it[AutoWallpaperKeys.ON_WIFI] = switch }
+    fun updateOnIdle(switch : Boolean) = save { it[AutoWallpaperKeys.ON_IDLE] = switch }
+
+    fun updateInterval(value: String) = save { it[AutoWallpaperKeys.INTERVAL] = value }
+
+
+
+    // this was a very dumb try to reduce code lol
+    /*private fun update(value : Boolean, key : Preferences.Key<Boolean>) = save {
+        it[key] = value
+    }*/
+}
+
+
+enum class AutoWallpaperInterval(val value: Long, val timeUnit: TimeUnit) {
+    MINS_15(15, TimeUnit.MINUTES),
+    MINS_30(30, TimeUnit.MINUTES),
+    HOUR_1(1, TimeUnit.HOURS),
+    HOURS_4(4, TimeUnit.HOURS),
+    HOURS_12(12, TimeUnit.HOURS),
+    DAY_1(1, TimeUnit.DAYS);
+
+    companion object {
+        // Fallback safety if the stored string doesn't match
+        fun fromName(name: String?): AutoWallpaperInterval {
+            return entries.find { it.name == name } ?: HOUR_1
+        }
+    }
 }

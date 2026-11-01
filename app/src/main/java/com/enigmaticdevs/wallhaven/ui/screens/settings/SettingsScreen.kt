@@ -51,6 +51,8 @@ import com.enigmaticdevs.wallhaven.ui.presentation.ClickablePref
 import com.enigmaticdevs.wallhaven.ui.presentation.ClickablePrefWithButton
 import com.enigmaticdevs.wallhaven.ui.presentation.PrefTopAppBar
 import com.enigmaticdevs.wallhaven.ui.presentation.MaskExceptLastNVisualTransformation
+import com.enigmaticdevs.wallhaven.ui.presentation.UiText
+import com.enigmaticdevs.wallhaven.ui.presentation.UiText.ResourceString
 import com.enigmaticdevs.wallhaven.ui.presentation.asSource
 import com.enigmaticdevs.wallhaven.ui.screens.features.login.runSpike
 import com.enigmaticdevs.wallhaven.ui.theme.ThemeMode
@@ -60,7 +62,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun SettingsScreen(
     onBack: () -> Unit,
-    viewModel: SettingsViewModel = metroViewModel()
+    viewModel: SettingsViewModel = metroViewModel(),
+    onWallhavenLoginClick: () -> Unit
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val keyCheck by viewModel.keyCheck.collectAsStateWithLifecycle()
@@ -102,18 +105,19 @@ fun SettingsScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            CategoryTitle("Appearance")
+            CategoryTitle(ResourceString(R.string.settings_category_appearance))
             ClickablePrefWithButton(
                 isChecked = state.dynamicColors,
-                text = "Dynamic Colors",
-                description = "Accents from system",
+                text = UiText.ResourceString(R.string.settings_dynamic_colors),
+                description = UiText.ResourceString(R.string.settings_dynamic_colors_desc),
                 imageSource = Icons.Rounded.Face.asSource(),
-                onCheckedChange = { viewModel.updateDynamicColors(!state.dynamicColors) }
+                onCheckedChange = { viewModel.updateDynamicColors(!state.dynamicColors) },
+                isEnabled = true
             )
             HorizontalDivider()
             ClickablePref(
-                text = "Theme",
-                description = "Change the theme of the app",
+                text = ResourceString(R.string.theme),
+                description = ResourceString(R.string.theme_desc),
                 icon = R.drawable.ic_theme
             ) {
                 showThemeDialog = true
@@ -121,13 +125,27 @@ fun SettingsScreen(
             HorizontalDivider()
 
             // Account
-            CategoryTitle("Wallhaven Account")
+            CategoryTitle(ResourceString(R.string.app_name))
             ClickablePref(
-                text = "API key",
+                text = if (state.loginStatus) ResourceString(R.string.login)
+                else
+                    ResourceString(R.string.logout),
+                description = ResourceString(R.string.login_desc),
+                icon = if (state.loginStatus) R.drawable.wall
+                else
+                    R.drawable.ic_logout
+            ) {
+                if (!state.loginStatus)
+                    onWallhavenLoginClick()
+                else
+                    viewModel.logout()
+            }
+            ClickablePref(
+                text = ResourceString(R.string.apiKey),
                 description = when {
-                    !state.isLoaded -> ""
-                    state.apiKey.isBlank() -> "Required for NSFW filters"
-                    else -> "Key added (tap to change)"
+                    !state.isLoaded -> UiText.DynamicString("")
+                    state.apiKey.isBlank() -> ResourceString(R.string.apiKey_empty)
+                    else -> ResourceString(R.string.apiKey_exists)
                 },
                 icon = R.drawable.ic_api_key
             ) {
@@ -136,11 +154,11 @@ fun SettingsScreen(
 
             HorizontalDivider()
 
-            CategoryTitle("Data and Storage")
+            CategoryTitle(ResourceString(R.string.settings_data_and_storage))
             val size = Formatter.formatShortFileSize(context, state.cacheSizeBytes)
             ClickablePref(
-                text = "Clear Image Cache",
-                description = "Free up space :($size)",
+                text = ResourceString(R.string.image_cache),
+                description = ResourceString(R.string.image_cache_desc, size),
                 icon = R.drawable.ic_cleaning_services
             ) {
                 viewModel.clearImageCache()
@@ -150,10 +168,10 @@ fun SettingsScreen(
             }
             HorizontalDivider()
 
-            CategoryTitle("About")
+            CategoryTitle(ResourceString(R.string.settings_category_about))
             ClickablePref(
-                text = "Walldo",
-                description = "Open-Source Wallhaven client (Github)",
+                text = ResourceString(R.string.app_name),
+                description = ResourceString(R.string.github_repo),
                 icon = R.drawable.wall
             ) {
                 uriHandler.openUri("https://github.com/wekomodo/walldo")
@@ -273,9 +291,11 @@ fun ThemeSelectionDialog(
         onDismissRequest = onDismiss,
         title = { Text("Choose Theme") },
         text = {
-            Column(Modifier
-                .selectableGroup()
-                .wrapContentSize()) {
+            Column(
+                Modifier
+                    .selectableGroup()
+                    .wrapContentSize()
+            ) {
                 themeOptions.forEach { theme ->
                     val isSelected = (theme == currentTheme)
                     Row(

@@ -4,7 +4,10 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import coil3.ImageLoader
+import com.enigmaticdevs.wallhaven.data.local.SecureStorage
+import com.enigmaticdevs.wallhaven.data.repository.GlobalFlagsRepository
 import com.enigmaticdevs.wallhaven.data.repository.SettingsRepository
+import com.enigmaticdevs.wallhaven.ui.screens.features.login.LoginEvent
 import com.enigmaticdevs.wallhaven.ui.theme.ThemeMode
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesIntoMap
@@ -22,6 +25,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.math.log
 
 
 data class SettingsUiState(
@@ -30,7 +34,8 @@ data class SettingsUiState(
     val apiKey: String = "",
     val wallpaperSetter: String = "native",
     val isLoaded: Boolean = false,
-    val cacheSizeBytes: Long = 0L
+    val cacheSizeBytes: Long = 0L,
+    val loginStatus : Boolean = false
 )
 
 enum class KeyCheck { Idle, Checking, Invalid, NetworkError, Saved }
@@ -47,13 +52,23 @@ class ImageCacheManager(private val imageLoader: ImageLoader) {
     }
 }
 
+// Simple private data class to hold the intermediate state
+private data class RepoState(
+    val colors: Boolean= false,
+    val theme: String,
+    val setter: String,
+    val key: String
+)
+
 
 @Inject
 @ContributesIntoMap(AppScope::class)
 @ViewModelKey
 class SettingsViewModel(
+    private val secureStorage: SecureStorage,
     private val imageCacheManager: ImageCacheManager,
     private val repository: SettingsRepository,
+    private val globalFlagsRepository: GlobalFlagsRepository
 ) : ViewModel() {
 
     private val TAG = "SettingsViewModel"
@@ -61,19 +76,26 @@ class SettingsViewModel(
     private val _keyCheck = MutableStateFlow(KeyCheck.Idle)
     val keyCheck: StateFlow<KeyCheck> = _keyCheck.asStateFlow()
     val uiState: StateFlow<SettingsUiState> = combine(
-        repository.dynamicColorsFlow,
-        repository.themeFlow,
-        repository.wallpaperSetterFlow,
-        repository.apiKeyFlow,
-        cacheSize
-    ) { dynamicColors,theme, wallpaperSetter, key, size ->
+        //group 1
+        combine(
+            repository.dynamicColorsFlow,
+            repository.themeFlow,
+            repository.wallpaperSetterFlow,
+            repository.apiKeyFlow,
+        ) { colors, theme, setter, key ->
+            RepoState(colors, theme, setter, key)
+        },
+        cacheSize,
+        globalFlagsRepository.loginStatus,
+    ) { repoState, size, loginStatus ->
         SettingsUiState(
-            dynamicColors = dynamicColors,
-            theme = ThemeMode.from(theme),
-            apiKey = key,
-            wallpaperSetter = wallpaperSetter,
+            dynamicColors = repoState.colors,
+            theme = ThemeMode.from(repoState.theme),
+            apiKey = repoState.key,
+            wallpaperSetter = repoState.setter,
             cacheSizeBytes = size,
-            isLoaded = true
+            loginStatus = loginStatus,
+            isLoaded = true,
         )
     }.stateIn(
         scope = viewModelScope,
@@ -86,6 +108,9 @@ class SettingsViewModel(
     init {
         refreshCacheSize()
     }
+
+
+    fun updateLoginStatus(value : Boolean) = globalFlagsRepository.updateLoginStatus(value)
 
     fun updateTheme(mode: ThemeMode) {
         viewModelScope.launch { repository.updateTheme(mode.name) }
@@ -124,6 +149,22 @@ class SettingsViewModel(
             }
         }
     }
+
+
+    fun logout() {
+        viewModelScope.launch {
+            // Clear encrypted session tokens
+            secureStorage.clearSession()
+            // Clear the API key from DataStore
+            repository.updateApiKey("")
+            // Wipe Android's WebKit CookieManager so WebView doesn't auto-login next time
+            android.webkit.CookieManager.getInstance().removeAllCookies(null)
+            android.webkit.CookieManager.getInstance().flush()
+            globalFlagsRepository.updateLoginStatus(false)
+            _events.send("Logged out!")
+        }
+    }
+
 
     fun resetKeyCheck() {
         _keyCheck.value = KeyCheck.Idle

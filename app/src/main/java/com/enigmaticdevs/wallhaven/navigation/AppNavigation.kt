@@ -79,8 +79,11 @@ fun AppNavigation() {
             }
         },
     ) {
-        Box(Modifier.fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)) {
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+        ) {
             NavDisplay(
                 backStack = nav.backStack,
                 onBack = { nav.removeLast() },
@@ -110,13 +113,15 @@ fun AppNavigation() {
                     }
 
                     entry<Screen.AutoWallpaper> {
-                        AutoWallpaperRoute() {
-
-                        }
+                        AutoWallpaperRoute(onBack = {})
                     }
 
                     entry<Screen.Settings> {
-                        SettingsScreen(onBack = { nav.switchTopLevel(Screen.Home) })
+                        SettingsScreen(
+                            onBack = { nav.switchTopLevel(Screen.Home) },
+                            onWallhavenLoginClick = {
+                                nav.add(Screen.WallhavenLogin)
+                            })
                     }
 
                     entry<Screen.WallpaperDetail> { route ->
@@ -128,7 +133,10 @@ fun AppNavigation() {
                     }
 
                     entry<Screen.WallhavenLogin> {
-                        WallhavenLoginRoute(onBack = { nav.switchTopLevel(Screen.Home) })
+                        WallhavenLoginRoute(onBack = {
+                            nav.removeLast()
+                           // nav.switchTopLevel(Screen.Home)
+                        })
                     }
                 }
             )
@@ -145,9 +153,9 @@ fun AppNavigation() {
     DynamicToastOverlay(isVisible = isToastVisible, message = toastMessage)
 }
 
-class TopLevelBackStack<T : NavKey>(startKey : T){
+class TopLevelBackStack<T : NavKey>(startKey: T) {
     private val stacks = LinkedHashMap<T, SnapshotStateList<T>>()
-        .apply { put(startKey,mutableStateListOf(startKey)) }
+        .apply { put(startKey, mutableStateListOf(startKey)) }
 
     var topLevelKey by mutableStateOf(startKey)
         private set
