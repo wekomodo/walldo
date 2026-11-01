@@ -50,7 +50,7 @@ class ImageCacheManager(private val imageLoader: ImageLoader) {
 
 @Inject
 @ContributesIntoMap(AppScope::class)
-@ViewModelKey(SettingsViewModel::class)
+@ViewModelKey
 class SettingsViewModel(
     private val imageCacheManager: ImageCacheManager,
     private val repository: SettingsRepository,

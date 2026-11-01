@@ -1,23 +1,10 @@
 package com.enigmaticdevs.wallhaven.navigation
 
-import android.util.Log
-import android.widget.Toast
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalDrawerSheet
-import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -26,23 +13,25 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.runtime.SaveableStateHolderNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.enigmaticdevs.wallhaven.LocalToastTrigger
-import com.enigmaticdevs.wallhaven.R
 import com.enigmaticdevs.wallhaven.data.repository.GlobalFilterRepository
 import com.enigmaticdevs.wallhaven.ui.presentation.DynamicToastOverlay
-import com.enigmaticdevs.wallhaven.ui.screens.homescreen.HomeScreen
-import com.enigmaticdevs.wallhaven.ui.screens.settings.SettingsScreen
+import com.enigmaticdevs.wallhaven.ui.presentation.FloatingNavBar
 import com.enigmaticdevs.wallhaven.ui.screens.features.autowallpaper.AutoWallpaperRoute
 import com.enigmaticdevs.wallhaven.ui.screens.features.favorites.FavoritesRoute
 import com.enigmaticdevs.wallhaven.ui.screens.features.login.WallhavenLoginRoute
-import com.enigmaticdevs.wallhaven.ui.screens.features.login.WallhavenLoginScreen
+import com.enigmaticdevs.wallhaven.ui.screens.homescreen.HomeScreen
+import com.enigmaticdevs.wallhaven.ui.screens.settings.SettingsScreen
 import com.enigmaticdevs.wallhaven.ui.screens.wallpaperdetail.WallpaperDetailScreen
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -71,16 +60,10 @@ sealed interface Screen : NavKey {
 }
 
 @Composable
-fun AppNavigation(
-    globalFilterRepository: GlobalFilterRepository,
-
-) {
-    val backStack = remember { mutableStateListOf<Screen>(Screen.Home) }
-    val currentScreen = backStack.lastOrNull()
-    val context = LocalContext.current
-
-    //drawerState
-    val drawerState = rememberDrawerState(DrawerValue.Closed)
+fun AppNavigation() {
+    val nav = remember { TopLevelBackStack<Screen>(Screen.Home) }
+    val tabs = listOf(Screen.Home, Screen.Favorites, Screen.AutoWallpaper, Screen.Settings)
+    val showBar = nav.backStack.lastOrNull() in tabs
     val scope = rememberCoroutineScope()
 
     //global custom toast
@@ -96,153 +79,105 @@ fun AppNavigation(
             }
         },
     ) {
-        ModalNavigationDrawer(
-            drawerState = drawerState,
-            drawerContent = {
-                ModalDrawerSheet {
-                    Spacer(Modifier.height(16.dp))
-                    Text(
-                        text = "Walldo",
-                        modifier = Modifier.padding(16.dp),
-                        style = MaterialTheme.typography.headlineMedium
-                    )
-                    HorizontalDivider()
-
-                    NavigationDrawerItem(
-                        label = { Text("Home") },
-                        selected = currentScreen is Screen.Home,
-                        icon = { Icon(Icons.Filled.Home, contentDescription = "Home") },
-                        onClick = {
-                            scope.launch { drawerState.close() }
-                            if (currentScreen !is Screen.Home) {
-                                backStack.clear()
-                                backStack.add(Screen.Home)
-                            }
-                        },
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
-                    )
-
-                    NavigationDrawerItem(
-                        label = { Text("Auto-Wallpaper") },
-                        selected = currentScreen is Screen.AutoWallpaper,
-                        icon = {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_auto_wallpaper),
-                                contentDescription = "Auto"
-                            )
-                        },
-                        onClick = {
-                            scope.launch { drawerState.close() }
-                            if (currentScreen !is Screen.AutoWallpaper) {
-                                backStack.add(Screen.AutoWallpaper)
-                            }
-                        },
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
-                    )
-
-                    NavigationDrawerItem(
-                        label = { Text("Favorites") },
-                        selected = currentScreen is Screen.Favorites,
-                        icon = { Icon(Icons.Filled.Favorite, contentDescription = "Favorites") },
-                        onClick = {
-                            scope.launch { drawerState.close() }
-                            if (currentScreen !is Screen.Favorites) {
-                                backStack.add(Screen.Favorites)
-                            }
-                        },
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
-                    )
-
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-                    NavigationDrawerItem(
-                        label = { Text("Settings") },
-                        selected = currentScreen is Screen.Settings,
-                        icon = { Icon(Icons.Filled.Settings, contentDescription = "Settings") },
-                        onClick = {
-                            scope.launch { drawerState.close() }
-                            if (currentScreen !is Screen.Settings) {
-                                backStack.add(Screen.Settings)
-                            }
-                        },
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
-                    )
-                    NavigationDrawerItem(
-                        label = { Text("Login") },
-                        selected = currentScreen is Screen.WallhavenLogin,
-                        icon = { Icon(Icons.Filled.Settings, contentDescription = "Settings") },
-                        onClick = {
-                            scope.launch { drawerState.close() }
-                            if (currentScreen !is Screen.WallhavenLogin) {
-                                backStack.add(Screen.WallhavenLogin)
-                            }
-                        },
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
-                    )
-                }
-            }
-        ) {
-
+        Box(Modifier.fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)) {
             NavDisplay(
-                backStack = backStack,
-                onBack = { if (backStack.size > 1) backStack.removeAt(backStack.lastIndex) },
-                // Use entryProvider block to securely map key models to composable items
-                entryProvider = entryProvider {
-
-                    entry<Screen.Home> { route ->
+                backStack = nav.backStack,
+                onBack = { nav.removeLast() },
+                entryDecorators = listOf(
+                    rememberSaveableStateHolderNavEntryDecorator(),
+                    rememberViewModelStoreNavEntryDecorator()   // needs lifecycle-viewmodel-navigation3
+                ),
+                entryProvider = entryProvider(
+                    fallback = { key ->
+                        NavEntry(key) {
+                            Text("No entry for key ${key::class}")
+                        }
+                    }
+                ) {
+                    entry<Screen.Home> {
                         HomeScreen(
-                            onPhotoClick = { id -> backStack.add(Screen.WallpaperDetail(id)) },
-                            onOpenDrawer = {
-                                scope.launch { drawerState.open() }
-                            }
+                            onPhotoClick = { id -> nav.add(Screen.WallpaperDetail(id)) }
+                            // onOpenDrawer is gone along with the drawer
+                            , onBack = {}
                         )
+                    }
+
+                    entry<Screen.Favorites> {
+                        FavoritesRoute() {
+
+                        }
                     }
 
                     entry<Screen.AutoWallpaper> {
-                        AutoWallpaperRoute(
-                            onOpenDrawer = {
-                                scope.launch { drawerState.open() }
-                            }
-                            //onBack = { backStack.removeAt(backStack.lastIndex)}
-                        )
-                    }
-                    entry<Screen.Favorites> {
-                        FavoritesRoute(
-                            onOpenDrawer = {
-                                scope.launch { drawerState.open() }
-                            }
-                        )
-                    }
-                    entry<Screen.Settings> {
-                        SettingsScreen(
-                            //globalFilterRepository = globalFilterRepository,
-                            onBack = {
-                                backStack.removeAt(backStack.lastIndex)
-                            }
-                        )
+                        AutoWallpaperRoute() {
+
+                        }
                     }
 
-                    // Extract route properties securely for parametric screens
+                    entry<Screen.Settings> {
+                        SettingsScreen(onBack = { nav.switchTopLevel(Screen.Home) })
+                    }
+
                     entry<Screen.WallpaperDetail> { route ->
                         WallpaperDetailScreen(
                             wallpaperId = route.wallpaperId,
-                            onBack = { backStack.removeAt(backStack.lastIndex) },
-                            onTagClick = {
-                                backStack.clear()
-                                backStack.add(Screen.Home)
-                            }
+                            onBack = { nav.removeLast() },
+                            onTagClick = { nav.switchTopLevel(Screen.Home) }
                         )
                     }
+
                     entry<Screen.WallhavenLogin> {
-                        WallhavenLoginRoute(
-                            onBack = {  backStack.clear()
-                                backStack.add(Screen.Home) }
-                        )
+                        WallhavenLoginRoute(onBack = { nav.switchTopLevel(Screen.Home) })
                     }
                 }
             )
+
+            if (showBar) {
+                FloatingNavBar(
+                    selectedIndex = tabs.indexOf(nav.topLevelKey),
+                    onSelect = { nav.switchTopLevel(tabs[it]) },
+                    modifier = Modifier.align(Alignment.BottomCenter)
+                )
+            }
         }
-        DynamicToastOverlay(isVisible = isToastVisible, message = toastMessage)
     }
+    DynamicToastOverlay(isVisible = isToastVisible, message = toastMessage)
 }
 
+class TopLevelBackStack<T : NavKey>(startKey : T){
+    private val stacks = LinkedHashMap<T, SnapshotStateList<T>>()
+        .apply { put(startKey,mutableStateListOf(startKey)) }
+
+    var topLevelKey by mutableStateOf(startKey)
+        private set
+
+    val backStack = mutableStateListOf(startKey)
+
+    private fun update() {
+        backStack.clear()
+        backStack.addAll(stacks.flatMap { it.value })
+    }
+
+    fun switchTopLevel(key: T) {
+        val existing = stacks.remove(key)          // move tab to the end so it's on top
+        stacks[key] = existing ?: mutableStateListOf(key)
+        topLevelKey = key
+        update()
+    }
+
+    fun add(key: T) {
+        stacks[topLevelKey]?.add(key)
+        update()
+    }
+
+    fun removeLast() {
+        val stack = stacks[topLevelKey] ?: return
+        stack.removeLastOrNull()
+        if (stack.isEmpty()) {
+            stacks.remove(topLevelKey)
+            topLevelKey = stacks.keys.last()
+        }
+        update()
+    }
+}

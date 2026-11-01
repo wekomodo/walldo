@@ -59,7 +59,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun SettingsScreen(
-    onBack: () -> Screen,
+    onBack: () -> Unit,
     viewModel: SettingsViewModel = metroViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()

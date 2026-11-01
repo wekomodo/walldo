@@ -56,7 +56,7 @@ sealed interface WallpaperDetailUiState{
 
 @Inject
 @ContributesIntoMap(AppScope::class)
-@ViewModelKey(WallpaperDetailViewModel::class)
+@ViewModelKey
 class WallpaperDetailViewModel (
     private val repository: WallpaperRepository,
     private val collectionsRepository: CollectionsRepository,

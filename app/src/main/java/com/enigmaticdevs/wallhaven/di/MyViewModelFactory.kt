@@ -8,10 +8,10 @@ import dev.zacsweers.metrox.viewmodel.ViewModelAssistedFactory
 import kotlin.reflect.KClass
 
 class MyViewModelFactory(
-    providers: Map<KClass<out ViewModel>, Provider<ViewModel>>,
-    assistedProviders: Map<KClass<out ViewModel>, Provider<ViewModelAssistedFactory>>,
-    override val manualAssistedFactoryProviders: Map<KClass<out ManualViewModelAssistedFactory>, Provider<ManualViewModelAssistedFactory>>
+    providers: Map<KClass<out ViewModel>, () -> ViewModel>,
+    assistedProviders: Map<KClass<out ViewModel>, () -> ViewModelAssistedFactory>,
+    override val manualAssistedFactoryProviders: Map<KClass<out ManualViewModelAssistedFactory>, () -> ManualViewModelAssistedFactory>
 ) : MetroViewModelFactory() {
-    override val viewModelProviders: Map<KClass<out ViewModel>, Provider<ViewModel>> = providers
-    override val assistedFactoryProviders: Map<KClass<out ViewModel>, Provider<ViewModelAssistedFactory>> = assistedProviders
+    override val viewModelProviders: Map<KClass<out ViewModel>, () -> ViewModel> = providers
+    override val assistedFactoryProviders: Map<KClass<out ViewModel>, () -> ViewModelAssistedFactory> = assistedProviders
 }

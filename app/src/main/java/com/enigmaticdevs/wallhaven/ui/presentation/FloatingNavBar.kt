@@ -5,33 +5,25 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -52,38 +44,32 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import com.enigmaticdevs.wallhaven.ui.presentation.NavSpringColor
+import com.enigmaticdevs.wallhaven.navigation.Screen
 
 
 data class NavItem(
     val title: String,
     val icon: ImageVector,
-    val route: String
+)
+
+private val items = listOf(
+    NavItem("Home", Icons.Rounded.Home) ,
+    NavItem("Collections", Icons.Default.Favorite),
+    NavItem("Auto", Icons.Default.PlayArrow,),
+    NavItem("Settings", Icons.Default.Settings),
 )
 
 @Composable
 fun FloatingNavBar(
-    modifier: Modifier
+    modifier: Modifier,
+    selectedIndex: Int,
+    onSelect: (Int) -> Unit
 ) {
-    var currentRoute by remember { mutableStateOf("auto") }
-    fun onItemSelected(item: NavItem) {
-        currentRoute = item.route
-    }
-
-    val items = listOf(
-        NavItem("Home", Icons.Default.Face, "home"),
-        NavItem("Collections", Icons.Default.Favorite, "collection"),
-        NavItem("Auto", Icons.Default.PlayArrow, "auto"),
-        NavItem("Settings", Icons.Default.Settings, "setting"),
-
-
-    )
-
     Box(
         modifier = modifier
             .fillMaxWidth()
            // .fillMaxHeight(.15f)
-          //   .navigationBarsPadding()
+             .navigationBarsPadding()
             .padding(horizontal = 24.dp, vertical = 16.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -98,14 +84,12 @@ fun FloatingNavBar(
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                items.forEach { item ->
-                    val isSelected = currentRoute == item.route
+                items.forEachIndexed { index,item ->
                     NavBarItem(
                         item = item,
-                        isSelected = isSelected,
-                        onClick = { onItemSelected(item) }
+                        isSelected = index ==selectedIndex,
+                        onClick = { onSelect(index) }
                     )
-
                 }
 
             }
@@ -190,5 +174,5 @@ private val NavSpringFloat = spring<Float>(
 @Composable
 @Preview
 fun Preview() {
-    FloatingNavBar(Modifier)
+ //   FloatingNavBar(Modifier,)
 }

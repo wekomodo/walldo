@@ -36,6 +36,14 @@ android {
                 enable = false
             }
         }
+
+        //local release build to check performace cause debug is often laggy
+        create("releaseLocal") {
+            initWith(getByName("release"))
+            signingConfig = signingConfigs.getByName("debug")
+            matchingFallbacks += "release"
+            isDebuggable = false
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -85,6 +93,7 @@ dependencies {
 
     //nav3
     implementation(libs.bundles.nav3)
+    implementation(libs.bundles.nav3lifecycle)
     //room
     implementation(libs.bundles.room)
     ksp(libs.androidx.room.compiler)
@@ -92,6 +101,8 @@ dependencies {
     implementation(libs.jsoup)
     //android crypto
     implementation(libs.androidcrypto)
+    //work manager
+    implementation(libs.work.manager)
 }
 
 ksp { arg("room.schemaLocation", "$projectDir/schemas") }

@@ -41,34 +41,30 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 
-
-
-
 // Used in FilterBottomSheet
 @Composable
 fun FilterSelectionDialog(
-    title : String,
-    options : List<Pair<String,String>>,
+    title: String,
+    options: List<Pair<String, String>>,
     currentSelection: String,
-    onSelect : (String) -> Unit,
+    onSelect: (String) -> Unit,
     onDismiss: () -> Unit
-){
+) {
     // 1. Convert the comma-separated string from your global state into a Set
     var selectedItems by remember {
         mutableStateOf(currentSelection.split(",").filter { it.isNotBlank() }.toSet())
     }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = {Text(title)},
+        title = { Text(title) },
         text = {
             LazyColumn(
                 modifier = Modifier.fillMaxWidth()
             ) {
-                items(options){ (label, apiValue) ->
-                    val isSelected = if(apiValue.isEmpty()){
+                items(options) { (label, apiValue) ->
+                    val isSelected = if (apiValue.isEmpty()) {
                         selectedItems.isEmpty()
-                    }
-                    else{
+                    } else {
                         selectedItems.contains(apiValue)
                     }
                     Row(
@@ -115,69 +111,73 @@ fun FilterSelectionDialog(
     )
 }
 
-    @Composable
-    fun MultiChoiceSegmentedButton(
-        options: List<String>,
-        currentSelection: String, //eg 110
-        onStringChanged: (String) -> Unit
-    ) {
-        // var selectedIndex by remember { mutableIntStateOf(0) }
-        val selectedOptions = remember {
-            mutableStateListOf(false, false, false)
-        }
+@Composable
+fun MultiChoiceSegmentedButton(
+    options: List<String>,
+    currentSelection: String, //eg 110
+    onStringChanged: (String) -> Unit
+) {
+    // var selectedIndex by remember { mutableIntStateOf(0) }
+    val selectedOptions = remember {
+        mutableStateListOf(false, false, false)
+    }
 
-        Column(
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        //   horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp),
-         //   horizontalAlignment = Alignment.CenterHorizontally,
+                .padding(horizontal = 8.dp, vertical = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(
+                ButtonGroupDefaults.ConnectedSpaceBetween,
+                Alignment.CenterHorizontally
+            )
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp, vertical = 4.dp),
-                horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween, Alignment.CenterHorizontally)
-            ) {
-                options.forEachIndexed { index, label ->
-                    val isChecked = currentSelection.getOrNull(index) == '1'
-                    // Assign expressive morphing shapes based on position
-                    val shapes = when (index) {
-                        0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
-                        options.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
-                        else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
+            options.forEachIndexed { index, label ->
+                val isChecked = currentSelection.getOrNull(index) == '1'
+                // Assign expressive morphing shapes based on position
+                val shapes = when (index) {
+                    0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
+                    options.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
+                    else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
+                }
+                ToggleButton(
+                    modifier = Modifier.weight(1f),
+                    //   shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
+                    checked = isChecked,
+                    onCheckedChange = {
+                        val charArray = currentSelection.toCharArray()
+                        charArray[index] = if (isChecked) '0' else '1'
+                        onStringChanged(String(charArray))
+                    },
+                    // 2. Assign the specific morphing shape config for this slot
+                    shapes = shapes
+                ) {
+                    if (isChecked) {
+                        Icon(
+                            imageVector = Icons.Rounded.Check,
+                            contentDescription = null,
+                            modifier = Modifier.size(ToggleButtonDefaults.IconSize)
+                        )
+                        Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
                     }
-                    ToggleButton(
-                        modifier = Modifier.weight(1f),
-                     //   shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
-                        checked = isChecked,
-                        onCheckedChange = {
-                            val charArray = currentSelection.toCharArray()
-                            charArray[index] = if (isChecked) '0' else '1'
-                            onStringChanged(String(charArray))
-                        },
-                        // 2. Assign the specific morphing shape config for this slot
-                        shapes = shapes){
-                        if (isChecked) {
-                            Icon(
-                                imageVector = Icons.Rounded.Check,
-                                contentDescription = null,
-                                modifier = Modifier.size(ToggleButtonDefaults.IconSize)
-                            )
-                            Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
-                        }
-                        Text(text = label, maxLines = 1)
+                    Text(text = label, maxLines = 1)
 
-                    }
                 }
             }
         }
-
     }
+
+}
 
 
 @Preview
 @Composable
-fun Preview(){
-    val options = listOf<String>("general","Anime","People")
-    MultiChoiceSegmentedButton(options,"110") { }
+fun Preview() {
+    val options = listOf<String>("general", "Anime", "People")
+    MultiChoiceSegmentedButton(options, "110") { }
 }

@@ -29,7 +29,7 @@ import kotlinx.coroutines.flow.stateIn
 
 @Inject
 @ContributesIntoMap(AppScope::class)
-@ViewModelKey(HomeViewModel::class)
+@ViewModelKey
 class HomeViewModel(
     val globalFilterRepository: GlobalFilterRepository,
     private val repository: WallpaperRepository,

@@ -15,12 +15,9 @@ import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
-import androidx.compose.material3.FilledTonalIconButton
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -37,7 +34,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -63,7 +59,7 @@ val TAG = "Homescreen"
 @Composable
 fun HomeScreen(
     onPhotoClick: (String) -> Unit,
-    onOpenDrawer: () -> Unit,
+    onBack : () -> Unit,
     viewModel: HomeViewModel = metroViewModel()
 ) {
     val currentFilters by viewModel.globalFilterRepository.filters.collectAsState()
@@ -93,7 +89,7 @@ fun HomeScreen(
         onPhotoClick = onPhotoClick,
         updateSort = { viewModel.updateSort(it) },
         onSearch = { viewModel.triggerSearch(it) },
-        onOpenDrawer = onOpenDrawer
+       // onOpenDrawer = onOpenDrawer
     )
 
 }
@@ -108,7 +104,7 @@ fun HomeScreenContent(
     onPhotoClick: (String) -> Unit,
     updateSort: (String) -> Unit,
     onSearch: (String) -> Unit,
-    onOpenDrawer: () -> Unit
+   // onOpenDrawer: () -> Unit
 ) {
 
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
@@ -137,16 +133,6 @@ fun HomeScreenContent(
                         )
                     }
 
-                },
-                navigationIcon = {
-                    IconButton(
-                        onClick = onOpenDrawer
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Menu,
-                            contentDescription = "Menu Button"
-                        )
-                    }
                 },
                 actions = {
                     FilledIconButton(
@@ -178,7 +164,9 @@ fun HomeScreenContent(
         // Tabs(innerPadding, onPhotoClick = onPhotoClick )
 
         Box(
-            modifier = Modifier.fillMaxSize().padding(innerPadding)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
         ) {
             Column(
                 modifier = Modifier
@@ -216,9 +204,6 @@ fun HomeScreenContent(
             }
             if (showFilterSheet)
                 FilterBottomSheet(onDismiss = { showFilterSheet = false })
-            FloatingNavBar(
-                modifier = Modifier.align(Alignment.BottomCenter)
-            )
         }
     }
 

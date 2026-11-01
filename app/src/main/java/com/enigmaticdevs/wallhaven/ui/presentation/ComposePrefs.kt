@@ -226,11 +226,16 @@ Column(){
 fun PrefTopAppBar(title: String, onBack: () -> Unit){
 
     TopAppBar(
-        title = { Text(title) },
-        navigationIcon = {
+        title = {
+Row(
+    modifier = Modifier.fillMaxWidth(),
+    horizontalArrangement = Arrangement.Center
+) { }
+            Text(title) },
+        /*navigationIcon = {
             IconButton(onClick = {onBack()}) {
                 Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Back")
             }
-        }
+        }*/
     )
 }

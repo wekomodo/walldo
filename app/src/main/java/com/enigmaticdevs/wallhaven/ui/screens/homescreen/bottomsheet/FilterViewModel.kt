@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 @Inject
 @ContributesIntoMap(AppScope::class)
-@ViewModelKey(FilterViewModel::class)
+@ViewModelKey
 class FilterViewModel(private val repository: GlobalFilterRepository) : ViewModel() {
 
     val filters: StateFlow<FilterState> = repository.filters

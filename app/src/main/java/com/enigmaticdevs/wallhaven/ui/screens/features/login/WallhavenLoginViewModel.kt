@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 private val TAG = "WallhavenLoginViewModel"
 @Inject
 @ContributesIntoMap(AppScope::class)
-@ViewModelKey(WallhavenLoginViewModel::class)
+@ViewModelKey
 class WallhavenLoginViewModel(
     private val secureStorage : SecureStorage,
     private val settingsRepository: SettingsRepository,

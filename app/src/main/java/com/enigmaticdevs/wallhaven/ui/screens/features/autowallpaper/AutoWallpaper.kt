@@ -29,14 +29,15 @@ import com.enigmaticdevs.wallhaven.ui.presentation.ClickablePrefWithButton
 import com.enigmaticdevs.wallhaven.ui.presentation.ClickablePrefWithCheckbox
 import com.enigmaticdevs.wallhaven.ui.presentation.PrefTopAppBar
 import com.enigmaticdevs.wallhaven.ui.presentation.asSource
+import com.enigmaticdevs.wallhaven.ui.screens.homescreen.bottomsheet.MultiChoiceSegmentedButton
 import kotlinx.coroutines.Job
 
 
 @Composable
-fun AutoWallpaperRoute(onOpenDrawer: () -> Job) {
+fun AutoWallpaperRoute(onBack: () -> Unit) {
 
     AutoWallpaperContent(
-        onBack = {  }
+        onBack = onBack
     )
 }
 
@@ -95,6 +96,12 @@ fun AutoWallpaperContent(
                 text = R.string.onWifi
             ) { }
 */
+            /*val options = listOf("wifi","charging","idle")
+            MultiChoiceSegmentedButton(
+                options = ,
+                currentSelection = ,
+
+            ) { }*/
 
 
         }

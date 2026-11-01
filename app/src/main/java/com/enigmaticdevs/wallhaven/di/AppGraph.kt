@@ -23,6 +23,7 @@ import com.enigmaticdevs.wallhaven.di.flag.savedApiKeyPlugin
 import com.enigmaticdevs.wallhaven.data.repository.GlobalFilterRepository
 import com.enigmaticdevs.wallhaven.data.repository.WallpaperRepository
 import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.DependencyGraph
@@ -52,9 +53,10 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
     name = "com.enigmaticdevs.wallhaven_dataStore"
 )
 
+@BindingContainer
 @ContributesTo(AppScope::class)
 interface StorageModule {
-    @Provides
+
     @SingleIn(AppScope::class)
     fun provideSecureStorage(application: Application): SecureStorage {
         return SecureStorage(application)
@@ -69,17 +71,16 @@ interface AppGraph : ViewModelGraph {
 
     @Provides
     fun provideMyViewModelFactory(
-        providers: Map<KClass<out ViewModel>, Provider<ViewModel>>,
-        assistedProviders: Map<KClass<out ViewModel>, Provider<ViewModelAssistedFactory>>,
-        manualAssistedFactoryProviders: Map<KClass<out ManualViewModelAssistedFactory>, Provider<ManualViewModelAssistedFactory>>
+        providers: Map<KClass<out ViewModel>,() -> ViewModel>,
+        assistedProviders: Map<KClass<out ViewModel>, () -> ViewModelAssistedFactory>,
+        manualAssistedFactoryProviders: Map<KClass<out ManualViewModelAssistedFactory>,() -> ManualViewModelAssistedFactory>
     ): MyViewModelFactory =
         MyViewModelFactory(providers, assistedProviders, manualAssistedFactoryProviders)
 
 
     @DependencyGraph.Factory
     interface Factory {
-        fun create(@Provides context: Context,
-                   @Provides application: Application): AppGraph
+        fun create(@Provides context: Context, @Provides application: Application): AppGraph
     }
 
     /*@SingleIn(AppScope::class)
