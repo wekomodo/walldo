@@ -6,12 +6,21 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
@@ -19,7 +28,10 @@ import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExpandedFullScreenSearchBar
+import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
@@ -27,6 +39,7 @@ import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.material3.rememberSearchBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -37,11 +50,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.enigmaticdevs.wallhaven.R
 import com.enigmaticdevs.wallhaven.data.remote.model.Objects.Sorting
 import com.enigmaticdevs.wallhaven.ui.util.searchInfoMessage
 import kotlinx.coroutines.launch
@@ -112,7 +128,7 @@ fun SimpleSearchBar(
     onSearch: (String) -> Unit,
     searchResults: List<String>,
     modifier: Modifier = Modifier,
-    onBack: () -> FocusRequester
+    onFilterClick: () -> Unit
 ) {
     // Controls expansion state of the search bar
     val searchBarState = rememberSearchBarState()
@@ -161,7 +177,7 @@ fun SimpleSearchBar(
     Box(
         modifier
             .fillMaxWidth()
-            .padding(top = 8.dp)
+            .padding(4.dp)
             .semantics {
                 isTraversalGroup = true
             })
@@ -175,108 +191,110 @@ fun SimpleSearchBar(
                 state = searchBarState,
                 inputField = inputField,
                 modifier = Modifier
-                    .padding(start = 8.dp)
+                    .padding(start = 4.dp)
+                    //.fillMaxWidth()
                     .semantics { traversalIndex = 0f }
+                    .weight(1f)
             )
-            IconButton(
-                onClick = {
-                    showInfoDialog = !showInfoDialog
-                }
+            FilledIconButton(
+                modifier = Modifier
+                    .minimumInteractiveComponentSize()
+                    .padding(4.dp),
+                onClick = onFilterClick
             ) {
-                Icon(imageVector = Icons.Rounded.Info, "Search Info")
+                Icon(painter = painterResource(R.drawable.ic_filter_tune_v2), "Search Info")
             }
         }
-        if(showInfoDialog)
+        if (showInfoDialog)
             InfoAlertDialog { showInfoDialog = false }
         ExpandedFullScreenSearchBar(
             state = searchBarState,
-            inputField = inputField
+            inputField = inputField,
         ) {
             // Display search results in a scrollable column
-            Column(Modifier.verticalScroll(rememberScrollState())) {
-                searchResults.forEach { result ->
-                    ListItem(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 4.dp)
-                            .clickable {
-                                // Update the text field
-                                textFieldState.edit { replace(0, length, result) }
-                                // Trigger the search
-                                onSearch(result)
-                                // Animate the overlay closed
-                                scope.launch { searchBarState.animateToCollapsed() }
-                            }
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        )
-                        {
-                            Text(result)
-                            IconButton(
-                                onClick = {
-                                    // delete the query from here
+            Box(modifier = Modifier.fillMaxSize()) {
+                Column(Modifier.verticalScroll(rememberScrollState())) {
+                    searchResults.forEach { result ->
+                        ListItem(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 4.dp)
+                                .clickable {
+                                    // Update the text field
+                                    textFieldState.edit { replace(0, length, result) }
+                                    // Trigger the search
+                                    onSearch(result)
+                                    // Animate the overlay closed
+                                    scope.launch { searchBarState.animateToCollapsed() }
                                 }
-                            ) {
-                                Icon(imageVector = Icons.Rounded.Clear, "clear saved query")
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            )
+                            {
+                                Text(result)
+                                IconButton(
+                                    onClick = {
+                                        // delete the query from here
+                                    }
+                                ) {
+                                    Icon(imageVector = Icons.Rounded.Clear, "clear saved query")
 
+                                }
                             }
-                        }
 
+                        }
                     }
+                }
+                FloatingActionButton(
+                    onClick = { showInfoDialog = true },
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .windowInsetsPadding(
+                            WindowInsets.ime.union(WindowInsets.navigationBars)
+                        )
+                        .padding(16.dp)
+                ) {
+                    Icon(imageVector = Icons.Rounded.Info, "Info")
                 }
             }
         }
 
     }
+}
+
+
+@Preview
+@Composable
+fun SearchBarPreview() {
+    val textFieldState = rememberTextFieldState("")
+    SimpleSearchBar(
+        textFieldState = textFieldState,
+        onSearch = {},
+        modifier = Modifier,
+        searchResults = listOf("1"),
+        onFilterClick = {}
+    )
 }
 
 @Composable
 fun InfoAlertDialog(
-    onDismissRequest : () -> Unit,
-){
-   AlertDialog(
+    onDismissRequest: () -> Unit,
+) {
+    AlertDialog(
         onDismissRequest = onDismissRequest,
         title = {
             Text("Ways to find what you're looking for")
         },
-       text = {
-           Text(searchInfoMessage)
-       },
-       confirmButton = {
-           TextButton(onClick = onDismissRequest) {
-               Text("Okay")
-           }
-       }
-    )
-}
-
-@Composable
-fun SortChipRow(
-    currentSort: String,
-    onSortSelected: (String) -> Unit
-) {
-    val sortOptions = listOf(
-        Sorting.topList,
-        Sorting.dateAdded,
-        Sorting.views,
-        Sorting.favorites,
-        Sorting.relevance,
-    )
-
-    LazyRow(
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(sortOptions) { option ->
-            FilterChip(
-                selected = currentSort == option,
-                onClick = { onSortSelected(option) },
-                label = {
-                    Text(option.replace("_", " ").replaceFirstChar { it.uppercase() })
-                }
-            )
+        text = {
+            Text(searchInfoMessage)
+        },
+        confirmButton = {
+            TextButton(onClick = onDismissRequest) {
+                Text("Okay")
+            }
         }
-    }
+    )
 }
+

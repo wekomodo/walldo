@@ -1,6 +1,7 @@
 package com.enigmaticdevs.wallhaven.ui.util
 
-
+import com.enigmaticdevs.wallhaven.data.repository.AutoWallpaperInterval
+import kotlin.collections.listOf
 
 
 const val WALLHAVEN_UA = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 " +
@@ -46,7 +47,16 @@ val resolutionOptions = listOf(
     "None" to ""
 )
 
-val searchInfoMessage =  "• tagname (Search fuzzily for a tag) \n" +
+val intervalList = listOf(
+    Pair("15 Minutes", AutoWallpaperInterval.MINS_15),
+    Pair("30 Minutes", AutoWallpaperInterval.MINS_30),
+    Pair("1 Hour", AutoWallpaperInterval.HOUR_1),
+    Pair("4 Hours", AutoWallpaperInterval.HOURS_4),
+    Pair("12 Hours", AutoWallpaperInterval.HOURS_12),
+    Pair("1 Day", AutoWallpaperInterval.DAY_1)
+)
+
+val searchInfoMessage = "• tagname (Search fuzzily for a tag) \n" +
         "• -tagname (exludes a tag/keyword)\n" +
         "• +tag1+tag2 (must have tag1 and tag2)\n" +
         "• @username (useruploads)\n" +

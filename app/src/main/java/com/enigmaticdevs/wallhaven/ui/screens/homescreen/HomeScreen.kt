@@ -134,7 +134,7 @@ fun HomeScreenContent(
                     }
 
                 },
-                actions = {
+                /*actions = {
                     FilledIconButton(
                         onClick = {
                             showFilterSheet = true
@@ -143,7 +143,7 @@ fun HomeScreenContent(
                         Icon(painter = painterResource(R.drawable.ic_filter_tune_v2), contentDescription = "Filter Button")
 
                     }
-                },
+                },*/
                 scrollBehavior = scrollBehavior
             )
         }
@@ -185,7 +185,9 @@ fun HomeScreenContent(
                     else
                         updateSort(Sorting.topList)*/
                     },
-                    onBack = { FocusRequester() }
+                    onFilterClick = {
+                        showFilterSheet = true
+                    }
                 )
 
                 // 2. The Sort Chips

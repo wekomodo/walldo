@@ -24,6 +24,8 @@ class AutoWallpaperViewModel(
     fun updateSwitch(value : Boolean) = repository.updateSwitch(value)
     fun updateOnWifi(value: Boolean) = repository.updateOnWifi(value)
     fun updateOnCharging(value: Boolean) = repository.updateOnCharging(value)
+    fun updatePauseOnChargingLow(value: Boolean) = repository.updatePauseOnBatteryLow(value)
     fun updateOnIdle(value: Boolean) = repository.updateOnIdle(value)
     fun updateInterval(value : String) = repository.updateInterval(value)
+    fun updateIfLowOnStorage(value: Boolean) = repository.updateIfLowOnStorage(value)
 }

@@ -10,8 +10,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Face
 import androidx.compose.material3.AlertDialog
@@ -38,8 +40,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
@@ -74,7 +78,7 @@ fun SettingsScreen(
     val uriHandler = LocalUriHandler.current
     val scope = rememberCoroutineScope()
     //val currentKey by viewModel.currentKey.collectAsStateWithLifecycle()
-    runSpike("test3")
+   // runSpike("test3")
     LaunchedEffect(Unit) {
         viewModel.events.collect { snackBarHostState.showSnackbar(it) }
         //  viewModel.getCurrentKey()
@@ -104,12 +108,13 @@ fun SettingsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .verticalScroll(rememberScrollState())
         ) {
             CategoryTitle(ResourceString(R.string.settings_category_appearance))
             ClickablePrefWithButton(
                 isChecked = state.dynamicColors,
-                text = UiText.ResourceString(R.string.settings_dynamic_colors),
-                description = UiText.ResourceString(R.string.settings_dynamic_colors_desc),
+                text = ResourceString(R.string.settings_dynamic_colors),
+                description = ResourceString(R.string.settings_dynamic_colors_desc),
                 imageSource = Icons.Rounded.Face.asSource(),
                 onCheckedChange = { viewModel.updateDynamicColors(!state.dynamicColors) },
                 isEnabled = true

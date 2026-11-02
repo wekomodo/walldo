@@ -19,16 +19,14 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
-import androidx.navigation3.runtime.SaveableStateHolderNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.enigmaticdevs.wallhaven.LocalToastTrigger
-import com.enigmaticdevs.wallhaven.data.repository.GlobalFilterRepository
 import com.enigmaticdevs.wallhaven.ui.presentation.DynamicToastOverlay
 import com.enigmaticdevs.wallhaven.ui.presentation.FloatingNavBar
 import com.enigmaticdevs.wallhaven.ui.screens.features.autowallpaper.AutoWallpaperRoute
-import com.enigmaticdevs.wallhaven.ui.screens.features.favorites.FavoritesRoute
+import com.enigmaticdevs.wallhaven.ui.screens.features.collections.CollectionsRoute
 import com.enigmaticdevs.wallhaven.ui.screens.features.login.WallhavenLoginRoute
 import com.enigmaticdevs.wallhaven.ui.screens.homescreen.HomeScreen
 import com.enigmaticdevs.wallhaven.ui.screens.settings.SettingsScreen
@@ -47,7 +45,7 @@ sealed interface Screen : NavKey {
     data object AutoWallpaper : Screen // New Tab
 
     @Serializable
-    data object Favorites : Screen // New Tab
+    data object Collections : Screen // New Tab
 
     @Serializable
     data object Settings : Screen
@@ -62,7 +60,7 @@ sealed interface Screen : NavKey {
 @Composable
 fun AppNavigation() {
     val nav = remember { TopLevelBackStack<Screen>(Screen.Home) }
-    val tabs = listOf(Screen.Home, Screen.Favorites, Screen.AutoWallpaper, Screen.Settings)
+    val tabs = listOf(Screen.Home, Screen.Collections, Screen.AutoWallpaper, Screen.Settings)
     val showBar = nav.backStack.lastOrNull() in tabs
     val scope = rememberCoroutineScope()
 
@@ -106,8 +104,8 @@ fun AppNavigation() {
                         )
                     }
 
-                    entry<Screen.Favorites> {
-                        FavoritesRoute() {
+                    entry<Screen.Collections> {
+                        CollectionsRoute() {
 
                         }
                     }

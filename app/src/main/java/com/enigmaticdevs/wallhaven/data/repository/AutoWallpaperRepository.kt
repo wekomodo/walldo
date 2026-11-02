@@ -39,9 +39,11 @@ data class Conditions(
 private object AutoWallpaperKeys{
     val SWITCH = booleanPreferencesKey("auto_wallpaper_switch")
     val ON_CHARGING = booleanPreferencesKey("auto_wallpaper_charging")
+    val PAUSE_ON_BATTERY_LOW = booleanPreferencesKey("auto_wallpaper_battery_low")
     val ON_WIFI = booleanPreferencesKey("auto_wallpaper_wifi")
     val ON_IDLE = booleanPreferencesKey("auto_wallpaper_idle")
     val INTERVAL = stringPreferencesKey("auto_wallpaper_interval")
+    val STORAGE_LOW = booleanPreferencesKey("auto_wallpaper_storage_low")
 }
 
 
@@ -60,8 +62,10 @@ class AutoWallpaperRepository(
             switch = it[AutoWallpaperKeys.SWITCH] ?: defaults.switch,
             onWifi = it[AutoWallpaperKeys.ON_WIFI] ?: defaults.onWifi,
             onCharging = it[AutoWallpaperKeys.ON_CHARGING] ?: defaults.onCharging,
+            pauseOnLowBattery = it[AutoWallpaperKeys.PAUSE_ON_BATTERY_LOW] ?: defaults.pauseOnLowBattery,
             onIdle = it[AutoWallpaperKeys.ON_IDLE] ?: defaults.onIdle,
-            interval = it[AutoWallpaperKeys.INTERVAL] ?: defaults.interval
+            interval = it[AutoWallpaperKeys.INTERVAL] ?: defaults.interval,
+            ifLowOnStorage = it[AutoWallpaperKeys.STORAGE_LOW] ?: defaults.ifLowOnStorage
         )
     }.stateIn(
         scope = scope,
@@ -76,10 +80,14 @@ class AutoWallpaperRepository(
 
     fun updateSwitch(switch : Boolean) = save { it[AutoWallpaperKeys.SWITCH] = switch }
     fun updateOnCharging(switch : Boolean) = save { it[AutoWallpaperKeys.ON_CHARGING] = switch }
+
+    fun updatePauseOnBatteryLow (switch: Boolean) = save { it[AutoWallpaperKeys.PAUSE_ON_BATTERY_LOW] = switch }
     fun updateOnWifi(switch : Boolean) = save { it[AutoWallpaperKeys.ON_WIFI] = switch }
     fun updateOnIdle(switch : Boolean) = save { it[AutoWallpaperKeys.ON_IDLE] = switch }
 
     fun updateInterval(value: String) = save { it[AutoWallpaperKeys.INTERVAL] = value }
+
+    fun updateIfLowOnStorage(value: Boolean) = save { it[AutoWallpaperKeys.STORAGE_LOW] = value }
 
 
 
