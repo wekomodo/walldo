@@ -87,7 +87,7 @@ class WallhavenAccountApi(
         }
 
     /** Deletes a collection (not the default one). */
-    suspend fun deleteCollection(collectionId: String): AccountOutcome<Unit> =
+    suspend fun deleteCollection(collectionId: Long): AccountOutcome<Unit> =
         execute { token ->
             http.get("$BASE/collection/remove/$collectionId") {
                 parameter("_token", token)
@@ -98,7 +98,7 @@ class WallhavenAccountApi(
      * Adds a wallpaper to a collection. The server silently ignores this if the wallpaper
      * is already in another collection, so to move one: removeWallpaper, then add.
      */
-    suspend fun addToCollection(wallpaperId: String, collectionId: String): AccountOutcome<Unit> =
+    suspend fun addToCollection(wallpaperId: String, collectionId: Long): AccountOutcome<Unit> =
         execute { token ->
             http.post("$BASE/favorites/add") {
                 parameter("wallHashid", wallpaperId)

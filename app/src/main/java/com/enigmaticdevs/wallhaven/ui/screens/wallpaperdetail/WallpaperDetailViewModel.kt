@@ -4,8 +4,10 @@ import android.util.Log
 import android.util.LruCache
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.enigmaticdevs.wallhaven.data.local.collections.CollectionItemEntity
 import com.enigmaticdevs.wallhaven.data.local.collections.WallpaperEntity
 import com.enigmaticdevs.wallhaven.data.remote.model.WallpaperDetail
+import com.enigmaticdevs.wallhaven.data.repository.AddResult
 import com.enigmaticdevs.wallhaven.data.repository.CollectionMembership
 import com.enigmaticdevs.wallhaven.data.repository.CollectionsRepository
 import com.enigmaticdevs.wallhaven.data.repository.WallpaperRepository
@@ -16,12 +18,15 @@ import dev.zacsweers.metro.ContributesIntoMap
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metrox.viewmodel.ViewModelKey
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -64,6 +69,9 @@ class WallpaperDetailViewModel (
     val shareableWallpapers: ShareableWallpapers
 ) : ViewModel() {
     private val TAG = "WallpaperDetailViewModel"
+
+    private val _addResultEvent = Channel<AddResult>(Channel.BUFFERED)
+    val addResultEvent = _addResultEvent.receiveAsFlow()
     private val _wallpaper = MutableStateFlow<WallpaperDetail?>(null)
     val wallpaper = _wallpaper.asStateFlow()
 
@@ -76,18 +84,29 @@ class WallpaperDetailViewModel (
         .flatMapLatest { collectionsRepository.observeMemberships(it.data.id) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
+    val isFavorite: StateFlow<Boolean> = memberships
+        .map { list -> list.any { it.collection.isDefault && !it.collection.isSynced && it.contains } }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
     fun setMembership(collectionId: Long, shouldContain: Boolean) {
-        val current = wallpaper.value ?: return
+        val wallpaperId = wallpaper.value?.data?.id ?: return
         viewModelScope.launch {
-            collectionsRepository.setMembership(current.toEntity(), collectionId, shouldContain)
+            if(shouldContain)
+            {
+            val result = collectionsRepository.addWallpaper(wallpaperId, collectionId)
+            _addResultEvent.send(result)
+            }
+            else {
+                collectionsRepository.removeWallpaper(wallpaperId, collectionId)
+            }
         }
     }
 
-    fun createCollectionAndAdd(name: String) {
-        val current = wallpaper.value ?: return
+    fun createCollectionAndAdd(name: String, isSynced : Boolean,isPublic : Boolean) {
+        val wallpaperId = wallpaper.value?.data?.id ?: return
         viewModelScope.launch {
-            val id = collectionsRepository.createCollection(name) ?: return@launch
-            collectionsRepository.setMembership(current.toEntity(), id, true)
+            val id = runCatching {collectionsRepository.createCollection(name, synced = isSynced, isPublic = isPublic) }.getOrNull() ?: return@launch
+            val result = collectionsRepository.addWallpaper(wallpaperId, id)
+            _addResultEvent.send(result)
         }
     }
     fun searchTag(tag: String) = savedQueries.set(QueryNames.HOME, tag)

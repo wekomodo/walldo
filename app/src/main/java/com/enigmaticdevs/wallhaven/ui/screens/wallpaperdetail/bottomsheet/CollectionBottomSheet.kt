@@ -33,7 +33,7 @@ import com.enigmaticdevs.wallhaven.data.repository.CollectionMembership
 fun CollectionsSheet(
     memberships: List<CollectionMembership>,
     onToggle: (collectionId: Long, shouldContain: Boolean) -> Unit,
-    onCreate: (name: String) -> Unit,
+    onCreate: (name: String, isSynced : Boolean, isPublic : Boolean) -> Unit,
     onDismiss: () -> Unit
 ) {
     var showCreate by remember { mutableStateOf(false) }
@@ -45,11 +45,14 @@ fun CollectionsSheet(
             modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
         )
         LazyColumn {
-            items(memberships, key = { it.collection.id }) { m ->
+            items(memberships, key = { it.collection.id }) { item ->
                 ListItem(
-                    headlineContent = { Text(m.collection.name) },
-                    leadingContent = { Checkbox(checked = m.contains, onCheckedChange = null) },
-                    modifier = Modifier.clickable { onToggle(m.collection.id, !m.contains) }
+                    headlineContent = { Text(item.collection.name) },
+                    supportingContent = if (item.collection.isSynced) {
+                        { Text("Wallhaven Synced", style = MaterialTheme.typography.bodySmall) }
+                    } else null,
+                    leadingContent = { Checkbox(checked = item.contains, onCheckedChange = null) },
+                    modifier = Modifier.clickable { onToggle(item.collection.id, !item.contains) }
                 )
             }
             item {
@@ -65,7 +68,7 @@ fun CollectionsSheet(
 
     if (showCreate) {
         NewCollectionDialog(
-            onConfirm = { onCreate(it); showCreate = false },
+            onConfirm = { onCreate(it,false,false); showCreate = false },
             onDismiss = { showCreate = false }
         )
     }
@@ -86,7 +89,10 @@ fun NewCollectionDialog(onConfirm: (String) -> Unit, onDismiss: () -> Unit) {
             )
         },
         confirmButton = {
-            TextButton(onClick = { onConfirm(name) }, enabled = name.isNotBlank()) { Text("Create") }
+            TextButton(
+                onClick = { onConfirm(name) },
+                enabled = name.isNotBlank()
+            ) { Text("Create") }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
     )

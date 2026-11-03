@@ -5,14 +5,16 @@ import androidx.room.RoomDatabase
 
 
 @Database(
-    entities = [CollectionEntity::class, WallpaperEntity::class, CollectionItem::class],
+    entities = [
+        WallpaperEntity::class,
+        CollectionEntity::class,
+        CollectionItemEntity::class,
+        PendingOpEntity::class],
     version = 1,
-    exportSchema = true
+    exportSchema = true,
 )
 
 
 abstract class CollectionsDatabase : RoomDatabase() {
     abstract fun collectionDao(): CollectionDao
-    abstract fun wallpaperDao(): WallpaperDao
-    abstract fun itemDao(): ItemDao
 }

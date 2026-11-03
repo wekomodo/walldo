@@ -78,7 +78,7 @@ fun runSpike(label : String) {
             val collectionId = "2298578"
          //   Log.d("Test", "create -> ${api.createCollection("api-test", isPublic = false)}")
 // find its ID from the official API, then:
-            Log.d("Test", "add -> ${api.addToCollection(wallpaperId, collectionId)}")
+           // Log.d("Test", "add -> ${api.addToCollection(wallpaperId, collectionId)}")
            // Log.d("Test", "remove -> ${api.removeWallpaper(wallpaperId)}")
          //   Log.d("Test", "delete -> ${api.deleteCollection(collectionId)}")
           //  WallhavenSpike().probeDupOrigin()

@@ -159,7 +159,7 @@ interface AppGraph : ViewModelGraph {
                 // runs once, when the file is first created: guarantees exactly one "Favorites"
                 override fun onCreate(db: SupportSQLiteDatabase) {
                     db.execSQL(
-                        "INSERT INTO collections (name, isDefault, createdAt) " +
+                        "INSERT INTO collection (name, isDefault, createdAt) " +
                                 "VALUES ('Favorites', 1, ${System.currentTimeMillis()})"
                     )
                 }

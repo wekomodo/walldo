@@ -71,6 +71,7 @@ import com.enigmaticdevs.wallhaven.ui.util.rememberDownloadStarter
 import com.enigmaticdevs.wallhaven.ui.util.setAsWallpaperWithSystem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlin.collections.firstOrNull
 import kotlin.coroutines.cancellation.CancellationException
 
 
@@ -85,9 +86,10 @@ fun WallpaperDetailScreen(
 ) {
     Log.d("$TAG(wallpaperId)", wallpaperId)
     val wallpaper = viewModel.wallpaper.collectAsState().value
-    val memerShips by viewModel.memberships.collectAsStateWithLifecycle()
+    val memberships by viewModel.memberships.collectAsStateWithLifecycle()
     var showSheet by remember { mutableStateOf(false) }
-    val favorites = memerShips.firstOrNull() { it.collection.isDefault }
+    val favoritesCollectionId = 1L
+    val isFavorite by viewModel.isFavorite.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
     var isPreparing by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -95,14 +97,12 @@ fun WallpaperDetailScreen(
 
     LaunchedEffect(wallpaperId) { viewModel.getWallpaperDetails(wallpaperId) }
     WallpaperDetailScreenContent(
-        isFavorite = favorites?.contains,
+        isFavorite = isFavorite,
         onFavoriteClick = {
-            favorites?.let {
-                viewModel.setMembership(
-                    it.collection.id,
-                    !it.contains
-                )
-            }
+            viewModel.setMembership(
+                collectionId = favoritesCollectionId,
+                shouldContain = !isFavorite
+            )
         },
         wallpaper = wallpaper,
         onCollectionsClick = { showSheet = true },
@@ -130,11 +130,11 @@ fun WallpaperDetailScreen(
             }
 
         })
-    if(isPreparing) PreparingOverlay()
+    if (isPreparing) PreparingOverlay()
 
     if (showSheet) {
         CollectionsSheet(
-            memberships = memerShips,
+            memberships = memberships,
             onToggle = viewModel::setMembership,
             onCreate = viewModel::createCollectionAndAdd,
             onDismiss = { showSheet = false }
@@ -380,6 +380,7 @@ fun CircleColorPalette(colors: List<String>, onClick: (String) -> Unit) {
         }
     }
 }
+
 @Composable
 fun PreparingOverlay() {
     Box(

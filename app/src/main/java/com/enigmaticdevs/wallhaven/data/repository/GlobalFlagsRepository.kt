@@ -14,6 +14,8 @@ import kotlinx.coroutines.launch
 
 private object GlobalFlagsKeys {
     val LOGIN_STATUS = booleanPreferencesKey("wallhaven_login")
+
+    val IS_PRO = booleanPreferencesKey("is_pro")
 }
 
 @Inject
@@ -24,6 +26,15 @@ class GlobalFlagsRepository(
 
     val loginStatus : Flow<Boolean> = dataStore.data.map { preferences ->
         preferences[GlobalFlagsKeys.LOGIN_STATUS] ?: false //default system
+    }
+
+    val proStatus : Flow<Boolean> = dataStore.data.map { preferences ->
+        preferences[GlobalFlagsKeys.IS_PRO] ?: false
+    }
+
+
+    fun updateProStatus(value : Boolean) = save {
+        it[GlobalFlagsKeys.IS_PRO] = value
     }
 
     private fun save( block : (MutablePreferences) -> Unit) {
