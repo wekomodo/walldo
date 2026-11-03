@@ -14,16 +14,13 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,7 +51,9 @@ fun WallhavenLoginRoute(
         WallhavenLoginScreen(
             paddingValues = paddingValues,
             onLoginSuccess = { cookies, csrfToken ->
-                runSpike("testing webview")
+               // runSpike("testing webview")
+
+                //WallhavenSpike().dumpCookieScopes()
                 viewmodel.onLoginCredentialsReceived(cookies, csrfToken)
                 showToast("Logged in & API Key saved!")
                 onBack()
@@ -68,12 +67,36 @@ fun WallhavenLoginRoute(
 @OptIn(DelicateCoroutinesApi::class)
 fun runSpike(label : String) {
     GlobalScope.launch(Dispatchers.IO) {
+
+       /* val names = CookieManager.getInstance().getCookie("https://wallhaven.cc")
+            ?.split(";")?.map { it.substringBefore("=").trim() }
+        Log.d("Spike", "Before POST: $names")*/
         try {
-            WallhavenSpike().run(label)
+            simulateExpiredSession()
+            val api = WallhavenAccountApi()
+            val wallpaperId = "d8vvlo"
+            val collectionId = "2298578"
+         //   Log.d("Test", "create -> ${api.createCollection("api-test", isPublic = false)}")
+// find its ID from the official API, then:
+            Log.d("Test", "add -> ${api.addToCollection(wallpaperId, collectionId)}")
+           // Log.d("Test", "remove -> ${api.removeWallpaper(wallpaperId)}")
+         //   Log.d("Test", "delete -> ${api.deleteCollection(collectionId)}")
+          //  WallhavenSpike().probeDupOrigin()
+           // WallhavenSpike().runWithRetry("spike-test-last")
         } catch (e: Throwable) {
             Log.e("Spike", "Spike failed", e)
         }
     }
+}
+
+fun simulateExpiredSession() {
+    val m = CookieManager.getInstance()
+    listOf("wallhaven_session", "XSRF-TOKEN").forEach {
+        m.setCookie("https://wallhaven.cc", "$it=; Max-Age=0; Path=/")
+    }
+    m.flush()
+    val names = m.getCookie("https://wallhaven.cc")?.split(";")?.map { it.substringBefore("=").trim() }
+    Log.d("Spike", "After simulate: $names")   // wallhaven_session should be gone
 }
 
 private const val HOST = "wallhaven.cc"

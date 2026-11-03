@@ -23,6 +23,7 @@ class MainActivity : ComponentActivity() {
         val metroViewModelFactory = appGraph.metroViewModelFactory
         val globalFilterRepository = appGraph.provideGlobalFiltersRepository()
         enableEdgeToEdge()
+      //  runSpike("spikeControl")
         setContent {
             CompositionLocalProvider( LocalMetroViewModelFactory provides metroViewModelFactory) {
                 WallhavenTheme {

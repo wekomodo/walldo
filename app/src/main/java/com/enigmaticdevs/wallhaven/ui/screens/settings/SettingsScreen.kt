@@ -40,25 +40,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.enigmaticdevs.wallhaven.R
-import com.enigmaticdevs.wallhaven.navigation.Screen
 import com.enigmaticdevs.wallhaven.ui.presentation.CategoryTitle
 import com.enigmaticdevs.wallhaven.ui.presentation.ClickablePref
 import com.enigmaticdevs.wallhaven.ui.presentation.ClickablePrefWithButton
-import com.enigmaticdevs.wallhaven.ui.presentation.PrefTopAppBar
 import com.enigmaticdevs.wallhaven.ui.presentation.MaskExceptLastNVisualTransformation
+import com.enigmaticdevs.wallhaven.ui.presentation.PrefTopAppBar
 import com.enigmaticdevs.wallhaven.ui.presentation.UiText
 import com.enigmaticdevs.wallhaven.ui.presentation.UiText.ResourceString
 import com.enigmaticdevs.wallhaven.ui.presentation.asSource
-import com.enigmaticdevs.wallhaven.ui.screens.features.login.runSpike
 import com.enigmaticdevs.wallhaven.ui.theme.ThemeMode
 import dev.zacsweers.metrox.viewmodel.metroViewModel
 import kotlinx.coroutines.launch
@@ -140,10 +136,12 @@ fun SettingsScreen(
                 else
                     R.drawable.ic_logout
             ) {
-                if (!state.loginStatus)
+
+                onWallhavenLoginClick()
+              /*  if (!state.loginStatus)
                     onWallhavenLoginClick()
                 else
-                    viewModel.logout()
+                    viewModel.logout()*/
             }
             ClickablePref(
                 text = ResourceString(R.string.apiKey),
