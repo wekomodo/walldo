@@ -21,15 +21,6 @@ data class CollectionEntity(
     val createdAt: Long = System.currentTimeMillis()
 )
 
-@Entity(tableName = "wallpapers")
-data class WallpaperEntity(
-    @PrimaryKey val wallpaperId: String,
-    val thumbUrl: String,
-    val fullUrl: String?,
-    val resolution: String?,
-    val purity: String?
-)
-
 // Which wallpaper is in which collection ( a wallpaper can be in several at once if local only)
 @Entity(
     tableName = "collection_item",
@@ -40,23 +31,22 @@ data class WallpaperEntity(
             parentColumns = ["id"],
             childColumns = ["collectionId"],
             onDelete = ForeignKey.CASCADE
-        ),
-        ForeignKey(
-            entity = WallpaperEntity::class,
-            parentColumns = ["wallpaperId"],
-            childColumns = ["wallpaperId"],
-            onDelete = ForeignKey.CASCADE //if wallpaper is deleted, remove it from the collection
         )
     ],
     indices = [
         Index("collectionId"),
-        Index("wallpaperId"),
         Index(value = ["wallpaperId", "syncedSlot"], unique = true)
     ]
 )
 data class CollectionItemEntity(
     val wallpaperId: String,
     val collectionId: Long,
+
+    //offline caching of wallpaper data
+    val thumbUrl : String? = null,
+    val fullUrl : String? = null,
+    val resolution : String? = null,
+    val purity : String? = null,
     val syncedSlot: Int? = null,
     val addedAt: Long = System.currentTimeMillis()
 )
@@ -82,19 +72,6 @@ data class PendingOpEntity(
     val isPublic: Boolean = false,
     val lastError: String? = null,
     val createdAt: Long = System.currentTimeMillis(),
-)
-
-
-data class CollectionWithWallpapers(
-    @Embedded
-    val collection: CollectionEntity,
-
-    @Relation(
-        parentColumn = "id", // The ID in CollectionEntity
-        entityColumn = "wallpaperId", // The ID in WallpaperEntity
-        associateBy = Junction(CollectionItemEntity::class) // The bridge table
-    )
-    val wallpapers: List<WallpaperEntity>
 )
 
 data class CollectionWithCount(

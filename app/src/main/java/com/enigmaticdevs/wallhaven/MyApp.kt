@@ -2,6 +2,7 @@ package com.enigmaticdevs.wallhaven
 
 import android.app.Application
 import coil3.SingletonImageLoader
+import com.enigmaticdevs.wallhaven.data.local.collections.CollectionSyncer
 import com.enigmaticdevs.wallhaven.di.AppGraph
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.DependencyGraph
@@ -22,6 +23,7 @@ class MyApp(): Application() {
         SingletonImageLoader.setSafe {
             appGraph.provideImageLoaderInstance()
         }
+        appGraph.collectionSyncManager.start()
     }
 
 }

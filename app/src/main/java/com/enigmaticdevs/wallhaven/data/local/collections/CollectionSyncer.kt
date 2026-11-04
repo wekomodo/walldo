@@ -1,8 +1,11 @@
 package com.enigmaticdevs.wallhaven.data.local.collections
 
 import android.util.Log
+import com.enigmaticdevs.wallhaven.data.remote.WallhavenAPI
+import com.enigmaticdevs.wallhaven.data.repository.GlobalFlagsRepository
 import com.enigmaticdevs.wallhaven.ui.screens.features.login.AccountOutcome
 import com.enigmaticdevs.wallhaven.ui.screens.features.login.WallhavenAccountApi
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -29,20 +32,24 @@ sealed interface SyncResult {
  * Sends the queued ops in order, then pulls the site's state and overwrites the synced
  * collections with it (the site wins). Run it from an app-level scope or WorkManager.
  */
+
+@Inject
 class CollectionSyncer(
-    private val dao: CollectionDao,
+    private val db: CollectionsDatabase,
     private val account: WallhavenAccountApi,
-    private val remote: WallhavenCollectionsRemote,
-    private val isPro: () -> Boolean,
+    private val remote: WallhavenAPI,
+    private val globalFlagsRepository: GlobalFlagsRepository
 ) {
     private companion object {
         const val TAG = "CollectionSyncer"
     }
+    private val dao = db.collectionDao()
+    private val isPro = globalFlagsRepository.proStatus.value
 
     private val mutex = Mutex()
 
     suspend fun sync(): SyncResult = mutex.withLock {
-        if (!isPro()) return@withLock SyncResult.Skipped
+        if (!isPro) return@withLock SyncResult.Skipped
         try {
             // wallpaperId -> remote collection it should now be in (to spot ignored adds)
             val expected = mutableMapOf<String, Long>()

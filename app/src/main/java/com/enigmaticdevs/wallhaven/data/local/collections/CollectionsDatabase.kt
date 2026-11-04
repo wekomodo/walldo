@@ -6,7 +6,6 @@ import androidx.room.RoomDatabase
 
 @Database(
     entities = [
-        WallpaperEntity::class,
         CollectionEntity::class,
         CollectionItemEntity::class,
         PendingOpEntity::class],

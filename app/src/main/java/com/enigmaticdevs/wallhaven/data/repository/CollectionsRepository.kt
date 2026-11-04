@@ -1,9 +1,13 @@
 package com.enigmaticdevs.wallhaven.data.repository
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionDao
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionEntity
+import com.enigmaticdevs.wallhaven.data.local.collections.CollectionItemEntity
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionWithCount
+import com.enigmaticdevs.wallhaven.data.local.collections.CollectionsDatabase
 import com.enigmaticdevs.wallhaven.data.local.collections.PendingOpEntity
+import com.enigmaticdevs.wallhaven.data.remote.model.Wallpaper
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -28,10 +32,14 @@ data class CollectionMembership(
 
 @Inject
 class CollectionsRepository(
-    private val dao: CollectionDao,
-    private val isPro: () -> Boolean,
+    private val database: CollectionsDatabase,
+    private val globalFlagsRepository: GlobalFlagsRepository
 ) {
 
+    private val dao = database.collectionDao()
+
+
+    val isPro = globalFlagsRepository.proStatus
     fun observeMemberships(wallpaperId: String): Flow<List<CollectionMembership>> =
         combine(dao.observeCollections(), dao.observeCollectionIdsOf(wallpaperId)) { allWithCount, activeIds ->
             val activeSet = activeIds.toSet()
@@ -45,7 +53,7 @@ class CollectionsRepository(
 
 
     fun observeCollections(): Flow<List<CollectionWithCount>> = dao.observeCollections()
-    fun observeWallpaperIds(collectionId: Long): Flow<List<String>> = dao.observeWallpaperIds(collectionId)
+    fun observeWallpaperIds(collectionId: Long): Flow<List<CollectionItemEntity>> = dao.observeWallpaperIds(collectionId)
     fun observeCollectionIdsOf(wallpaperId: String): Flow<List<Long>> = dao.observeCollectionIdsOf(wallpaperId)
     fun observePendingCount(): Flow<Int> = dao.observePendingCount()
     fun observeRejectedOps(): Flow<List<PendingOpEntity>> = dao.observeRejectedOps()
@@ -57,7 +65,7 @@ class CollectionsRepository(
 
     /** Creating collections is pro-only. */
     suspend fun createCollection(name: String, synced: Boolean, isPublic: Boolean = false): Long {
-        require(isPro()) { "Creating collections is a pro feature" }
+        require(isPro.value) { "Creating collections is a pro feature" }
         val clean = name.trim()
         require(clean.isNotEmpty()) { "Name can't be empty" }
         return if (synced) dao.createSynced(clean, isPublic) else dao.createLocal(clean)
@@ -69,25 +77,25 @@ class CollectionsRepository(
         dao.deleteCollectionAndQueue(collection)
     }
 
-    suspend fun addWallpaper(wallpaperId: String, collectionId: Long): AddResult {
+    suspend fun addWallpaper(wallpaper: Wallpaper, collectionId: Long): AddResult {
         val target = dao.collection(collectionId) ?: error("No such collection")
         if (target.isSynced) {
-            val current = dao.syncedCollectionOf(wallpaperId)
+            val current = dao.syncedCollectionOf(wallpaper.id)
             if (current == collectionId) return AddResult.AlreadyThere
             if (current != null) return AddResult.NeedsMove(current)
         }
-        return if (dao.addItem(wallpaperId, target)) AddResult.Added else AddResult.AlreadyThere
+        return if (dao.addItem(wallpaper, target)) AddResult.Added else AddResult.AlreadyThere
     }
 
     /** After the user confirms a NeedsMove. */
-    suspend fun moveWallpaper(wallpaperId: String, toCollectionId: Long) {
+    suspend fun moveWallpaper(wallpaper: Wallpaper, toCollectionId: Long) {
         val to = dao.collection(toCollectionId) ?: return
         require(to.isSynced) { "Moves are only for synced collections" }
-        val fromId = dao.syncedCollectionOf(wallpaperId)
+        val fromId = dao.syncedCollectionOf(wallpaper.id)
         when {
-            fromId == null -> dao.addItem(wallpaperId, to)
+            fromId == null -> dao.addItem(wallpaper, to)
             fromId == toCollectionId -> Unit
-            else -> dao.collection(fromId)?.let { dao.moveSynced(wallpaperId, it, to) }
+            else -> dao.collection(fromId)?.let { dao.moveSynced(wallpaper.id, it, to) }
         }
     }
 

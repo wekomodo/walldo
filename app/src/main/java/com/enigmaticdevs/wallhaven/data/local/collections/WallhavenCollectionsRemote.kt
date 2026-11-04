@@ -1,5 +1,7 @@
 package com.enigmaticdevs.wallhaven.data.local.collections
 
+import dev.zacsweers.metro.Inject
+
 data class RemoteCollection(
     val id: Long,
     val label: String,
@@ -11,6 +13,8 @@ data class RemoteCollection(
  * The READ side, via the official API with the user's key.
  * Implement this on top of the API client you already have.
  */
+
+@Inject
 interface WallhavenCollectionsRemote {
     suspend fun fetchCollections(): List<RemoteCollection>
 

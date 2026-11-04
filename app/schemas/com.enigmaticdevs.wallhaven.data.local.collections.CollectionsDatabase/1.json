@@ -2,47 +2,8 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "7e2e6d6021d1a3dfa0d5b0ee3d64ef2a",
+    "identityHash": "cfc15d1436fbabea158cbb094945e867",
     "entities": [
-      {
-        "tableName": "wallpapers",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`wallpaperId` TEXT NOT NULL, `thumbUrl` TEXT NOT NULL, `fullUrl` TEXT, `resolution` TEXT, `purity` TEXT, PRIMARY KEY(`wallpaperId`))",
-        "fields": [
-          {
-            "fieldPath": "wallpaperId",
-            "columnName": "wallpaperId",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "thumbUrl",
-            "columnName": "thumbUrl",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "fullUrl",
-            "columnName": "fullUrl",
-            "affinity": "TEXT"
-          },
-          {
-            "fieldPath": "resolution",
-            "columnName": "resolution",
-            "affinity": "TEXT"
-          },
-          {
-            "fieldPath": "purity",
-            "columnName": "purity",
-            "affinity": "TEXT"
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": false,
-          "columnNames": [
-            "wallpaperId"
-          ]
-        }
-      },
       {
         "tableName": "collection",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `isSynced` INTEGER NOT NULL, `remoteId` INTEGER, `isDefault` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL)",
@@ -103,7 +64,7 @@
       },
       {
         "tableName": "collection_item",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`wallpaperId` TEXT NOT NULL, `collectionId` INTEGER NOT NULL, `syncedSlot` INTEGER, `addedAt` INTEGER NOT NULL, PRIMARY KEY(`wallpaperId`, `collectionId`), FOREIGN KEY(`collectionId`) REFERENCES `collection`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`wallpaperId`) REFERENCES `wallpapers`(`wallpaperId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`wallpaperId` TEXT NOT NULL, `collectionId` INTEGER NOT NULL, `thumbUrl` TEXT, `fullUrl` TEXT, `resolution` TEXT, `purity` TEXT, `syncedSlot` INTEGER, `addedAt` INTEGER NOT NULL, PRIMARY KEY(`wallpaperId`, `collectionId`), FOREIGN KEY(`collectionId`) REFERENCES `collection`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "wallpaperId",
@@ -116,6 +77,26 @@
             "columnName": "collectionId",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "thumbUrl",
+            "columnName": "thumbUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "fullUrl",
+            "columnName": "fullUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "resolution",
+            "columnName": "resolution",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "purity",
+            "columnName": "purity",
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "syncedSlot",
@@ -147,15 +128,6 @@
             "createSql": "CREATE INDEX IF NOT EXISTS `index_collection_item_collectionId` ON `${TABLE_NAME}` (`collectionId`)"
           },
           {
-            "name": "index_collection_item_wallpaperId",
-            "unique": false,
-            "columnNames": [
-              "wallpaperId"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_collection_item_wallpaperId` ON `${TABLE_NAME}` (`wallpaperId`)"
-          },
-          {
             "name": "index_collection_item_wallpaperId_syncedSlot",
             "unique": true,
             "columnNames": [
@@ -176,17 +148,6 @@
             ],
             "referencedColumns": [
               "id"
-            ]
-          },
-          {
-            "table": "wallpapers",
-            "onDelete": "CASCADE",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "wallpaperId"
-            ],
-            "referencedColumns": [
-              "wallpaperId"
             ]
           }
         ]
@@ -261,7 +222,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7e2e6d6021d1a3dfa0d5b0ee3d64ef2a')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'cfc15d1436fbabea158cbb094945e867')"
     ]
   }
 }

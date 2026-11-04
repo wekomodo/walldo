@@ -15,6 +15,7 @@ import coil3.disk.DiskCache
 import coil3.memory.MemoryCache
 import coil3.network.ktor3.KtorNetworkFetcherFactory
 import com.enigmaticdevs.wallhaven.data.local.SecureStorage
+import com.enigmaticdevs.wallhaven.data.local.collections.CollectionSyncManager
 import com.enigmaticdevs.wallhaven.data.remote.model.Objects.App
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionsDatabase
 import com.enigmaticdevs.wallhaven.data.remote.ApiKeyProvider
@@ -22,6 +23,7 @@ import com.enigmaticdevs.wallhaven.data.remote.WallhavenAPI
 import com.enigmaticdevs.wallhaven.di.flag.savedApiKeyPlugin
 import com.enigmaticdevs.wallhaven.data.repository.GlobalFilterRepository
 import com.enigmaticdevs.wallhaven.data.repository.WallpaperRepository
+import com.enigmaticdevs.wallhaven.ui.screens.features.login.WallhavenAccountApi
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Binds
@@ -159,12 +161,18 @@ interface AppGraph : ViewModelGraph {
                 // runs once, when the file is first created: guarantees exactly one "Favorites"
                 override fun onCreate(db: SupportSQLiteDatabase) {
                     db.execSQL(
-                        "INSERT INTO collection (name, isDefault, createdAt) " +
-                                "VALUES ('Favorites', 1, ${System.currentTimeMillis()})"
+                        "INSERT INTO collection (name,isSynced, isDefault, createdAt) " +
+                                "VALUES ('Favorites',false, 1, ${System.currentTimeMillis()})"
                     )
                 }
             })
             .build()
+
+    val collectionSyncManager: CollectionSyncManager
+
+    @SingleIn(AppScope::class)
+    @Provides
+    fun providesWallhavenAPI() : WallhavenAccountApi = WallhavenAccountApi()
 
 
     @Provides

@@ -9,7 +9,10 @@ import androidx.work.impl.model.Preference
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 private object GlobalFlagsKeys {
@@ -28,9 +31,13 @@ class GlobalFlagsRepository(
         preferences[GlobalFlagsKeys.LOGIN_STATUS] ?: false //default system
     }
 
-    val proStatus : Flow<Boolean> = dataStore.data.map { preferences ->
-        preferences[GlobalFlagsKeys.IS_PRO] ?: false
-    }
+    val proStatus : StateFlow<Boolean> = dataStore.data.map { preferences ->
+        preferences[GlobalFlagsKeys.IS_PRO] ?: true
+    }.stateIn(
+        scope = scope,
+        started = SharingStarted.Eagerly,
+        initialValue = true
+    )
 
 
     fun updateProStatus(value : Boolean) = save {

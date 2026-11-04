@@ -4,8 +4,6 @@ import android.util.Log
 import android.util.LruCache
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.enigmaticdevs.wallhaven.data.local.collections.CollectionItemEntity
-import com.enigmaticdevs.wallhaven.data.local.collections.WallpaperEntity
 import com.enigmaticdevs.wallhaven.data.remote.model.WallpaperDetail
 import com.enigmaticdevs.wallhaven.data.repository.AddResult
 import com.enigmaticdevs.wallhaven.data.repository.CollectionMembership
@@ -88,24 +86,24 @@ class WallpaperDetailViewModel (
         .map { list -> list.any { it.collection.isDefault && !it.collection.isSynced && it.contains } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
     fun setMembership(collectionId: Long, shouldContain: Boolean) {
-        val wallpaperId = wallpaper.value?.data?.id ?: return
+        val wallpaper = wallpaper.value?.data ?: return
         viewModelScope.launch {
             if(shouldContain)
             {
-            val result = collectionsRepository.addWallpaper(wallpaperId, collectionId)
+            val result = collectionsRepository.addWallpaper(wallpaper, collectionId)
             _addResultEvent.send(result)
             }
             else {
-                collectionsRepository.removeWallpaper(wallpaperId, collectionId)
+                collectionsRepository.removeWallpaper(wallpaper.id, collectionId)
             }
         }
     }
 
     fun createCollectionAndAdd(name: String, isSynced : Boolean,isPublic : Boolean) {
-        val wallpaperId = wallpaper.value?.data?.id ?: return
+        val wallpaper = wallpaper.value?.data ?: return
         viewModelScope.launch {
             val id = runCatching {collectionsRepository.createCollection(name, synced = isSynced, isPublic = isPublic) }.getOrNull() ?: return@launch
-            val result = collectionsRepository.addWallpaper(wallpaperId, id)
+            val result = collectionsRepository.addWallpaper(wallpaper, id)
             _addResultEvent.send(result)
         }
     }
@@ -128,13 +126,13 @@ class WallpaperDetailViewModel (
         }
     }
 
-    private fun WallpaperDetail.toEntity() = WallpaperEntity(
+  /*  private fun WallpaperDetail.toEntity() = WallpaperEntity(
         wallpaperId = data.id,
         thumbUrl = data.thumbs.large,   // guess: use your model's thumbnail field
         fullUrl = data.path,
         resolution = data.resolution,   // guess
         purity = data.purity            // guess
-    )
+    )*/
 
 
 

@@ -52,5 +52,8 @@
     <string name="Source">Source</string>
     <string name="wallpaper_source">Wallpaper Source</string>
     <string name="wallpaper_source_desc">Which list you want to use for this</string>
+    <string name="new_collection">New Collection</string>
+    <string name="isPublic">Public</string>
+ <string name="isSynced">Sync with wallhaven.cc</string>
 
 </resources>

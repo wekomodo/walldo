@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import com.enigmaticdevs.wallhaven.data.remote.model.Wallpaper
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -15,8 +16,8 @@ abstract class CollectionDao {
     @Query("""SELECT c.*, (SELECT COUNT(*) FROM collection_item i WHERE i.collectionId = c.id) AS itemCount FROM collection AS c ORDER BY c.isDefault DESC, c.createdAt""")
     abstract fun observeCollections(): Flow<List<CollectionWithCount>>
 
-    @Query("SELECT wallpaperId FROM collection_item WHERE collectionId = :collectionId ORDER BY addedAt DESC")
-    abstract fun observeWallpaperIds(collectionId: Long): Flow<List<String>>
+    @Query("SELECT * FROM collection_item WHERE collectionId = :collectionId ORDER BY addedAt DESC")
+    abstract fun observeWallpaperIds(collectionId: Long): Flow<List<CollectionItemEntity>>
 
     /** For "is this wallpaper saved anywhere" state on a detail screen. */
     @Query("SELECT collectionId FROM collection_item WHERE wallpaperId = :wallpaperId")
@@ -153,17 +154,21 @@ abstract class CollectionDao {
 
     /** Returns false if nothing was added (already there, or in another synced collection). */
     @Transaction
-    open suspend fun addItem(wallpaperId: String, collection: CollectionEntity): Boolean {
+    open suspend fun addItem(wallpaper: Wallpaper, collection: CollectionEntity): Boolean {
         val inserted = insertItem(
             CollectionItemEntity(
-                wallpaperId = wallpaperId,
+                wallpaperId = wallpaper.id,
                 collectionId = collection.id,
+                thumbUrl = wallpaper.thumbs.large,
+                fullUrl = wallpaper.url,
+                resolution = wallpaper.resolution,
+                purity = wallpaper.purity,
                 syncedSlot = if (collection.isSynced) 1 else null
             )
         )
         if (inserted == -1L) return false
         if (collection.isSynced) {
-            insertOp(PendingOpEntity(type = OpType.ADD, collectionId = collection.id, wallpaperId = wallpaperId))
+            insertOp(PendingOpEntity(type = OpType.ADD, collectionId = collection.id, wallpaperId = wallpaper.id))
         }
         return true
     }

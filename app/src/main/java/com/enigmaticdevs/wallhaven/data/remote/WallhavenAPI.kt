@@ -80,10 +80,6 @@ class WallhavenAPI(
         }
     }
 
-    suspend fun createCollection(label : String,public : Boolean, token: String): HttpResponse = client.post("collection/new"){
-       // parameter()
-
-
-    }.body()
+    suspend fun fetchCollections()
 
 }
