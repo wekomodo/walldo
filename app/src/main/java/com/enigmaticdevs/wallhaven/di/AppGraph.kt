@@ -157,12 +157,13 @@ interface AppGraph : ViewModelGraph {
     @Provides
     fun provideCollectionsDatabase(context: Context): CollectionsDatabase =
         Room.databaseBuilder(context, CollectionsDatabase::class.java, "walldo_collections.db")
+            .fallbackToDestructiveMigration(true)
             .addCallback(object : RoomDatabase.Callback() {
                 // runs once, when the file is first created: guarantees exactly one "Favorites"
                 override fun onCreate(db: SupportSQLiteDatabase) {
                     db.execSQL(
-                        "INSERT INTO collection (name,isSynced, isDefault, createdAt) " +
-                                "VALUES ('Favorites',false, 1, ${System.currentTimeMillis()})"
+                        "INSERT INTO collection (name,isSynced, createdAt) " +
+                                "VALUES ('Favorites',false, ${System.currentTimeMillis()})"
                     )
                 }
             })

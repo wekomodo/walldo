@@ -1,6 +1,7 @@
 package com.enigmaticdevs.wallhaven.data.repository
 
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.enigmaticdevs.wallhaven.data.local.collections.CollectionCover
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionDao
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionEntity
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionItemEntity
@@ -73,7 +74,6 @@ class CollectionsRepository(
 
     suspend fun deleteCollection(collectionId: Long) {
         val collection = dao.collection(collectionId) ?: return
-        require(!collection.isDefault) { "The Default collection can't be deleted" }
         dao.deleteCollectionAndQueue(collection)
     }
 
@@ -103,6 +103,8 @@ class CollectionsRepository(
         val collection = dao.collection(collectionId) ?: return
         dao.removeItem(wallpaperId, collection)
     }
+
+    fun getCollectionInfo() : Flow<List<CollectionCover>> = dao.getCollectionsInfo()
 
     /** Call on logout, and whenever the logged-in account changes. Synced collections become local. */
     suspend fun onLoggedOut() = dao.demoteAllToLocal()

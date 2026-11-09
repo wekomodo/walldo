@@ -20,6 +20,8 @@ object PreferenceKeys {
     val THEME = stringPreferencesKey("theme")
     val API_KEY = stringPreferencesKey("api_key")
     val WALLPAPER_SETTER = stringPreferencesKey("wallpaper_setter") // Native vs Custom
+
+    val USERNAME = stringPreferencesKey("username")
 }
 
 @Inject
@@ -41,6 +43,10 @@ class SettingsRepository (
 
     val wallpaperSetterFlow : Flow<String> = dataStore.data.map { prefs ->
         prefs[PreferenceKeys.WALLPAPER_SETTER] ?: "native"
+    }
+
+    val usernameFlow : Flow<String> = dataStore.data.map { prefs ->
+        prefs[PreferenceKeys.USERNAME] ?: ""
     }
 
 
@@ -69,6 +75,12 @@ class SettingsRepository (
 
     suspend fun authenticateAPIkey(key: String): AuthenticateAPIkey? {
        return api.authenticateApiKey(key)
+    }
+
+    suspend fun updateUsername(name : String) {
+        dataStore.edit { preferences ->
+            preferences[PreferenceKeys.USERNAME] = name
+        }
     }
 
 }

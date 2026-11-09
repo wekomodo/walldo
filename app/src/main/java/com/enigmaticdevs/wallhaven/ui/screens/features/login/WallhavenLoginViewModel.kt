@@ -41,15 +41,16 @@ class WallhavenLoginViewModel(
             }
 
             // 2. Background attempt to grab & save the read-only API key
-            val apiKey = wallhavenWebClient.fetchApiKey(cookies)
-            if (!apiKey.isNullOrBlank()) {
-                settingsRepository.updateApiKey(apiKey)
+            val data = wallhavenWebClient.fetchCredentials(cookies)
+
+            if (!data?.apiKey.isNullOrBlank()){
+                settingsRepository.updateApiKey(data.apiKey)
+                settingsRepository.updateUsername(data.username)
             }
             else
                 Log.e(TAG,"API Key fetch failed")
 
-
-
+            
             // 3. Emit success event to trigger navigation
             _events.send(LoginEvent.Success)
         }

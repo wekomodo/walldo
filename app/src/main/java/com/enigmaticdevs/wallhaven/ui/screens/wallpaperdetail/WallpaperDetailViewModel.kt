@@ -83,7 +83,7 @@ class WallpaperDetailViewModel (
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     val isFavorite: StateFlow<Boolean> = memberships
-        .map { list -> list.any { it.collection.isDefault && !it.collection.isSynced && it.contains } }
+        .map { list -> list.any { !it.collection.isSynced && it.contains } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
     fun setMembership(collectionId: Long, shouldContain: Boolean) {
         val wallpaper = wallpaper.value?.data ?: return

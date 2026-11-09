@@ -8,6 +8,9 @@ import com.enigmaticdevs.wallhaven.data.remote.model.Wallpaper
 import com.enigmaticdevs.wallhaven.data.remote.model.WallpaperDetail
 import com.enigmaticdevs.wallhaven.data.remote.model.local.WallhavenAPIparams
 import com.enigmaticdevs.wallhaven.data.remote.WallhavenAPI
+import com.enigmaticdevs.wallhaven.data.remote.model.RemoteCollection
+import com.enigmaticdevs.wallhaven.data.remote.model.RemoteCollections
+import com.enigmaticdevs.wallhaven.data.remote.model.Wallpapers
 import com.enigmaticdevs.wallhaven.domain.pagingsource.WallpaperPagingSource
 import com.enigmaticdevs.wallhaven.ui.screens.homescreen.components.TAG
 import dev.zacsweers.metro.Inject
@@ -38,6 +41,30 @@ class WallpaperRepository(
 
         runCatching {
             wallhavenAPI.getWallpaper(id)
+        }.onSuccess {
+            return it
+        }.onFailure { exception ->
+            exception.message?.let { Log.e("$TAG Error", it) }
+            return null
+        }
+        return null
+    }
+
+    suspend fun fetchCollections() : RemoteCollections? {
+        runCatching {
+            wallhavenAPI.fetchCollections()
+        }.onSuccess {
+            return it
+        }.onFailure { exception->
+            exception.message?.let { Log.e("$TAG Error", it) }
+            return null
+        }
+        return null
+    }
+
+    suspend fun fetchCollectionWallpapers(id : Long, username : String) : Wallpapers? {
+        runCatching {
+            wallhavenAPI.fetchCollectionWallpapers(id,username)
         }.onSuccess {
             return it
         }.onFailure { exception ->

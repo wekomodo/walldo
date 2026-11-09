@@ -88,7 +88,6 @@ fun WallpaperDetailScreen(
     val wallpaper = viewModel.wallpaper.collectAsState().value
     val memberships by viewModel.memberships.collectAsStateWithLifecycle()
     var showSheet by remember { mutableStateOf(false) }
-    val favoritesCollectionId = 1L
     val isFavorite by viewModel.isFavorite.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
     var isPreparing by remember { mutableStateOf(false) }
@@ -98,14 +97,8 @@ fun WallpaperDetailScreen(
     LaunchedEffect(wallpaperId) { viewModel.getWallpaperDetails(wallpaperId) }
     WallpaperDetailScreenContent(
         isFavorite = isFavorite,
-        onFavoriteClick = {
-            viewModel.setMembership(
-                collectionId = favoritesCollectionId,
-                shouldContain = !isFavorite
-            )
-        },
+        onFavoriteClick = { showSheet = true },
         wallpaper = wallpaper,
-        onCollectionsClick = { showSheet = true },
         onBack = onBack,
         onTagClick = { tag ->
             viewModel.searchTag(tag)
@@ -146,7 +139,6 @@ fun WallpaperDetailScreen(
 fun WallpaperDetailScreenContent(
     isFavorite: Boolean?,
     onFavoriteClick: () -> Unit,
-    onCollectionsClick: () -> Unit,
     wallpaper: WallpaperDetail?,
     onBack: () -> Unit,
     onTagClick: (String) -> Unit,
@@ -301,7 +293,7 @@ fun WallpaperDetailScreenContent(
                     FilledTonalIconButton(
                         modifier = Modifier.fillMaxSize(),
                         onClick = {
-                            onCollectionsClick()
+                            onFavoriteClick()
                             // Toast.makeText(context, "Favorite Clicked : $isFavorite", Toast.LENGTH_SHORT).show()
                         }
                     ) {

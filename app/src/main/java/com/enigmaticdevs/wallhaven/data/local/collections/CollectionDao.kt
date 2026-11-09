@@ -5,15 +5,24 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import com.enigmaticdevs.wallhaven.data.remote.model.RemoteCollection
 import com.enigmaticdevs.wallhaven.data.remote.model.Wallpaper
+import com.enigmaticdevs.wallhaven.data.remote.model.Wallpapers
 import kotlinx.coroutines.flow.Flow
+
+data class CollectionCover(
+    val id: Long,
+    val name: String,
+    val coverThumbUrl: String?,
+    val isSynced : Boolean,
+)
 
 @Dao
 abstract class CollectionDao {
 
     // ------------------------------------------------------------ reads for the UI
 
-    @Query("""SELECT c.*, (SELECT COUNT(*) FROM collection_item i WHERE i.collectionId = c.id) AS itemCount FROM collection AS c ORDER BY c.isDefault DESC, c.createdAt""")
+    @Query("""SELECT c.*, (SELECT COUNT(*) FROM collection_item i WHERE i.collectionId = c.id) AS itemCount FROM collection AS c ORDER BY c.createdAt""")
     abstract fun observeCollections(): Flow<List<CollectionWithCount>>
 
     @Query("SELECT * FROM collection_item WHERE collectionId = :collectionId ORDER BY addedAt DESC")
@@ -29,6 +38,14 @@ abstract class CollectionDao {
     @Query("SELECT * FROM pending_op WHERE state = :state ORDER BY id")
     abstract fun observeRejectedOps(state: OpState = OpState.REJECTED): Flow<List<PendingOpEntity>>
 
+
+    @Query("""
+    SELECT c.id, c.name, c.isSynced,
+           (SELECT thumbUrl FROM collection_item WHERE collectionId = c.id LIMIT 1) as coverThumbUrl
+    FROM collection c
+""")
+    abstract fun getCollectionsInfo(): Flow<List<CollectionCover>>
+
     // ------------------------------------------------------------ lookups
 
     @Query("SELECT * FROM collection WHERE id = :id")
@@ -41,7 +58,7 @@ abstract class CollectionDao {
     @Query("SELECT collectionId FROM collection_item WHERE wallpaperId = :wallpaperId AND syncedSlot = 1 LIMIT 1")
     abstract suspend fun syncedCollectionOf(wallpaperId: String): Long?
 
-    @Query("SELECT COUNT(*) FROM collection WHERE isDefault = 1 AND isSynced = 0")
+    @Query("SELECT COUNT(*) FROM collection WHERE isSynced = 0")
     abstract suspend fun localDefaultCount(): Int
 
     @Query("SELECT * FROM pending_op WHERE state = 'PENDING' ORDER BY id")
@@ -68,8 +85,8 @@ abstract class CollectionDao {
     @Query("UPDATE collection SET remoteId = :remoteId WHERE id = :id")
     abstract suspend fun setRemoteId(id: Long, remoteId: Long)
 
-    @Query("UPDATE collection SET name = :name, isDefault = :isDefault WHERE id = :id")
-    abstract suspend fun updateRemoteInfo(id: Long, name: String, isDefault: Boolean)
+    @Query("UPDATE collection SET name = :name WHERE id = :id")
+    abstract suspend fun updateRemoteInfo(id: Long, name: String)
 
     @Query("DELETE FROM collection WHERE id = :id")
     abstract suspend fun deleteCollectionRow(id: Long)
@@ -98,13 +115,13 @@ abstract class CollectionDao {
     @Query("DELETE FROM pending_op")
     abstract suspend fun deleteAllOps()
 
-    @Query("UPDATE collection SET isSynced = 0, remoteId = NULL, isDefault = 0 WHERE id = :id")
+    @Query("UPDATE collection SET isSynced = 0, remoteId = NULL WHERE id = :id")
     abstract suspend fun markLocal(id: Long)
 
     @Query("UPDATE collection_item SET syncedSlot = NULL WHERE collectionId = :collectionId")
     abstract suspend fun clearSlotsOf(collectionId: Long)
 
-    @Query("UPDATE collection SET isSynced = 0, remoteId = NULL, isDefault = 0 WHERE isSynced = 1")
+    @Query("UPDATE collection SET isSynced = 0, remoteId = NULL WHERE isSynced = 1")
     abstract suspend fun markAllLocal()
 
     @Query("UPDATE collection_item SET syncedSlot = NULL WHERE syncedSlot IS NOT NULL")
@@ -115,7 +132,7 @@ abstract class CollectionDao {
     @Transaction
     open suspend fun ensureLocalDefault(name: String) {
         if (localDefaultCount() == 0) {
-            insertCollection(CollectionEntity(name = name, isSynced = false, isDefault = true))
+            insertCollection(CollectionEntity(name = name, isSynced = false))
         }
     }
 
@@ -213,7 +230,7 @@ abstract class CollectionDao {
     @Transaction
     open suspend fun applyRemote(
         remote: List<RemoteCollection>,
-        memberships: Map<Long, List<String>>
+        memberships: Map<Long, Wallpapers>
     ): Boolean {
         if (pendingCount() > 0) return false
 
@@ -232,21 +249,30 @@ abstract class CollectionDao {
 
         val byRemoteId = local.mapNotNull { c -> c.remoteId?.let { it to c } }.toMap()
         val allItemsToInsert = mutableListOf<CollectionItemEntity>() // Accumulator
-        for ((id, label, isDefault) in remote) {
+        for ((count,id, label) in remote) {
             val existing = byRemoteId[id]
             val localId = if (existing != null) {
-                updateRemoteInfo(existing.id, label, isDefault)
+                updateRemoteInfo(existing.id, label)
                 existing.id
             } else {
                 insertCollection(
-                    CollectionEntity(name = label, isSynced = true, remoteId = id, isDefault = isDefault)
+                    CollectionEntity(name = label, isSynced = true, remoteId = id)
                 )
             }
 
             // Add to the list instead of hitting the DB
             allItemsToInsert.addAll(
-                memberships[id].orEmpty().map {
-                    CollectionItemEntity(wallpaperId = it, collectionId = localId, syncedSlot = 1)
+                // Do the same extraction here
+                memberships[id]?.wallpaperList.orEmpty().mapIndexed { index, wallpaper ->
+                    CollectionItemEntity(
+                        wallpaperId = wallpaper.id,
+                        collectionId = localId,
+                        fullUrl = wallpaper.path,
+                        resolution = wallpaper.resolution,
+                        purity = wallpaper.purity,
+                        thumbUrl = wallpaper.thumbs.original,
+                        syncedSlot = index
+                    )
                 }
             )
         }

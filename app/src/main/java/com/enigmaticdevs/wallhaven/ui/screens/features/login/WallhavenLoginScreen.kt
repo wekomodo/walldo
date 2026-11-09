@@ -64,31 +64,6 @@ fun WallhavenLoginRoute(
 
 }
 
-@OptIn(DelicateCoroutinesApi::class)
-fun runSpike(label : String) {
-    GlobalScope.launch(Dispatchers.IO) {
-
-       /* val names = CookieManager.getInstance().getCookie("https://wallhaven.cc")
-            ?.split(";")?.map { it.substringBefore("=").trim() }
-        Log.d("Spike", "Before POST: $names")*/
-        try {
-            simulateExpiredSession()
-            val api = WallhavenAccountApi()
-            val wallpaperId = "d8vvlo"
-            val collectionId = "2298578"
-         //   Log.d("Test", "create -> ${api.createCollection("api-test", isPublic = false)}")
-// find its ID from the official API, then:
-           // Log.d("Test", "add -> ${api.addToCollection(wallpaperId, collectionId)}")
-           // Log.d("Test", "remove -> ${api.removeWallpaper(wallpaperId)}")
-         //   Log.d("Test", "delete -> ${api.deleteCollection(collectionId)}")
-          //  WallhavenSpike().probeDupOrigin()
-           // WallhavenSpike().runWithRetry("spike-test-last")
-        } catch (e: Throwable) {
-            Log.e("Spike", "Spike failed", e)
-        }
-    }
-}
-
 fun simulateExpiredSession() {
     val m = CookieManager.getInstance()
     listOf("wallhaven_session", "XSRF-TOKEN").forEach {
@@ -200,6 +175,32 @@ fun WallhavenLoginScreen(
             LinearProgressIndicator(Modifier
                 .fillMaxWidth()
                 .align(Alignment.TopCenter))
+        }
+    }
+}
+
+
+@OptIn(DelicateCoroutinesApi::class)
+fun runSpike(label : String) {
+    GlobalScope.launch(Dispatchers.IO) {
+
+        /* val names = CookieManager.getInstance().getCookie("https://wallhaven.cc")
+             ?.split(";")?.map { it.substringBefore("=").trim() }
+         Log.d("Spike", "Before POST: $names")*/
+        try {
+            simulateExpiredSession()
+            val api = WallhavenAccountApi()
+            val wallpaperId = "d8vvlo"
+            val collectionId = "2298578"
+            //   Log.d("Test", "create -> ${api.createCollection("api-test", isPublic = false)}")
+// find its ID from the official API, then:
+            // Log.d("Test", "add -> ${api.addToCollection(wallpaperId, collectionId)}")
+            // Log.d("Test", "remove -> ${api.removeWallpaper(wallpaperId)}")
+            //   Log.d("Test", "delete -> ${api.deleteCollection(collectionId)}")
+            //  WallhavenSpike().probeDupOrigin()
+            // WallhavenSpike().runWithRetry("spike-test-last")
+        } catch (e: Throwable) {
+            Log.e("Spike", "Spike failed", e)
         }
     }
 }

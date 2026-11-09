@@ -105,50 +105,48 @@ fun AppNavigation() {
                     }
 
                     entry<Screen.Collections> {
-                        CollectionsRoute() {
-
-                        }
-                    }
-
-                    entry<Screen.AutoWallpaper> {
-                        AutoWallpaperRoute(onBack = {})
-                    }
-
-                    entry<Screen.Settings> {
-                        SettingsScreen(
-                            onBack = { nav.switchTopLevel(Screen.Home) },
-                            onWallhavenLoginClick = {
-                                nav.add(Screen.WallhavenLogin)
-                            })
-                    }
-
-                    entry<Screen.WallpaperDetail> { route ->
-                        WallpaperDetailScreen(
-                            wallpaperId = route.wallpaperId,
-                            onBack = { nav.removeLast() },
-                            onTagClick = { nav.switchTopLevel(Screen.Home) }
-                        )
-                    }
-
-                    entry<Screen.WallhavenLogin> {
-                        WallhavenLoginRoute(onBack = {
-                            nav.removeLast()
-                           // nav.switchTopLevel(Screen.Home)
-                        })
-                    }
+                        CollectionsRoute(onBack = {})
                 }
-            )
 
-            if (showBar) {
-                FloatingNavBar(
-                    selectedIndex = tabs.indexOf(nav.topLevelKey),
-                    onSelect = { nav.switchTopLevel(tabs[it]) },
-                    modifier = Modifier.align(Alignment.BottomCenter)
-                )
-            }
+                        entry < Screen . AutoWallpaper > {
+                    AutoWallpaperRoute(onBack = {})
+                }
+
+                        entry < Screen . Settings > {
+                    SettingsScreen(
+                        onBack = { nav.switchTopLevel(Screen.Home) },
+                        onWallhavenLoginClick = {
+                            nav.add(Screen.WallhavenLogin)
+                        })
+                }
+
+                        entry < Screen . WallpaperDetail > { route ->
+                    WallpaperDetailScreen(
+                        wallpaperId = route.wallpaperId,
+                        onBack = { nav.removeLast() },
+                        onTagClick = { nav.switchTopLevel(Screen.Home) }
+                    )
+                }
+
+                        entry < Screen . WallhavenLogin > {
+                    WallhavenLoginRoute(onBack = {
+                        nav.removeLast()
+                        // nav.switchTopLevel(Screen.Home)
+                    })
+                }
+        }
+        )
+
+        if (showBar) {
+            FloatingNavBar(
+                selectedIndex = tabs.indexOf(nav.topLevelKey),
+                onSelect = { nav.switchTopLevel(tabs[it]) },
+                modifier = Modifier.align(Alignment.BottomCenter)
+            )
         }
     }
-    DynamicToastOverlay(isVisible = isToastVisible, message = toastMessage)
+}
+DynamicToastOverlay(isVisible = isToastVisible, message = toastMessage)
 }
 
 class TopLevelBackStack<T : NavKey>(startKey: T) {

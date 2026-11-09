@@ -16,8 +16,7 @@ data class CollectionEntity(
     val isSynced: Boolean,
     /** wallhaven's collection ID. Null for local collections, and for synced ones not created on the site yet. */
     val remoteId: Long? = null,
-    /** Default collections can't be deleted. */
-    val isDefault: Boolean = false,
+    /** when was this collection created */
     val createdAt: Long = System.currentTimeMillis()
 )
 

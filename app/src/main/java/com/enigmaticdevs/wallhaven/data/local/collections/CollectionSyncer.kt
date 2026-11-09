@@ -3,12 +3,16 @@ package com.enigmaticdevs.wallhaven.data.local.collections
 import android.util.Log
 import com.enigmaticdevs.wallhaven.data.remote.WallhavenAPI
 import com.enigmaticdevs.wallhaven.data.repository.GlobalFlagsRepository
+import com.enigmaticdevs.wallhaven.data.repository.SettingsRepository
 import com.enigmaticdevs.wallhaven.ui.screens.features.login.AccountOutcome
 import com.enigmaticdevs.wallhaven.ui.screens.features.login.WallhavenAccountApi
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlin.collections.filter
 import kotlin.text.contains
 
 sealed interface SyncResult {
@@ -38,7 +42,8 @@ class CollectionSyncer(
     private val db: CollectionsDatabase,
     private val account: WallhavenAccountApi,
     private val remote: WallhavenAPI,
-    private val globalFlagsRepository: GlobalFlagsRepository
+    private val globalFlagsRepository: GlobalFlagsRepository,
+    private val settingsRepository: SettingsRepository
 ) {
     private companion object {
         const val TAG = "CollectionSyncer"
@@ -86,7 +91,7 @@ class CollectionSyncer(
         }
 
         // The site doesn't return the new ID, so snapshot the IDs, create, and diff.
-        val before = remote.fetchCollections().map { it.id }.toSet()
+        val before = remote.fetchCollections().data.map { it.id }.toSet()
 
         when (val outcome = account.createCollection(collection.name, op.isPublic)) {
             is AccountOutcome.Success -> Unit
@@ -100,7 +105,7 @@ class CollectionSyncer(
             }
         }
 
-        val created = remote.fetchCollections().filter { it.id !in before }
+        val created = remote.fetchCollections().data.filter { it.id !in before }
         val match = created.filter { it.label == collection.name }.maxByOrNull { it.id }
         if (match == null) {
             rejectCreate(op, collection.id, "Couldn't find the new collection on wallhaven")
@@ -171,17 +176,26 @@ class CollectionSyncer(
     // ------------------------------------------------------------ pulling
 
     private suspend fun pull(expected: Map<String, Long>): SyncResult {
-        val collections = remote.fetchCollections()
-        val memberships = collections.associate { it.id to remote.fetchWallpaperIds(it.id) }
+        val username = settingsRepository.usernameFlow.first()
+        val collections = remote.fetchCollections().data
+        // Assuming Wallpapers has a 'data' list containing the wallpaper objects
+        val memberships = collections.associate { collection ->
+            val wallpapers = remote.fetchCollectionWallpapers(collection.id, username)
+           // val ids = wallpapers.wallpaperList.map { wallpaper -> wallpaper.id }
 
+            collection.id to wallpapers
+        }
         if (!dao.applyRemote(collections, memberships)) {
             return SyncResult.Done(pulled = false)
         }
-
         // An add the site accepted (302) but silently ignored shows up as a wallpaper
         // that isn't in the collection after the pull.
         val rejected = expected
-            .filter { (wallpaperId, remoteId) -> wallpaperId !in memberships[remoteId].orEmpty() }
+            .filter { (wallpaperId, remoteId) ->
+                // Extract the list from the Wallpapers object first, then safely fall back to empty
+                val remoteWallpapers = memberships[remoteId]?.wallpaperList.orEmpty()
+
+                remoteWallpapers.none { it.id == wallpaperId }}
             .keys
             .toList()
         return SyncResult.Done(rejectedWallpaperIds = rejected)

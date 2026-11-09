@@ -1,5 +1,6 @@
 package com.enigmaticdevs.wallhaven.data.remote
 
+import android.util.Log
 import com.enigmaticdevs.wallhaven.di.flag.SkipSavedApiKey
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.Named
@@ -14,11 +15,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 
+
+
+data class WallhavenCredentials(
+    val apiKey: String?,
+    val username: String
+)
 @Inject
 class WallhavenWebClient(private val client: HttpClient) {
 
     /** Returns the account's API key, or null if the cookie isn't a logged-in session. */
-    suspend fun fetchApiKey(cookie: String): String? {
+    suspend fun fetchCredentials(cookie: String): WallhavenCredentials? {
         val response = client.get("https://wallhaven.cc/settings/account") {
             attributes.put(SkipSavedApiKey,true)
             header(HttpHeaders.Cookie, cookie)
@@ -28,11 +35,23 @@ class WallhavenWebClient(private val client: HttpClient) {
 
         val document = Jsoup.parse(response.bodyAsText())
 
-        return (document.selectFirst("input[type=text][readonly]")
+        // 1. Grab the API Key (Your existing logic)
+        val apiKey = (document.selectFirst("input[type=text][readonly]")
             ?: document.selectFirst("h3:contains(API Key) + p + p input"))
             ?.attr("value")
             ?.trim()
             ?.takeIf { it.isNotEmpty() }
+
+        Log.d("fetchingcreds",("api: $apiKey\n"))
+
+        // 2. Grab the Username from the top navigation profile link
+        val username = document.selectFirst("a.username[href*='/user/']")?.text()?.trim()
+        // Fallback: Check the username text input on the settings form itself
+            ?: document.selectFirst("input[name=username]")?.attr("value")?.trim()
+            ?: return null
+
+        Log.d("fetchingcreds",("api: $apiKey\n username: $username"))
+        return WallhavenCredentials(apiKey = apiKey,username = username)
     }
 }
 
