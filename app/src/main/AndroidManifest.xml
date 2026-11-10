@@ -12,6 +12,8 @@
         android:name=".MyApp"
         android:icon="@drawable/wall"
         android:label="@string/app_name"
+        android:allowBackup="false"
+        android:fullBackupContent="false"
         android:roundIcon="@drawable/wall"
         android:supportsRtl="true"
         android:theme="@style/Theme.Wallhaven">

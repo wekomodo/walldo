@@ -1,17 +1,26 @@
 package com.enigmaticdevs.wallhaven.data.repository
 
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewModelScope
+import androidx.paging.ExperimentalPagingApi
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.cachedIn
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionCover
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionDao
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionEntity
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionItemEntity
+import com.enigmaticdevs.wallhaven.data.local.collections.CollectionRemoteMediator
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionWithCount
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionsDatabase
 import com.enigmaticdevs.wallhaven.data.local.collections.PendingOpEntity
+import com.enigmaticdevs.wallhaven.data.remote.WallhavenAPI
 import com.enigmaticdevs.wallhaven.data.remote.model.Wallpaper
 import dev.zacsweers.metro.Inject
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 
 sealed interface AddResult {
     data object Added : AddResult
@@ -34,10 +43,31 @@ data class CollectionMembership(
 @Inject
 class CollectionsRepository(
     private val database: CollectionsDatabase,
-    private val globalFlagsRepository: GlobalFlagsRepository
+    private val globalFlagsRepository: GlobalFlagsRepository,
+    private val api : WallhavenAPI,
+    private val scope : CoroutineScope,
+    private val settingsRepository: SettingsRepository,
 ) {
 
     private val dao = database.collectionDao()
+
+/*
+
+    @OptIn(ExperimentalPagingApi::class)
+    val wallpapersFlow = Pager(
+        config = PagingConfig(pageSize = 24),
+        remoteMediator = CollectionRemoteMediator(
+            collectionId = localCollectionId,
+            wallhavenId = api,
+            api = api,
+            dao = dao,
+            username = settingsRepository // Wire it through
+        ),
+        pagingSourceFactory = {
+            dao.getPagedItemsForCollection(localCollectionId)
+        }
+    ).flow.cachedIn(scope)
+*/
 
 
     val isPro = globalFlagsRepository.proStatus
@@ -107,5 +137,5 @@ class CollectionsRepository(
     fun getCollectionInfo() : Flow<List<CollectionCover>> = dao.getCollectionsInfo()
 
     /** Call on logout, and whenever the logged-in account changes. Synced collections become local. */
-    suspend fun onLoggedOut() = dao.demoteAllToLocal()
+    suspend fun onLoggedOut() = dao.deleteAllSyncedCollections()
 }

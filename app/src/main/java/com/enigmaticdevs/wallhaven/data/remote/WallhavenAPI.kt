@@ -6,10 +6,12 @@ import com.enigmaticdevs.wallhaven.data.remote.model.RemoteCollections
 import com.enigmaticdevs.wallhaven.data.remote.model.Wallpaper
 import com.enigmaticdevs.wallhaven.data.remote.model.WallpaperDetail
 import com.enigmaticdevs.wallhaven.data.remote.model.Wallpapers
+import com.enigmaticdevs.wallhaven.di.flag.BackgroundRequest
 import com.enigmaticdevs.wallhaven.di.flag.SkipSavedApiKey
 import dev.zacsweers.metro.Inject
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.plugins.expectSuccess
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
@@ -82,6 +84,11 @@ class WallhavenAPI(
 
     suspend fun fetchCollections() : RemoteCollections = client.get("collections").body()
 
-    suspend fun fetchCollectionWallpapers(id : Long,username : String) : Wallpapers = client.get("collections/$username/$id").body()
+    suspend fun fetchCollectionWallpapers(id : Long,username : String, page : Int) : Wallpapers = client.get("collections/$username/$id") {
+        expectSuccess = true
+        attributes.put(BackgroundRequest, true)
+        parameter("page",page)
+        parameter("purity","111")
+    }.body()
 
 }

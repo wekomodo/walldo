@@ -1,6 +1,8 @@
 package com.enigmaticdevs.wallhaven.ui.screens.settings
 
 import android.text.format.Formatter
+import android.util.Log
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,10 +15,13 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Face
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -38,13 +43,17 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.enigmaticdevs.wallhaven.R
 import com.enigmaticdevs.wallhaven.ui.presentation.CategoryTitle
@@ -70,11 +79,12 @@ fun SettingsScreen(
     val snackBarHostState = remember { SnackbarHostState() }
     var showApiKeyDialog by remember { mutableStateOf(false) }
     var showThemeDialog by remember { mutableStateOf(false) }
+    var showLogoutDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
     val scope = rememberCoroutineScope()
     //val currentKey by viewModel.currentKey.collectAsStateWithLifecycle()
-   // runSpike("test3")
+    // runSpike("test3")
     LaunchedEffect(Unit) {
         viewModel.events.collect { snackBarHostState.showSnackbar(it) }
         //  viewModel.getCurrentKey()
@@ -128,7 +138,7 @@ fun SettingsScreen(
             // Account
             CategoryTitle(ResourceString(R.string.app_name))
             ClickablePref(
-                text = if (state.loginStatus) ResourceString(R.string.login)
+                text = if (!state.loginStatus) ResourceString(R.string.login)
                 else
                     ResourceString(R.string.logout),
                 description = ResourceString(R.string.login_desc),
@@ -136,12 +146,10 @@ fun SettingsScreen(
                 else
                     R.drawable.ic_logout
             ) {
-
-                onWallhavenLoginClick()
-              /*  if (!state.loginStatus)
+                if (!state.loginStatus)
                     onWallhavenLoginClick()
                 else
-                    viewModel.logout()*/
+                    showLogoutDialog = true
             }
             ClickablePref(
                 text = ResourceString(R.string.apiKey),
@@ -202,6 +210,84 @@ fun SettingsScreen(
         )
     }
 
+    if (showLogoutDialog) {
+        LogoutDialog(
+            state.username,
+            onDismiss = { showLogoutDialog = false },
+            onConfirm = {
+                viewModel.logout()
+                showLogoutDialog = false
+            }
+        )
+
+    }
+
+}
+
+@Composable
+fun LogoutDialog(
+    username: String,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
+) {
+    Dialog(
+        onDismissRequest = {},
+        content = {
+
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                shape = RoundedCornerShape(10)
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(24.dp)
+                    ) {
+                        Text(
+                            text = username,
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.padding(vertical = 16.dp)
+                        )
+                        Text(
+                            text = stringResource(R.string.logout_desc),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
+                    ) {
+                        TextButton(
+                            onClick = onDismiss
+                        ) {
+                            Text(stringResource(R.string.cancel))
+                        }
+                        Button(
+                            onClick = onConfirm
+                        ) {
+                            Text(stringResource(R.string.logout))
+                        }
+                    }
+                }
+
+            }
+        }
+    )
+}
+
+@Preview
+@Composable
+fun Preview() {
+    LogoutDialog(
+        "walldo",
+        onDismiss = {}
+    ) { }
 }
 
 @Composable

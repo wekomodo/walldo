@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
@@ -26,6 +27,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -139,11 +141,11 @@ fun CustomDialogContent(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 8.dp)
+                    .padding(horizontal = 8.dp, vertical = 8.dp)
             ) {
                 Text(
                     text = stringResource(R.string.new_collection),
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleLarge
                 )
             }
             Column(
@@ -174,7 +176,7 @@ fun CustomDialogContent(
                 )
                 Row(
                     Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
+                    horizontalArrangement = Arrangement.spacedBy(8.dp,Alignment.End)
                 ) {
                     TextButton(
                         onClick = onDismiss
@@ -200,7 +202,7 @@ fun CheckboxWithText(text: String, isChecked: Boolean, checkedChange: (Boolean) 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp)
+            .padding(horizontal = 8.dp, vertical = 4.dp)
             .alpha(alpha),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -217,10 +219,10 @@ fun CheckboxWithText(text: String, isChecked: Boolean, checkedChange: (Boolean) 
 @Preview
 @Composable
 fun Preview() {
-    CustomDialog(
+    /*CustomDialog(
         onConfirm = { string, bool, bool1 -> },
         onDismiss = {}
-    )
+    )*/
     CustomDialogContent(
         name ="",
         isSynced = false,

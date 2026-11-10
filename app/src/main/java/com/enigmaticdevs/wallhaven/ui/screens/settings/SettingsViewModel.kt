@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import coil3.ImageLoader
 import com.enigmaticdevs.wallhaven.data.local.SecureStorage
+import com.enigmaticdevs.wallhaven.data.local.collections.CollectionSyncManager
+import com.enigmaticdevs.wallhaven.data.local.collections.CollectionsDatabase
 import com.enigmaticdevs.wallhaven.data.repository.GlobalFlagsRepository
 import com.enigmaticdevs.wallhaven.data.repository.SettingsRepository
 import com.enigmaticdevs.wallhaven.ui.screens.features.login.LoginEvent
@@ -35,7 +37,8 @@ data class SettingsUiState(
     val wallpaperSetter: String = "native",
     val isLoaded: Boolean = false,
     val cacheSizeBytes: Long = 0L,
-    val loginStatus : Boolean = false
+    val loginStatus : Boolean = false,
+    val username : String = ""
 )
 
 enum class KeyCheck { Idle, Checking, Invalid, NetworkError, Saved }
@@ -68,7 +71,8 @@ class SettingsViewModel(
     private val secureStorage: SecureStorage,
     private val imageCacheManager: ImageCacheManager,
     private val repository: SettingsRepository,
-    private val globalFlagsRepository: GlobalFlagsRepository
+    private val globalFlagsRepository: GlobalFlagsRepository,
+    private val collectionSyncManager: CollectionSyncManager
 ) : ViewModel() {
 
     private val TAG = "SettingsViewModel"
@@ -87,7 +91,8 @@ class SettingsViewModel(
         },
         cacheSize,
         globalFlagsRepository.loginStatus,
-    ) { repoState, size, loginStatus ->
+        repository.usernameFlow
+    ) { repoState, size, loginStatus,username ->
         SettingsUiState(
             dynamicColors = repoState.colors,
             theme = ThemeMode.from(repoState.theme),
@@ -95,6 +100,7 @@ class SettingsViewModel(
             wallpaperSetter = repoState.setter,
             cacheSizeBytes = size,
             loginStatus = loginStatus,
+            username = username,
             isLoaded = true,
         )
     }.stateIn(
@@ -157,6 +163,7 @@ class SettingsViewModel(
             secureStorage.clearSession()
             // Clear the API key from DataStore
             repository.updateApiKey("")
+            collectionSyncManager.onLoggedOut()
             // Wipe Android's WebKit CookieManager so WebView doesn't auto-login next time
             android.webkit.CookieManager.getInstance().removeAllCookies(null)
             android.webkit.CookieManager.getInstance().flush()

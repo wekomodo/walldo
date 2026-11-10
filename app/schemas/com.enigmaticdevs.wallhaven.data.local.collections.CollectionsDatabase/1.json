@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "18b5424d0fd2bc997645437571bcca4c",
+    "identityHash": "2c574c21fed4ccd9fff97fc336cf1ef3",
     "entities": [
       {
         "tableName": "collection",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `isSynced` INTEGER NOT NULL, `remoteId` INTEGER, `createdAt` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `isSynced` INTEGER NOT NULL, `remoteId` INTEGER, `createdAt` INTEGER NOT NULL, `remoteCount` INTEGER, `lastPage` INTEGER NOT NULL, `syncedPages` INTEGER NOT NULL, `pullGen` INTEGER NOT NULL, `lastSyncedAt` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -36,6 +36,35 @@
             "columnName": "createdAt",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "remoteCount",
+            "columnName": "remoteCount",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "lastPage",
+            "columnName": "lastPage",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "syncedPages",
+            "columnName": "syncedPages",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pullGen",
+            "columnName": "pullGen",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastSyncedAt",
+            "columnName": "lastSyncedAt",
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -58,7 +87,7 @@
       },
       {
         "tableName": "collection_item",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`wallpaperId` TEXT NOT NULL, `collectionId` INTEGER NOT NULL, `thumbUrl` TEXT, `fullUrl` TEXT, `resolution` TEXT, `purity` TEXT, `syncedSlot` INTEGER, `addedAt` INTEGER NOT NULL, PRIMARY KEY(`wallpaperId`, `collectionId`), FOREIGN KEY(`collectionId`) REFERENCES `collection`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`wallpaperId` TEXT NOT NULL, `collectionId` INTEGER NOT NULL, `thumbUrl` TEXT, `fullUrl` TEXT, `resolution` TEXT, `purity` TEXT, `syncedSlot` INTEGER, `addedAt` INTEGER NOT NULL, `syncGen` INTEGER NOT NULL, PRIMARY KEY(`wallpaperId`, `collectionId`), FOREIGN KEY(`collectionId`) REFERENCES `collection`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "wallpaperId",
@@ -100,6 +129,12 @@
           {
             "fieldPath": "addedAt",
             "columnName": "addedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "syncGen",
+            "columnName": "syncGen",
             "affinity": "INTEGER",
             "notNull": true
           }
@@ -216,7 +251,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '18b5424d0fd2bc997645437571bcca4c')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2c574c21fed4ccd9fff97fc336cf1ef3')"
     ]
   }
 }

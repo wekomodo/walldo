@@ -1,5 +1,6 @@
 package com.enigmaticdevs.wallhaven.ui.screens.features.collections
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.toString
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -36,17 +38,20 @@ import dev.zacsweers.metrox.viewmodel.metroViewModel
 @Composable
 fun CollectionsRoute(
     onBack: () -> Unit,
+    onCollectionDetail : (CollectionCover) -> Unit,
     viewModel: CollectionsViewModel = metroViewModel()
 ) {
     val collections by viewModel.collectionsInfo.collectAsStateWithLifecycle()
     CollectionsContent(
-        collections
+        collections,
+        onClick = onCollectionDetail
     )
 }
 
 @Composable
 fun CollectionsContent(
-    collections : List<CollectionCover>?
+    collections : List<CollectionCover>?,
+    onClick : (CollectionCover) -> Unit
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -65,7 +70,9 @@ fun CollectionsContent(
             ) {
                 collections?.let {
                     items(collections.size){
-                        CollectionItem(collections[it])
+                        CollectionItem(
+                            item = collections[it],
+                            onClick = onClick)
                     }
                 }
 
@@ -79,11 +86,15 @@ fun CollectionsContent(
 
 @Composable
 fun CollectionItem(
-    item : CollectionCover
+    item : CollectionCover,
+    onClick : (CollectionCover) -> Unit
 ) {
 
     Box(
         modifier = Modifier.height(100.dp).fillMaxWidth().padding(4.dp)
+            .clickable{
+                onClick(item)
+            }
     ) {
         Card(
             Modifier.fillMaxSize()//.alpha(.7f)
@@ -108,6 +119,16 @@ fun CollectionItem(
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.align(Alignment.Center)
                 )
+                Text(
+                    text = item.id.toString(),
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.align(Alignment.BottomEnd)
+                )
+                Text(
+                    text = item.count.toString(),
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.align(Alignment.BottomStart)
+                )
             }
         }
     }
@@ -123,7 +144,8 @@ fun Preview(){
         id = 123,
         coverThumbUrl = "",
         isSynced = false,
-
+        count = 45
     )
-    CollectionItem(item)
+    CollectionItem(item,
+        onClick = {})
 }

@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.enigmaticdevs.wallhaven.di.AppGraph
 import com.enigmaticdevs.wallhaven.data.local.SecureStorage
 import com.enigmaticdevs.wallhaven.data.remote.WallhavenWebClient
+import com.enigmaticdevs.wallhaven.data.repository.GlobalFlagsRepository
 import com.enigmaticdevs.wallhaven.data.repository.SettingsRepository
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesIntoMap
@@ -23,6 +24,7 @@ private val TAG = "WallhavenLoginViewModel"
 class WallhavenLoginViewModel(
     private val secureStorage : SecureStorage,
     private val settingsRepository: SettingsRepository,
+    private val globalFlagsRepository: GlobalFlagsRepository,
     private val wallhavenWebClient: WallhavenWebClient
 ) : ViewModel() {
 
@@ -42,8 +44,8 @@ class WallhavenLoginViewModel(
 
             // 2. Background attempt to grab & save the read-only API key
             val data = wallhavenWebClient.fetchCredentials(cookies)
-
             if (!data?.apiKey.isNullOrBlank()){
+                globalFlagsRepository.updateLoginStatus(true)
                 settingsRepository.updateApiKey(data.apiKey)
                 settingsRepository.updateUsername(data.username)
             }

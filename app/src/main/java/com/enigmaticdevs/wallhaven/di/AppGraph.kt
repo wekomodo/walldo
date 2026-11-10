@@ -23,6 +23,8 @@ import com.enigmaticdevs.wallhaven.data.remote.WallhavenAPI
 import com.enigmaticdevs.wallhaven.di.flag.savedApiKeyPlugin
 import com.enigmaticdevs.wallhaven.data.repository.GlobalFilterRepository
 import com.enigmaticdevs.wallhaven.data.repository.WallpaperRepository
+import com.enigmaticdevs.wallhaven.di.flag.RateLimit
+import com.enigmaticdevs.wallhaven.di.flag.RateLimiter
 import com.enigmaticdevs.wallhaven.ui.screens.features.login.WallhavenAccountApi
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
@@ -107,7 +109,10 @@ interface AppGraph : ViewModelGraph {
 
     @SingleIn(AppScope::class)
     @Provides
-    fun provideKtorClient(apiKeyProvider: ApiKeyProvider): HttpClient = HttpClient(CIO) {
+    fun provideKtorClient(
+        apiKeyProvider: ApiKeyProvider,
+        rateLimiter: RateLimiter
+    ): HttpClient = HttpClient(CIO) {
         install(ContentNegotiation) {
             json(Json {
                 ignoreUnknownKeys = true
@@ -118,6 +123,7 @@ interface AppGraph : ViewModelGraph {
             url(App.API_URL)
         }
         install(savedApiKeyPlugin(apiKeyProvider))
+        install(RateLimit) {limiter = rateLimiter}
     }
 
     // Image client: plain, no API headers, no JSON plugin
@@ -162,8 +168,8 @@ interface AppGraph : ViewModelGraph {
                 // runs once, when the file is first created: guarantees exactly one "Favorites"
                 override fun onCreate(db: SupportSQLiteDatabase) {
                     db.execSQL(
-                        "INSERT INTO collection (name,isSynced, createdAt) " +
-                                "VALUES ('Favorites',false, ${System.currentTimeMillis()})"
+                        "INSERT INTO collection (name, isSynced, createdAt, lastPage, syncedPages, pullGen, lastSyncedAt) " +
+                                "VALUES ('Favorites', 0, ${System.currentTimeMillis()}, 0, 0, 0, 0)"
                     )
                 }
             })

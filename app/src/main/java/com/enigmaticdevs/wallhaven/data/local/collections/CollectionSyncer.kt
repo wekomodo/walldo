@@ -1,59 +1,60 @@
 package com.enigmaticdevs.wallhaven.data.local.collections
 
 import android.util.Log
-import com.enigmaticdevs.wallhaven.data.remote.WallhavenAPI
 import com.enigmaticdevs.wallhaven.data.repository.GlobalFlagsRepository
 import com.enigmaticdevs.wallhaven.data.repository.SettingsRepository
+import com.enigmaticdevs.wallhaven.data.repository.WallpaperRepository
 import com.enigmaticdevs.wallhaven.ui.screens.features.login.AccountOutcome
 import com.enigmaticdevs.wallhaven.ui.screens.features.login.WallhavenAccountApi
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlin.collections.filter
-import kotlin.text.contains
 
 sealed interface SyncResult {
-    /**
-     * Everything queued was sent. rejectedWallpaperIds are adds the site silently ignored.
-     * pulled = false means ops were queued during the sync, so the pull waits for the next one.
-     */
-    data class Done(
-        val rejectedWallpaperIds: List<String> = emptyList(),
-        val pulled: Boolean = true
-    ) : SyncResult
+    /** Everything queued was sent. rejectedWallpaperIds are adds the site silently ignored. */
+    data class Done(val rejectedWallpaperIds: List<String> = emptyList()) : SyncResult
 
     data object Skipped : SyncResult          // not pro
     data object NeedsLogin : SyncResult       // show the login screen
     data object NeedsCloudflare : SyncResult  // show the solver screen
     data object SessionExpired : SyncResult   // still 419 after the retry; try again later
-    data class Failed(val message: String?) : SyncResult  // network error; ops stay queued
+    data class Failed(val message: String?) : SyncResult  // network error, 429, 5xx: ops stay queued
 }
 
 /**
- * Sends the queued ops in order, then pulls the site's state and overwrites the synced
- * collections with it (the site wins). Run it from an app-level scope or WorkManager.
+ * Two jobs, kept apart so a long download never delays the user's changes:
+ *  1. PUSH (sync): send the queued ops to the site in order, then check the adds landed.
+ *  2. PULL (pullFirstPages / pullRemainingPages): download the site's collections into the DB.
+ * Run it through CollectionSyncManager; screens never call this directly.
  */
-
 @Inject
 class CollectionSyncer(
     private val db: CollectionsDatabase,
     private val account: WallhavenAccountApi,
-    private val remote: WallhavenAPI,
+    private val remote: WallpaperRepository,
     private val globalFlagsRepository: GlobalFlagsRepository,
     private val settingsRepository: SettingsRepository
 ) {
     private companion object {
         const val TAG = "CollectionSyncer"
+        const val PAGE_SIZE = 24                          // wallhaven's fixed API page size
+        const val STALE_MS = 24L * 60 * 60 * 1000         // re-pull a collection at least this often
     }
+
     private val dao = db.collectionDao()
-    private val isPro = globalFlagsRepository.proStatus.value
 
-    private val mutex = Mutex()
+    /** Read on every call (not once at construction), so upgrading to pro takes effect immediately. */
+    private val isPro get() = globalFlagsRepository.proStatus.value
 
-    suspend fun sync(): SyncResult = mutex.withLock {
+    private val pushMutex = Mutex()
+    private val pullMutex = Mutex()   // separate from push, so a minutes-long pull never blocks a push
+
+    // ============================================================ push
+
+    /** Sends the queued ops in order, then verifies the adds. */
+    suspend fun sync(): SyncResult = pushMutex.withLock {
         if (!isPro) return@withLock SyncResult.Skipped
         try {
             // wallpaperId -> remote collection it should now be in (to spot ignored adds)
@@ -61,10 +62,10 @@ class CollectionSyncer(
 
             for (op in dao.pendingOps()) {
                 // A non-null result is a blocker (login, Cloudflare, expiry, network): stop here.
-                // Everything not sent yet stays queued and the pull is skipped.
+                // Everything not sent yet stays queued.
                 runOp(op, expected)?.let { return@withLock it }
             }
-            pull(expected)
+            SyncResult.Done(rejectedWallpaperIds = verifyAdds(expected))
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
@@ -72,8 +73,6 @@ class CollectionSyncer(
             SyncResult.Failed(e.message)
         }
     }
-
-    // ------------------------------------------------------------ sending ops
 
     private suspend fun runOp(op: PendingOpEntity, expected: MutableMap<String, Long>): SyncResult? =
         when (op.type) {
@@ -83,6 +82,7 @@ class CollectionSyncer(
             OpType.REMOVE -> removeRemote(op, expected)
         }
 
+    /** Creates the collection on the site, then links the local row to the new remote id. */
     private suspend fun createRemote(op: PendingOpEntity): SyncResult? {
         val collection = op.collectionId?.let { dao.collection(it) }
         if (collection == null || collection.remoteId != null) {
@@ -99,7 +99,9 @@ class CollectionSyncer(
             AccountOutcome.NeedsCloudflare -> return SyncResult.NeedsCloudflare
             AccountOutcome.SessionExpired -> return SyncResult.SessionExpired
             is AccountOutcome.Failed -> {
-                if (outcome.code == -1) return SyncResult.Failed(outcome.message)
+                if (isTransient(outcome.code)) {
+                    return SyncResult.Failed(outcome.message ?: "HTTP ${outcome.code}")
+                }
                 rejectCreate(op, collection.id, "HTTP ${outcome.code}")
                 return null
             }
@@ -116,9 +118,10 @@ class CollectionSyncer(
         return null
     }
 
+    /** The site refused the create: keep the user's collection and wallpapers, but as a local collection. */
     private suspend fun rejectCreate(op: PendingOpEntity, collectionId: Long, error: String) {
         dao.rejectOp(op.id, error)
-        dao.demoteToLocal(collectionId)   // keep the user's collection and wallpapers, as local
+        dao.demoteToLocal(collectionId)
     }
 
     private suspend fun deleteRemote(op: PendingOpEntity): SyncResult? {
@@ -145,12 +148,13 @@ class CollectionSyncer(
 
     private suspend fun removeRemote(op: PendingOpEntity, expected: MutableMap<String, Long>): SyncResult? {
         val wallpaperId = op.wallpaperId ?: run { dao.deleteOp(op.id); return null }
-        return finish(op, account.removeWallpaper(wallpaperId)) {
-            expected.remove(wallpaperId)
-        }
+        return finish(op, account.removeWallpaper(wallpaperId)) { expected.remove(wallpaperId) }
     }
 
-    /** Success deletes the op; a refusal rejects it; a blocker is returned and the op stays queued. */
+    /**
+     * Success deletes the op. A definitive refusal rejects it (kept for the UI).
+     * Blockers and transient errors (network, 429, 5xx) leave it queued so it's retried.
+     */
     private suspend fun finish(
         op: PendingOpEntity,
         outcome: AccountOutcome<Unit>,
@@ -165,39 +169,132 @@ class CollectionSyncer(
         AccountOutcome.NeedsCloudflare -> SyncResult.NeedsCloudflare
         AccountOutcome.SessionExpired -> SyncResult.SessionExpired
         is AccountOutcome.Failed ->
-            if (outcome.code == -1) {
-                SyncResult.Failed(outcome.message)
+            if (isTransient(outcome.code)) {
+                SyncResult.Failed(outcome.message ?: "HTTP ${outcome.code}")
             } else {
                 dao.rejectOp(op.id, "HTTP ${outcome.code}")
                 null
             }
     }
 
-    // ------------------------------------------------------------ pulling
+    /** -1 = network error. These must never permanently reject a user's change. */
+    private fun isTransient(code: Int) = code == -1 || code == 408 || code == 429 || code >= 500
 
-    private suspend fun pull(expected: Map<String, Long>): SyncResult {
+    /**
+     * Checks that the adds we just sent really landed. New adds go to the front of a collection, so a batch of
+     * N adds sits within the first ceil(N / 24) pages. Only if something is still missing after that do we scan
+     * the whole collection, before calling it a rejection.
+     */
+    private suspend fun verifyAdds(expected: Map<String, Long>): List<String> {
+        if (expected.isEmpty()) return emptyList()
         val username = settingsRepository.usernameFlow.first()
-        val collections = remote.fetchCollections().data
-        // Assuming Wallpapers has a 'data' list containing the wallpaper objects
-        val memberships = collections.associate { collection ->
-            val wallpapers = remote.fetchCollectionWallpapers(collection.id, username)
-           // val ids = wallpapers.wallpaperList.map { wallpaper -> wallpaper.id }
+        val rejected = mutableListOf<String>()
 
-            collection.id to wallpapers
+        for ((remoteId, ids) in expected.entries.groupBy({ it.value }, { it.key })) {
+            val needed = (ids.size + PAGE_SIZE - 1) / PAGE_SIZE
+            val seen = mutableSetOf<String>()
+            var page = 1
+            var last = 1
+            while (page <= minOf(needed, last)) {
+                val res = remote.fetchCollectionWallpapers(remoteId, username, page)
+                res.wallpaperList.forEach { seen += it.id }
+                last = maxOf(res.meta.last_page, 1)
+                page++
+            }
+            var missing = ids.filterNot { it in seen }
+            if (missing.isNotEmpty() && last > needed) {
+                val all = fetchAllIds(remoteId, username)
+                missing = ids.filterNot { it in all }
+            }
+            rejected += missing
         }
-        if (!dao.applyRemote(collections, memberships)) {
-            return SyncResult.Done(pulled = false)
-        }
-        // An add the site accepted (302) but silently ignored shows up as a wallpaper
-        // that isn't in the collection after the pull.
-        val rejected = expected
-            .filter { (wallpaperId, remoteId) ->
-                // Extract the list from the Wallpapers object first, then safely fall back to empty
-                val remoteWallpapers = memberships[remoteId]?.wallpaperList.orEmpty()
+        return rejected
+    }
 
-                remoteWallpapers.none { it.id == wallpaperId }}
-            .keys
-            .toList()
-        return SyncResult.Done(rejectedWallpaperIds = rejected)
+    private suspend fun fetchAllIds(remoteId: Long, username: String): Set<String> {
+        val ids = mutableSetOf<String>()
+        var page = 1
+        var last = 1
+        do {
+            val res = remote.fetchCollectionWallpapers(remoteId, username, page)
+            res.wallpaperList.forEach { ids += it.id }
+            last = maxOf(res.meta.last_page, 1)
+            page++
+        } while (page <= last)
+        return ids
+    }
+
+    // ============================================================ pull
+
+    /**
+     * Phase 1, quick: fetch the collection list, decide which collections changed, and download page 1 of each
+     * collection that has nothing yet. That gives the UI thumbnails and real counts right away.
+     * When nothing changed on the site this costs a single request.
+     */
+    suspend fun pullFirstPages(): SyncResult = pullMutex.withLock {
+        if (!isPro) return@withLock SyncResult.Skipped
+        try {
+            val username = settingsRepository.usernameFlow.first()
+            val gen = System.currentTimeMillis()
+            val collections = remote.fetchCollections().data
+            dao.upsertRemoteCollections(collections, gen, staleBefore = gen - STALE_MS)
+            for (c in dao.collectionsNeedingSync()) {
+                if (c.syncedPages == 0) pullPage(c, 1, username)
+            }
+            SyncResult.Done()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.w(TAG, "first pages failed", e)
+            SyncResult.Failed(e.message)
+        }
+    }
+
+    /**
+     * Phase 2, slow: download the remaining pages of every incomplete collection. Each page is saved on its own,
+     * so progress survives a crash or a 429 (the next run resumes from syncedPages).
+     * Returns true when everything is complete, false when the caller should retry later.
+     */
+    suspend fun pullRemainingPages(): Boolean = pullMutex.withLock {
+        if (!isPro) return@withLock true
+        try {
+            val username = settingsRepository.usernameFlow.first()
+            for (c in dao.collectionsNeedingSync()) {
+                var page = c.syncedPages + 1
+                var last = maxOf(c.lastPage, 1)
+                while (page <= last) {
+                    last = pullPage(c, page, username)
+                    page++
+                }
+            }
+            true
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.w(TAG, "background pull failed", e)
+            false
+        }
+    }
+
+    /** Fetches one page and saves it. Returns the collection's page count as the site just reported it. */
+    private suspend fun pullPage(c: CollectionEntity, page: Int, username: String): Int {
+        val res = remote.fetchCollectionWallpapers(c.remoteId!!, username, page)
+        val lastPage = maxOf(res.meta.last_page, 1)
+        dao.applyPage(c.id, res.wallpaperList, page, lastPage, res.meta.total, c.pullGen)
+        return lastPage
+    }
+
+    // ============================================================ logout
+
+    /**
+     * Logout / account switch: waits for any in-flight push or pull to stop touching the DB, then removes every
+     * synced collection and everything queued. Local collections stay. The manager cancels the running pull first.
+     */
+    suspend fun clearSyncedData() {
+        pushMutex.withLock {
+            pullMutex.withLock {
+                dao.removeAllSynced()
+            }
+        }
     }
 }

@@ -8,6 +8,7 @@ import com.enigmaticdevs.wallhaven.data.remote.model.Wallpaper
 import com.enigmaticdevs.wallhaven.data.remote.model.WallpaperDetail
 import com.enigmaticdevs.wallhaven.data.remote.model.local.WallhavenAPIparams
 import com.enigmaticdevs.wallhaven.data.remote.WallhavenAPI
+import com.enigmaticdevs.wallhaven.data.remote.model.Meta
 import com.enigmaticdevs.wallhaven.data.remote.model.RemoteCollection
 import com.enigmaticdevs.wallhaven.data.remote.model.RemoteCollections
 import com.enigmaticdevs.wallhaven.data.remote.model.Wallpapers
@@ -15,6 +16,7 @@ import com.enigmaticdevs.wallhaven.domain.pagingsource.WallpaperPagingSource
 import com.enigmaticdevs.wallhaven.ui.screens.homescreen.components.TAG
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.flow.Flow
+import kotlin.coroutines.cancellation.CancellationException
 
 
 @Inject
@@ -24,7 +26,7 @@ class WallpaperRepository(
 
     fun getWallpapers(
         params: WallhavenAPIparams,
-        query : String
+        query: String
     ): Flow<PagingData<Wallpaper>> {
 
         return Pager(
@@ -37,6 +39,7 @@ class WallpaperRepository(
             }).flow
 
     }
+
     suspend fun getWallpaperDetail(id: String): WallpaperDetail? {
 
         runCatching {
@@ -50,30 +53,37 @@ class WallpaperRepository(
         return null
     }
 
-    suspend fun fetchCollections() : RemoteCollections? {
-        runCatching {
+    suspend fun fetchCollections(): RemoteCollections {
+        return try {
             wallhavenAPI.fetchCollections()
-        }.onSuccess {
-            return it
-        }.onFailure { exception->
-            exception.message?.let { Log.e("$TAG Error", it) }
-            return null
+        } catch (e: Exception) {
+            // ALWAYS re-throw CancellationException in coroutines
+            if (e is CancellationException) throw e
+
+            e.message?.let { Log.e("$TAG Error", it) }
+
+            // Return an empty state so the Syncer never has to deal with nulls
+            RemoteCollections(data = emptyList())
         }
-        return null
     }
 
-    suspend fun fetchCollectionWallpapers(id : Long, username : String) : Wallpapers? {
-        runCatching {
-            wallhavenAPI.fetchCollectionWallpapers(id,username)
-        }.onSuccess {
-            return it
-        }.onFailure { exception ->
-            exception.message?.let { Log.e("$TAG Error", it) }
-            return null
+    suspend fun fetchCollectionWallpapers(
+        id: Long,
+        username: String,
+        page: Int
+    ): Wallpapers {
+        return try {
+            wallhavenAPI.fetchCollectionWallpapers(id, username, page)
+        }catch (exception : Exception) {
+            exception.message?.let { Log.e("$TAG Error", it)
+            }
+            Wallpapers(
+                wallpaperList = emptyList(),
+                meta = Meta(last_page = 1) // Prevents the loop from continuing
+            )
         }
-        return null
-    }
 
+    }
 
 
 }

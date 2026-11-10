@@ -62,12 +62,11 @@ class CollectionsViewModel(
         fetchCollections()
     }
 
-    fun fetchCollectionWallpaper(id : Long){
+    fun fetchCollectionWallpaper(id : Long,page : Int){
         viewModelScope.launch {
             val currentUsername = username.value
-            val result = repository.fetchCollectionWallpapers(id,currentUsername)
-            if(result!=null)
-                _collectionContents.value = result
+            val result = repository.fetchCollectionWallpapers(id,currentUsername,page)
+            _collectionContents.value = result
         }
     }
 

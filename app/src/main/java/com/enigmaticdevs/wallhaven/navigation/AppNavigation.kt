@@ -23,9 +23,11 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.enigmaticdevs.wallhaven.LocalToastTrigger
+import com.enigmaticdevs.wallhaven.data.local.collections.CollectionCover
 import com.enigmaticdevs.wallhaven.ui.presentation.DynamicToastOverlay
 import com.enigmaticdevs.wallhaven.ui.presentation.FloatingNavBar
 import com.enigmaticdevs.wallhaven.ui.screens.features.autowallpaper.AutoWallpaperRoute
+import com.enigmaticdevs.wallhaven.ui.screens.features.collections.detail.CollectionDetailRoute
 import com.enigmaticdevs.wallhaven.ui.screens.features.collections.CollectionsRoute
 import com.enigmaticdevs.wallhaven.ui.screens.features.login.WallhavenLoginRoute
 import com.enigmaticdevs.wallhaven.ui.screens.homescreen.HomeScreen
@@ -55,6 +57,9 @@ sealed interface Screen : NavKey {
 
     @Serializable
     data class WallpaperDetail(val wallpaperId: String) : Screen
+
+    @Serializable
+    data class CollectionDetail(val item : CollectionCover) : Screen
 }
 
 @Composable
@@ -105,8 +110,23 @@ fun AppNavigation() {
                     }
 
                     entry<Screen.Collections> {
-                        CollectionsRoute(onBack = {})
+                        CollectionsRoute(
+                            onBack = {},
+                            onCollectionDetail = { id ->
+                                nav.add(Screen.CollectionDetail(id))
+                            }
+                        )
                 }
+
+                    entry <Screen.CollectionDetail> { route ->
+                        CollectionDetailRoute(
+                            collection = route.item,
+                            onBack = { nav.removeLast() },
+                            onWallpaperClick = { id->
+                                nav.add(Screen.WallpaperDetail(id))
+                            }
+                        )
+                    }
 
                         entry < Screen . AutoWallpaper > {
                     AutoWallpaperRoute(onBack = {})
@@ -127,7 +147,6 @@ fun AppNavigation() {
                         onTagClick = { nav.switchTopLevel(Screen.Home) }
                     )
                 }
-
                         entry < Screen . WallhavenLogin > {
                     WallhavenLoginRoute(onBack = {
                         nav.removeLast()

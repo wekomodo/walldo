@@ -17,10 +17,24 @@ data class CollectionEntity(
     /** wallhaven's collection ID. Null for local collections, and for synced ones not created on the site yet. */
     val remoteId: Long? = null,
     /** when was this collection created */
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
+
+    // ---- pull bookkeeping (only meaningful for synced collections) ----
+    /** The item count the site last reported. Shown while the collection is still partly downloaded. */
+    val remoteCount: Int? = null,
+    /** Number of pages the site has for this collection. 0 = no page fetched yet. */
+    val lastPage: Int = 0,
+    /** How many pages have been downloaded and saved. The collection is complete when syncedPages >= lastPage. */
+    val syncedPages: Int = 0,
+    /** Id of the pull in progress / last pull (a timestamp). Items saved by that pull carry the same value. */
+    val pullGen: Long = 0,
+    /** When the last complete pull finished. 0 = never, or the last one was skipped, so pull again. */
+    val lastSyncedAt: Long = 0
 )
 
-// Which wallpaper is in which collection ( a wallpaper can be in several at once if local only)
+// Which wallpaper is in which collection.
+// Local collections: a wallpaper can be in any number of them (syncedSlot is NULL, and NULLs never collide).
+// Synced collections: a wallpaper can be in at most one (syncedSlot is always 1, so the unique index rejects a second).
 @Entity(
     tableName = "collection_item",
     primaryKeys = ["wallpaperId", "collectionId"],
@@ -29,7 +43,7 @@ data class CollectionEntity(
             entity = CollectionEntity::class,
             parentColumns = ["id"],
             childColumns = ["collectionId"],
-            onDelete = ForeignKey.CASCADE
+            onDelete = ForeignKey.CASCADE // deleting a collection deletes its items
         )
     ],
     indices = [
@@ -46,8 +60,12 @@ data class CollectionItemEntity(
     val fullUrl : String? = null,
     val resolution : String? = null,
     val purity : String? = null,
+    /** 1 for items in a synced collection, NULL for items in a local one. See the note above. */
     val syncedSlot: Int? = null,
-    val addedAt: Long = System.currentTimeMillis()
+    /** Order in the list: newest first. For pulled items it follows the site's order. */
+    val addedAt: Long = System.currentTimeMillis(),
+    /** Id of the pull that saved this item. Items from older pulls get swept at the end of a new pull. */
+    val syncGen: Long = 0
 )
 
 enum class OpType { CREATE_COLLECTION, DELETE_COLLECTION, ADD, REMOVE }

@@ -15,8 +15,8 @@ data class Wallpapers(
 
 @Serializable
 data class Meta(
-    val current_page : Int,
-    val last_page : Int,
-    val per_page : Int,
-    val total : Int
+    val current_page : Int = 1,
+    val last_page : Int = 1,
+    val per_page : Int = 24,
+    val total : Int = 1
 )

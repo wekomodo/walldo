@@ -7,24 +7,38 @@ import androidx.room.Query
 import androidx.room.Transaction
 import com.enigmaticdevs.wallhaven.data.remote.model.RemoteCollection
 import com.enigmaticdevs.wallhaven.data.remote.model.Wallpaper
-import com.enigmaticdevs.wallhaven.data.remote.model.Wallpapers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class CollectionCover(
     val id: Long,
     val name: String,
     val coverThumbUrl: String?,
-    val isSynced : Boolean,
+    val isSynced: Boolean,
+    val count: Int
 )
 
 @Dao
 abstract class CollectionDao {
 
-    // ------------------------------------------------------------ reads for the UI
+    // ============================================================ reads for the UI
 
-    @Query("""SELECT c.*, (SELECT COUNT(*) FROM collection_item i WHERE i.collectionId = c.id) AS itemCount FROM collection AS c ORDER BY c.createdAt""")
+    /**
+     * All collections with an item count. While a synced collection is still being downloaded, the count is
+     * the larger of the site's count and what we have, so the number doesn't jump around or show 0.
+     */
+    @Query("""
+        SELECT c.*,
+               CASE WHEN c.isSynced = 1 AND c.remoteId IS NOT NULL AND (c.lastPage = 0 OR c.syncedPages < c.lastPage)
+                    THEN MAX(c.remoteCount, (SELECT COUNT(*) FROM collection_item i WHERE i.collectionId = c.id))
+                    ELSE (SELECT COUNT(*) FROM collection_item i WHERE i.collectionId = c.id) END AS itemCount
+        FROM collection AS c
+        ORDER BY c.createdAt
+    """)
     abstract fun observeCollections(): Flow<List<CollectionWithCount>>
 
+    /** Items of one collection, newest first. */
     @Query("SELECT * FROM collection_item WHERE collectionId = :collectionId ORDER BY addedAt DESC")
     abstract fun observeWallpaperIds(collectionId: Long): Flow<List<CollectionItemEntity>>
 
@@ -38,21 +52,47 @@ abstract class CollectionDao {
     @Query("SELECT * FROM pending_op WHERE state = :state ORDER BY id")
     abstract fun observeRejectedOps(state: OpState = OpState.REJECTED): Flow<List<PendingOpEntity>>
 
-
+    /** The collections list screen: name, cover (newest item) and count (same rule as observeCollections). */
     @Query("""
-    SELECT c.id, c.name, c.isSynced,
-           (SELECT thumbUrl FROM collection_item WHERE collectionId = c.id LIMIT 1) as coverThumbUrl
-    FROM collection c
-""")
+        SELECT c.id, c.name, c.isSynced,
+               (SELECT thumbUrl FROM collection_item WHERE collectionId = c.id ORDER BY addedAt DESC LIMIT 1) AS coverThumbUrl,
+               CASE WHEN c.isSynced = 1 AND c.remoteId IS NOT NULL AND (c.lastPage = 0 OR c.syncedPages < c.lastPage)
+                    THEN MAX(c.remoteCount, (SELECT COUNT(*) FROM collection_item WHERE collectionId = c.id))
+                    ELSE (SELECT COUNT(*) FROM collection_item WHERE collectionId = c.id) END AS count
+        FROM collection c
+    """)
     abstract fun getCollectionsInfo(): Flow<List<CollectionCover>>
 
-    // ------------------------------------------------------------ lookups
+    // ---- sync progress, used by the manager's indicator (synced collections only; local ones never count)
+
+    @Query("SELECT COUNT(*) FROM collection WHERE isSynced = 1 AND remoteId IS NOT NULL")
+    abstract fun observeSyncedTotal(): Flow<Int>
+
+    @Query("""
+        SELECT COUNT(*) FROM collection
+        WHERE isSynced = 1 AND remoteId IS NOT NULL AND lastPage > 0 AND syncedPages >= lastPage
+    """)
+    abstract fun observeSyncedDone(): Flow<Int>
+
+    // ============================================================ lookups
 
     @Query("SELECT * FROM collection WHERE id = :id")
     abstract suspend fun collection(id: Long): CollectionEntity?
 
     @Query("SELECT * FROM collection WHERE isSynced = 1")
     abstract suspend fun syncedCollections(): List<CollectionEntity>
+
+    /** Synced collections that still have pages to download (or none yet), in creation order. */
+    @Query("""
+        SELECT * FROM collection
+        WHERE isSynced = 1 AND remoteId IS NOT NULL AND (lastPage = 0 OR syncedPages < lastPage)
+        ORDER BY id
+    """)
+    abstract suspend fun collectionsNeedingSync(): List<CollectionEntity>
+
+    /** returns the count of wallpapers in a collection */
+    @Query("SELECT COUNT(*) FROM collection_item WHERE collectionId = :collectionId")
+    abstract suspend fun getItemCount(collectionId: Long): Int
 
     /** The one synced collection this wallpaper is in, or null. */
     @Query("SELECT collectionId FROM collection_item WHERE wallpaperId = :wallpaperId AND syncedSlot = 1 LIMIT 1")
@@ -67,7 +107,26 @@ abstract class CollectionDao {
     @Query("SELECT COUNT(*) FROM pending_op WHERE state = 'PENDING'")
     abstract suspend fun pendingCount(): Int
 
-    // ------------------------------------------------------------ plain writes
+    /** Wallpapers with an unsent add/remove. A pull must not overwrite or delete these. */
+    @Query("SELECT wallpaperId FROM pending_op WHERE state = 'PENDING' AND wallpaperId IS NOT NULL")
+    abstract suspend fun pendingWallpaperIds(): List<String>
+
+    /** Site collections the user deleted here but whose delete hasn't been sent yet. A pull must not bring them back. */
+    @Query("""
+        SELECT remoteCollectionId FROM pending_op
+        WHERE state = 'PENDING' AND type = 'DELETE_COLLECTION' AND remoteCollectionId IS NOT NULL
+    """)
+    abstract suspend fun pendingDeleteRemoteIds(): List<Long>
+
+    /** Collections created here whose create hasn't been sent yet. */
+    @Query("SELECT COUNT(*) FROM pending_op WHERE state = 'PENDING' AND type = 'CREATE_COLLECTION'")
+    abstract suspend fun pendingCreateCount(): Int
+
+    /** How many items the current pull (gen) has saved for this collection. */
+    @Query("SELECT COUNT(*) FROM collection_item WHERE collectionId = :cid AND syncGen = :gen")
+    abstract suspend fun countGen(cid: Long, gen: Long): Int
+
+    // ============================================================ plain writes
 
     @Insert
     abstract suspend fun insertCollection(collection: CollectionEntity): Long
@@ -79,23 +138,51 @@ abstract class CollectionDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     abstract suspend fun insertItems(items: List<CollectionItemEntity>)
 
+    /** Used by pulls: replaces an existing row, which also evicts the same wallpaper from another synced collection. */
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract suspend fun upsertItems(items: List<CollectionItemEntity>)
+
     @Insert
     abstract suspend fun insertOp(op: PendingOpEntity): Long
 
     @Query("UPDATE collection SET remoteId = :remoteId WHERE id = :id")
     abstract suspend fun setRemoteId(id: Long, remoteId: Long)
 
-    @Query("UPDATE collection SET name = :name WHERE id = :id")
-    abstract suspend fun updateRemoteInfo(id: Long, name: String)
+    /** Name and item count as the site reports them. */
+    @Query("UPDATE collection SET name = :name, remoteCount = :count WHERE id = :id")
+    abstract suspend fun updateRemoteInfo(id: Long, name: String, count: Int)
+
+    /** Marks a collection as "pull me from page 1" under a new generation id. */
+    @Query("UPDATE collection SET lastPage = 0, syncedPages = 0, pullGen = :gen, lastSyncedAt = 0 WHERE id = :id")
+    abstract suspend fun startPull(id: Long, gen: Long)
+
+    @Query("UPDATE collection SET lastPage = :lastPage, syncedPages = :page WHERE id = :id")
+    abstract suspend fun setPageDone(id: Long, page: Int, lastPage: Int)
+
+    @Query("UPDATE collection SET lastSyncedAt = :at WHERE id = :id")
+    abstract suspend fun setSyncedAt(id: Long, at: Long)
 
     @Query("DELETE FROM collection WHERE id = :id")
     abstract suspend fun deleteCollectionRow(id: Long)
 
+    /** Deletes every synced collection; their items go with them (cascade). Local collections stay. */
+    @Query("DELETE FROM collection WHERE isSynced = 1")
+    abstract suspend fun deleteAllSyncedCollections()
+
     @Query("DELETE FROM collection_item WHERE wallpaperId = :wallpaperId AND collectionId = :collectionId")
     abstract suspend fun deleteItem(wallpaperId: String, collectionId: Long)
 
-    @Query("DELETE FROM collection_item WHERE syncedSlot = 1")
-    abstract suspend fun deleteAllSyncedItems()
+    /**
+     * End of a pull: drops synced items the site no longer has (they carry an older pull id).
+     * Never touches items with a queued op, or items added here after this pull started.
+     */
+    @Query("""
+        DELETE FROM collection_item
+        WHERE collectionId = :cid AND syncedSlot = 1 AND syncGen != :gen AND addedAt <= :gen
+          AND wallpaperId NOT IN (SELECT wallpaperId FROM pending_op
+                                  WHERE state = 'PENDING' AND wallpaperId IS NOT NULL)
+    """)
+    abstract suspend fun sweep(cid: Long, gen: Long)
 
     @Query("DELETE FROM pending_op WHERE id = :id")
     abstract suspend fun deleteOp(id: Long)
@@ -121,14 +208,9 @@ abstract class CollectionDao {
     @Query("UPDATE collection_item SET syncedSlot = NULL WHERE collectionId = :collectionId")
     abstract suspend fun clearSlotsOf(collectionId: Long)
 
-    @Query("UPDATE collection SET isSynced = 0, remoteId = NULL WHERE isSynced = 1")
-    abstract suspend fun markAllLocal()
+    // ============================================================ transactions
 
-    @Query("UPDATE collection_item SET syncedSlot = NULL WHERE syncedSlot IS NOT NULL")
-    abstract suspend fun clearAllSlots()
-
-    // ------------------------------------------------------------ transactions
-
+    /** Makes sure there's at least one local collection (the "Default"/favorites one). */
     @Transaction
     open suspend fun ensureLocalDefault(name: String) {
         if (localDefaultCount() == 0) {
@@ -207,7 +289,7 @@ abstract class CollectionDao {
         insertOp(PendingOpEntity(type = OpType.ADD, collectionId = to.id, wallpaperId = wallpaperId))
     }
 
-    /** A synced collection whose create was refused becomes a local one, so nothing is lost. */
+    /** A synced collection whose create was refused becomes a local one, so the user loses nothing. */
     @Transaction
     open suspend fun demoteToLocal(collectionId: Long) {
         clearSlotsOf(collectionId)
@@ -215,72 +297,112 @@ abstract class CollectionDao {
         deleteAddOpsForCollection(collectionId)
     }
 
-    /** On logout: everything becomes local and nothing is left in the queue. */
+    /**
+     * Logout / account switch: removes every synced collection and everything queued for the site.
+     * Local collections and their wallpapers are untouched.
+     */
     @Transaction
-    open suspend fun demoteAllToLocal() {
-        clearAllSlots()
-        markAllLocal()
+    open suspend fun removeAllSynced() {
         deleteAllOps()
+        deleteAllSyncedCollections()
     }
 
     /**
-     * Makes the synced collections match the site. Returns false (and changes nothing) if
-     * ops were queued in the meantime, because the pull would overwrite those local changes.
+     * Step 1 of a pull: bring the list of synced collections in line with the site's list, and decide
+     * which ones need pulling (new, never pulled, changed, stale, or half-downloaded and changed since).
+     * Respects queued deletes and creates so a pull can't undo the user's unsent changes.
      */
     @Transaction
-    open suspend fun applyRemote(
-        remote: List<RemoteCollection>,
-        memberships: Map<Long, Wallpapers>
-    ): Boolean {
-        if (pendingCount() > 0) return false
-
+    open suspend fun upsertRemoteCollections(remote: List<RemoteCollection>, gen: Long, staleBefore: Long) {
         val local = syncedCollections()
-        val remoteIds = remote.map { it.id }.toSet()
+
+        // An empty list is far more likely a failed fetch than "the user deleted every collection".
+        if (remote.isEmpty() && local.any { it.remoteId != null }) return
+
+        val deleting = pendingDeleteRemoteIds().toSet()
+        val creating = pendingCreateCount() > 0
+        val remoteIds = remote.mapTo(mutableSetOf()) { it.id }
 
         // Collections deleted on the site disappear here too (their items cascade).
-        local.forEach { c ->
-            val rid = c.remoteId
-            if (rid != null && rid !in remoteIds) deleteCollectionRow(c.id)
-        }
-
-        // Clear every synced item first, then re-insert, so a wallpaper moved between
-        // collections on the site can't hit the unique index while the old row still exists.
-        deleteAllSyncedItems()
+        local.forEach { c -> c.remoteId?.let { if (it !in remoteIds) deleteCollectionRow(c.id) } }
 
         val byRemoteId = local.mapNotNull { c -> c.remoteId?.let { it to c } }.toMap()
-        val allItemsToInsert = mutableListOf<CollectionItemEntity>() // Accumulator
-        for ((count,id, label) in remote) {
-            val existing = byRemoteId[id]
-            val localId = if (existing != null) {
-                updateRemoteInfo(existing.id, label)
-                existing.id
-            } else {
-                insertCollection(
-                    CollectionEntity(name = label, isSynced = true, remoteId = id)
+
+        for (r in remote) {
+            if (r.id in deleting) continue          // our delete hasn't been sent yet, so don't resurrect it
+
+            val existing = byRemoteId[r.id]
+            if (existing == null) {
+                // Could be the collection we're in the middle of creating; the next pull will adopt it.
+                if (creating) continue
+                val localId = insertCollection(
+                    CollectionEntity(name = r.label, isSynced = true, remoteId = r.id, remoteCount = r.count)
                 )
+                startPull(localId, gen)
+                continue
             }
 
-            // Add to the list instead of hitting the DB
-            allItemsToInsert.addAll(
-                // Do the same extraction here
-                memberships[id]?.wallpaperList.orEmpty().mapIndexed { index, wallpaper ->
-                    CollectionItemEntity(
-                        wallpaperId = wallpaper.id,
-                        collectionId = localId,
-                        fullUrl = wallpaper.path,
-                        resolution = wallpaper.resolution,
-                        purity = wallpaper.purity,
-                        thumbUrl = wallpaper.thumbs.original,
-                        syncedSlot = index
-                    )
-                }
-            )
+            updateRemoteInfo(existing.id, r.label, r.count)   // `existing` below is the snapshot from before this
+
+            val complete = existing.lastPage > 0 && existing.syncedPages >= existing.lastPage
+            val needsPull = when {
+                existing.lastPage == 0 -> true                          // never pulled (e.g. just created)
+                !complete -> existing.remoteCount != r.count            // half-downloaded: resume, unless the site changed
+                existing.lastSyncedAt <= staleBefore -> true            // stale, or the last sweep was skipped
+                getItemCount(existing.id) != r.count -> true            // count differs from the site's
+                else -> false                                           // nothing to do: zero extra requests
+            }
+            if (needsPull) startPull(existing.id, gen)
+        }
+    }
+
+    /**
+     * Step 2 of a pull, once per page: saves the page's wallpapers and records progress.
+     * Items with a queued op are neither written nor swept, so local edits survive a running pull.
+     * On the last page, stale items are swept, but only if we saw everything the site says it has.
+     */
+    @Transaction
+    open suspend fun applyPage(
+        collectionId: Long,
+        wallpapers: List<Wallpaper>,
+        page: Int,
+        lastPage: Int,
+        total: Int,
+        gen: Long
+    ) {
+        // A blank page for a non-empty collection is a bad response. Throw before writing anything.
+        if (wallpapers.isEmpty() && total > 0) {
+            error("empty page $page for collection $collectionId (total=$total)")
         }
 
-        // Execute a single batched database write
-        if (allItemsToInsert.isNotEmpty()) {
-            insertItems(allItemsToInsert)
+        val busy = pendingWallpaperIds().toSet()
+
+        // REPLACE also evicts the same wallpaper from another synced collection (the unique index),
+        // which is right: the site says it lives here now.
+        upsertItems(
+            wallpapers.filter { it.id !in busy }.mapIndexed { i, w ->
+                CollectionItemEntity(
+                    wallpaperId = w.id,
+                    collectionId = collectionId,
+                    fullUrl = w.path,
+                    resolution = w.resolution,
+                    purity = w.purity,
+                    thumbUrl = w.thumbs.original,
+                    syncedSlot = 1,
+                    syncGen = gen,
+                    addedAt = gen - ((page - 1) * 24L + i)   // keeps the site's newest-first order
+                )
+            }
+        )
+        setPageDone(collectionId, page, lastPage)
+
+        if (page >= lastPage) {
+            // Slack = items with queued ops, which we skipped on purpose.
+            if (countGen(collectionId, gen) + busy.size >= total) {
+                sweep(collectionId, gen)
+                setSyncedAt(collectionId, System.currentTimeMillis())
+            }
+            // Otherwise lastSyncedAt stays 0, so the next refresh pulls this collection again.
         }
-        return true
     }
 }

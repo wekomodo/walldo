@@ -132,6 +132,16 @@ fun WallhavenLoginScreen(
                             view: WebView, request: WebResourceRequest
                         ): Boolean {
                             val host = request.url.host ?: return true
+                            
+                            // Block account creation within the app to bypass Play Store's account deletion requirement.
+                            // If the user tries to register, redirect them to the system browser instead.
+                            val path = request.url.path ?: ""
+                            if (path.contains("/join") || path.contains("/register")) {
+                                val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, request.url)
+                                view.context.startActivity(intent)
+                                return true
+                            }
+
                             val allowed = request.url.scheme == "https" &&
                                     (host == HOST || host.endsWith(".$HOST"))
                             return !allowed // true = block
