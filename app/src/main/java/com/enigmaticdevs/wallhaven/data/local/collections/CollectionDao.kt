@@ -56,14 +56,21 @@ abstract class CollectionDao {
     /** The collections list screen: name, cover (newest item) and count (same rule as observeCollections). */
     @Query("""
     SELECT c.id, c.name, c.isSynced,
-           (SELECT thumbUrl FROM collection_item WHERE collectionId = c.id ORDER BY addedAt DESC LIMIT 1) AS coverThumbUrl,
+           (SELECT thumbUrl FROM collection_item 
+            WHERE collectionId = c.id 
+              AND (
+                  (SUBSTR(:purity, 1, 1) = '1' AND purity = 'sfw') OR
+                  (SUBSTR(:purity, 2, 1) = '1' AND purity = 'sketchy') OR
+                  (SUBSTR(:purity, 3, 1) = '1' AND purity = 'nsfw') OR
+                  purity IS NULL
+              )
+            ORDER BY addedAt DESC LIMIT 1) AS coverThumbUrl,
            CASE WHEN c.isSynced = 1 AND c.remoteId IS NOT NULL AND (c.lastPage = 0 OR c.syncedPages < c.lastPage)
                 THEN MAX(c.remoteCount, (SELECT COUNT(*) FROM collection_item WHERE collectionId = c.id))
                 ELSE (SELECT COUNT(*) FROM collection_item WHERE collectionId = c.id) END AS count
     FROM collection c
-    ORDER BY c.sortOrder ASC, c.createdAt ASC
 """)
-    abstract fun getCollectionsInfo(): Flow<List<CollectionCover>>
+    abstract fun getCollectionsInfo(purity: String): Flow<List<CollectionCover>>
 
     // ---- sync progress, used by the manager's indicator (synced collections only; local ones never count)
 

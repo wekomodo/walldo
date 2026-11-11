@@ -14,6 +14,7 @@ import com.enigmaticdevs.wallhaven.data.remote.model.WallpaperDetail
 import com.enigmaticdevs.wallhaven.data.remote.model.Wallpapers
 import com.enigmaticdevs.wallhaven.data.repository.AddResult
 import com.enigmaticdevs.wallhaven.data.repository.CollectionsRepository
+import com.enigmaticdevs.wallhaven.data.repository.GlobalFilterRepository
 import com.enigmaticdevs.wallhaven.data.repository.SettingsRepository
 import com.enigmaticdevs.wallhaven.data.repository.WallpaperRepository
 import com.enigmaticdevs.wallhaven.ui.screens.features.collections.components.CreateCollectionRequest
@@ -21,12 +22,16 @@ import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesIntoMap
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metrox.viewmodel.ViewModelKey
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -38,7 +43,8 @@ import kotlinx.coroutines.launch
 class CollectionsViewModel(
     private val collectionsRepository: CollectionsRepository,
     private val repository: WallpaperRepository,
-    private val settings: SettingsRepository
+    private val settings: SettingsRepository,
+    private val globalFilterRepository: GlobalFilterRepository
 ) : ViewModel() {
 
 
@@ -54,12 +60,16 @@ class CollectionsViewModel(
         initialValue = ""
     )
 
-    val collectionsInfo: StateFlow<List<CollectionCover>?> =
-        collectionsRepository.getCollectionInfo().stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = null
-        )
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val collectionsInfo = globalFilterRepository.filters.map {
+        it.purity
+    }.distinctUntilChanged().flatMapLatest { purity ->
+        collectionsRepository.getCollectionInfo(purity = purity)
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
+    )
 
     /*init {
         fetchCollections()
@@ -91,11 +101,6 @@ class CollectionsViewModel(
         }
     }
 
-    fun fetchCollections() {
-        viewModelScope.launch {
-            val collections = collectionsRepository.getCollectionInfo()
-        }
-    }
 
     /*   fun fetchCollections(){
            viewModelScope.launch {

@@ -130,7 +130,7 @@ class CollectionsRepository(
         dao.updateCollectionOrder(ids)
     }
 
-    fun getCollectionInfo() : Flow<List<CollectionCover>> = dao.getCollectionsInfo()
+    fun getCollectionInfo(purity : String) : Flow<List<CollectionCover>> = dao.getCollectionsInfo(purity)
 
     /** Call on logout, and whenever the logged-in account changes. Synced collections become local. */
     suspend fun onLoggedOut() = dao.deleteAllSyncedCollections()
