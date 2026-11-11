@@ -9,6 +9,7 @@ import com.enigmaticdevs.wallhaven.data.repository.AddResult
 import com.enigmaticdevs.wallhaven.data.repository.CollectionMembership
 import com.enigmaticdevs.wallhaven.data.repository.CollectionsRepository
 import com.enigmaticdevs.wallhaven.data.repository.WallpaperRepository
+import com.enigmaticdevs.wallhaven.ui.screens.features.collections.components.CreateCollectionRequest
 import com.enigmaticdevs.wallhaven.ui.screens.homescreen.components.QueryNames
 import com.enigmaticdevs.wallhaven.ui.screens.homescreen.components.SavedQueries
 import dev.zacsweers.metro.AppScope
@@ -99,10 +100,10 @@ class WallpaperDetailViewModel (
         }
     }
 
-    fun createCollectionAndAdd(name: String, isSynced : Boolean,isPublic : Boolean) {
+    fun createCollectionAndAdd(it : CreateCollectionRequest) {
         val wallpaper = wallpaper.value?.data ?: return
         viewModelScope.launch {
-            val id = runCatching {collectionsRepository.createCollection(name, synced = isSynced, isPublic = isPublic) }.getOrNull() ?: return@launch
+            val id = runCatching {collectionsRepository.createCollection(it.name, synced = it.isSynced, isPublic = it.isPublic) }.getOrNull() ?: return@launch
             val result = collectionsRepository.addWallpaper(wallpaper, id)
             _addResultEvent.send(result)
         }

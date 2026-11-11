@@ -42,6 +42,7 @@ import com.enigmaticdevs.wallhaven.ui.util.aspectRatio
 import androidx.core.graphics.toColorInt
 import com.enigmaticdevs.wallhaven.LocalToastTrigger
 import com.enigmaticdevs.wallhaven.R
+import com.enigmaticdevs.wallhaven.domain.pagingsource.WallpaperListItem
 import com.enigmaticdevs.wallhaven.ui.util.rememberDownloadStarter
 import com.enigmaticdevs.wallhaven.ui.util.rememberPermissionUtilsState
 
@@ -49,10 +50,12 @@ import com.enigmaticdevs.wallhaven.ui.util.rememberPermissionUtilsState
 val TAG = "WallpaperListScreen"
 
 
+
+
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun WallpaperListScreen(
-    uiState: LazyPagingItems<Wallpaper>,
+    wallpapers: LazyPagingItems<WallpaperListItem>,
     onPhotoClick: (String) -> Unit,
     onLoadMore: () -> Unit
 ) {
@@ -61,7 +64,7 @@ fun WallpaperListScreen(
         contentAlignment = Alignment.Center
     ) {
 
-        when (uiState.loadState.refresh) {
+        when (wallpapers.loadState.refresh) {
 
             /* is WallpaperUiState.Success -> {
                 val list = uiState.wallpapers.wallpaperList
@@ -81,16 +84,16 @@ fun WallpaperListScreen(
                 ContainedLoadingIndicator()
             }*/
             is LoadState.Error -> {
-                val message = "Something went wrong!"
+                val message = "Nothing's on fire, just refresh"
                 ErrorOccurred(message) {
-                    uiState.refresh()
+                    wallpapers.refresh()
                 }
             }
 
             is LoadState.Loading -> ContainedLoadingIndicator()
             is LoadState.NotLoading -> {
 
-                WallpaperListGrid(uiState, onPhotoClick, Modifier)
+                WallpaperListGrid(wallpapers, onPhotoClick, Modifier)
             }
         }
     }
@@ -99,7 +102,7 @@ fun WallpaperListScreen(
 
 @Composable
 fun WallpaperListGrid(
-    photos: LazyPagingItems<Wallpaper>,
+    photos: LazyPagingItems<WallpaperListItem>,
     onPhotoClick: (String) -> Unit,
     modifier: Modifier
 ) {
@@ -133,8 +136,8 @@ fun WallpaperListGrid(
 }
 
 @Composable
-fun WallpaperCard(wallpaper: Wallpaper, onPhotoClick: (String) -> Unit) {
-    val aspectRatio = aspectRatio(wallpaper.dimension_x, wallpaper.dimension_y)
+fun WallpaperCard(wallpaper: WallpaperListItem, onPhotoClick: (String) -> Unit) {
+    val aspectRatio = aspectRatio(wallpaper.dimensionX, wallpaper.dimensionY)
     val startDownload = rememberDownloadStarter()
     val context = LocalContext.current
     val showToast = LocalToastTrigger.current
@@ -156,11 +159,11 @@ fun WallpaperCard(wallpaper: Wallpaper, onPhotoClick: (String) -> Unit) {
                     .aspectRatio(aspectRatio.toFloat())
                     .defaultMinSize(minHeight = 100.dp),
                 model = ImageRequest.Builder(context)
-                    .data(wallpaper.thumbs.original)  // https://th.wallhaven.cc/... link
+                    .data(wallpaper.thumbUrl)  // https://th.wallhaven.cc/... link
                     .crossfade(true)
                     .memoryCacheKey(wallpaper.id)
                     .build(),
-                placeholder = ColorPainter(getGreenShade(wallpaper.colors[0])),
+               // placeholder = ColorPainter(getGreenShade(wallpaper.colors[0])),
                 contentScale = ContentScale.Crop,
                 contentDescription = "image_name"
             )

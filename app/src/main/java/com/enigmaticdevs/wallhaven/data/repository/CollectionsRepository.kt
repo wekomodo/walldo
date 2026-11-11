@@ -1,16 +1,8 @@
 package com.enigmaticdevs.wallhaven.data.repository
 
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewModelScope
-import androidx.paging.ExperimentalPagingApi
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-import androidx.paging.cachedIn
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionCover
-import com.enigmaticdevs.wallhaven.data.local.collections.CollectionDao
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionEntity
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionItemEntity
-import com.enigmaticdevs.wallhaven.data.local.collections.CollectionRemoteMediator
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionWithCount
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionsDatabase
 import com.enigmaticdevs.wallhaven.data.local.collections.PendingOpEntity
@@ -20,7 +12,6 @@ import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 
 sealed interface AddResult {
     data object Added : AddResult
@@ -132,6 +123,11 @@ class CollectionsRepository(
     suspend fun removeWallpaper(wallpaperId: String, collectionId: Long) {
         val collection = dao.collection(collectionId) ?: return
         dao.removeItem(wallpaperId, collection)
+    }
+
+    /** updates sort order of collections */
+    suspend fun updateSortOrder(ids : List<Long>) {
+        dao.updateCollectionOrder(ids)
     }
 
     fun getCollectionInfo() : Flow<List<CollectionCover>> = dao.getCollectionsInfo()

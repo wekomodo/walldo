@@ -4,8 +4,10 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Refresh
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -15,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.enigmaticdevs.wallhaven.R
 import com.enigmaticdevs.wallhaven.ui.util.themedAppDrawable
 
@@ -35,10 +38,10 @@ fun ErrorOccurred(
             painter = painter, // Your custom path-tinted VectorPainter
             contentDescription = "Descriptive visual text",
             modifier = Modifier
-                .fillMaxWidth() // Safely scales up to fit the container
+                .width(200.dp) // Safely scales up to fit the container
                 .aspectRatio(1f) // Keeps its aspect ratio intact
         )
-        IconButton(
+        FilledTonalButton(
             onClick = onRetry
         ) {
             Icon(imageVector = Icons.Rounded.Refresh, contentDescription = "Retry")

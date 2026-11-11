@@ -57,5 +57,6 @@
  <string name="isSynced">Sync with wallhaven.cc</string>
     <string name="cancel">Cancel</string>
  <string name="logout_desc">you sure about logging out?\nthis will remove your synced collections from the app</string>
+ <string name="synced">Synced</string>
 
 </resources>

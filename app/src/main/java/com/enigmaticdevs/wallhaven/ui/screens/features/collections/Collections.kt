@@ -4,35 +4,55 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.toString
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.layout
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
+import com.enigmaticdevs.wallhaven.R
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionCover
-import com.enigmaticdevs.wallhaven.data.remote.model.RemoteCollection
+import com.enigmaticdevs.wallhaven.ui.presentation.DraggableItem
+import com.enigmaticdevs.wallhaven.ui.presentation.NavigationIcon
 import com.enigmaticdevs.wallhaven.ui.presentation.PrefTopAppBar
+import com.enigmaticdevs.wallhaven.ui.presentation.rememberDragDropState
+import com.enigmaticdevs.wallhaven.ui.screens.features.collections.components.CreateCollectionDialog
+import com.enigmaticdevs.wallhaven.ui.screens.features.collections.components.CreateCollectionRequest
 import dev.zacsweers.metrox.viewmodel.metroViewModel
 
 @Composable
@@ -44,40 +64,80 @@ fun CollectionsRoute(
     val collections by viewModel.collectionsInfo.collectAsStateWithLifecycle()
     CollectionsContent(
         collections,
-        onClick = onCollectionDetail
+        onClick = onCollectionDetail,
+        onAddClick = viewModel::createCollection,
+        onDragDone = viewModel::updateSortOrder
     )
 }
 
 @Composable
 fun CollectionsContent(
     collections : List<CollectionCover>?,
-    onClick : (CollectionCover) -> Unit
+    onClick : (CollectionCover) -> Unit,
+    onAddClick : (CreateCollectionRequest) -> Unit,
+    onDragDone : (List<Long>) -> Unit
 ) {
+    var showCollectionDialog by  remember  { mutableStateOf(false)}
+    var localList by remember { mutableStateOf(collections.orEmpty()) }
+    val lazyListState = rememberLazyListState()
+    val dragDropState = rememberDragDropState(
+        lazyListState = lazyListState,
+        onMove = { fromIndex, toIndex ->
+            localList = localList.toMutableList().apply {
+                add(toIndex, removeAt(fromIndex))
+            }
+        },
+        onDragDone = { onDragDone(localList.map { it.id }) }
+    )
+    LaunchedEffect(collections) {
+        if (collections != null && dragDropState.draggedKey == null) localList = collections
+    }
+
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { PrefTopAppBar(title = "Collections", onBack = {}) }
+        topBar = { PrefTopAppBar(
+            title = "Collections",
+            onBack = {},
+            actions = NavigationIcon(Icons.Rounded.Add,true, onClick = {showCollectionDialog = true})
+        ) },
+
     ) { paddingValues ->
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .padding()
                 .padding(paddingValues)
         ) {
             if(collections.isNullOrEmpty())
                 Text("collections is empty")
+           // val navBarBottomInset = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+
             LazyColumn(
-                modifier = Modifier.fillMaxWidth()
+                state = lazyListState,
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(bottom = 102.dp ) //+ navBarBottomInset)
             ) {
                 collections?.let {
-                    items(collections.size){
-                        CollectionItem(
-                            item = collections[it],
-                            onClick = onClick)
+                    itemsIndexed(items = localList, key = { _, item -> item.id }) { _, item ->
+                        DraggableItem(dragDropState = dragDropState, key = item.id) { isDragging, handleModifier ->
+                            CollectionItem(
+                                item = item,
+                                onClick = onClick,
+                                modifier = handleModifier
+                            )
+                        }
                     }
                 }
 
             }
         }
+        if(showCollectionDialog)
+            CreateCollectionDialog(
+                onConfirm =  onAddClick,
+                onDismiss = {showCollectionDialog = false}
+            )
 
 
     }
@@ -87,11 +147,12 @@ fun CollectionsContent(
 @Composable
 fun CollectionItem(
     item : CollectionCover,
-    onClick : (CollectionCover) -> Unit
+    onClick : (CollectionCover) -> Unit,
+    modifier: Modifier = Modifier
 ) {
 
     Box(
-        modifier = Modifier.height(100.dp).fillMaxWidth().padding(4.dp)
+        modifier = Modifier.height(120.dp).fillMaxWidth().padding(4.dp)
             .clickable{
                 onClick(item)
             }
@@ -100,6 +161,7 @@ fun CollectionItem(
             Modifier.fillMaxSize()//.alpha(.7f)
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
+
 
                 // Background Image
                 if (item.coverThumbUrl != null) {
@@ -120,15 +182,32 @@ fun CollectionItem(
                     modifier = Modifier.align(Alignment.Center)
                 )
                 Text(
-                    text = item.id.toString(),
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.align(Alignment.BottomEnd)
-                )
-                Text(
                     text = item.count.toString(),
                     style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.align(Alignment.BottomStart)
+                    modifier = Modifier.align(Alignment.BottomStart).padding(8.dp)
                 )
+                if(item.isSynced)
+                Icon(
+                    painter = painterResource(R.drawable.ic_synced_collections),
+                    contentDescription = stringResource(R.string.synced),
+                    modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp)
+                )
+
+                // Drag handle, drawn last so it sits on top
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .fillMaxHeight()
+                        .width(56.dp)
+                        .then(modifier),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        modifier = Modifier.size(32.dp),
+                        painter = painterResource(R.drawable.ic_drag_handle),
+                        contentDescription = "drag handle"
+                    )
+                }
             }
         }
     }

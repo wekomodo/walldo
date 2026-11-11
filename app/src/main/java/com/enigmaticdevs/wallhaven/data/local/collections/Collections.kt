@@ -19,6 +19,9 @@ data class CollectionEntity(
     /** when was this collection created */
     val createdAt: Long = System.currentTimeMillis(),
 
+    /** sort order of the collection stays local */
+    val sortOrder : Int = 0,
+
     // ---- pull bookkeeping (only meaningful for synced collections) ----
     /** The item count the site last reported. Shown while the collection is still partly downloaded. */
     val remoteCount: Int? = null,
@@ -58,7 +61,8 @@ data class CollectionItemEntity(
     //offline caching of wallpaper data
     val thumbUrl : String? = null,
     val fullUrl : String? = null,
-    val resolution : String? = null,
+    val dimensionsX : Int? = null,
+    val dimensionsY : Int? = null,
     val purity : String? = null,
     /** 1 for items in a synced collection, NULL for items in a local one. See the note above. */
     val syncedSlot: Int? = null,

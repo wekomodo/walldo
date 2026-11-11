@@ -22,7 +22,7 @@ fun themedAppDrawable(id : Int, color : Color) : VectorPainter {
     val dynamicColor = MaterialTheme.colorScheme.secondary
 
     // 2. Load the base vector template from XML
-    val imageVector = ImageVector.vectorResource(id = R.drawable.wall)
+    val imageVector = ImageVector.vectorResource(id = id)
 
     // 3. Build a custom VectorPainter targeting the path name
     val painter = rememberVectorPainter(

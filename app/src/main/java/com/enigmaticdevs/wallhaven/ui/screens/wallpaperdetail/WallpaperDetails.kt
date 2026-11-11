@@ -19,10 +19,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -283,30 +285,26 @@ fun WallpaperDetailScreenContent(
                     )
                     {
                         wallpaper?.let {
-                            CircleColorPalette(wallpaper.data.colors) {
-                                copyToClipboard(clipboardManager, it, scope, context)
-                            }
+                            CircleColorPalette(
+                                colors = wallpaper.data.colors,
+                                onClick = {
+                                    copyToClipboard(clipboardManager, it, scope, context)
+                                })
                         } ?: run {
                             CenteredLoadingIndicator()
                         }
                     }
-                    FilledTonalIconButton(
+                    FilledIconButton(
                         modifier = Modifier.fillMaxSize(),
                         onClick = {
                             onFavoriteClick()
                             // Toast.makeText(context, "Favorite Clicked : $isFavorite", Toast.LENGTH_SHORT).show()
                         }
                     ) {
-                        if (isFavorite == true)
-                            Icon(
-                                painterResource(R.drawable.ic_heart_filled),
-                                contentDescription = "Favorite Icon"
-                            )
-                        else
-                            Icon(
-                                painterResource(R.drawable.ic_heart_outlined),
-                                contentDescription = "Favorite Icon"
-                            )
+                        Icon(
+                            imageVector = Icons.Rounded.Add,
+                            contentDescription = "Favorite Icon"
+                        )
                     }
 
                     /*Spacer(

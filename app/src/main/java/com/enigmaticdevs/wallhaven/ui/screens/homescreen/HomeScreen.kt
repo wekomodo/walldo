@@ -45,6 +45,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.enigmaticdevs.wallhaven.R
 import com.enigmaticdevs.wallhaven.data.remote.model.Wallpaper
 import com.enigmaticdevs.wallhaven.data.remote.model.local.WallhavenAPIparams
+import com.enigmaticdevs.wallhaven.domain.pagingsource.WallpaperListItem
 import com.enigmaticdevs.wallhaven.ui.presentation.FloatingNavBar
 import com.enigmaticdevs.wallhaven.ui.screens.homescreen.bottomsheet.FilterBottomSheet
 import com.enigmaticdevs.wallhaven.ui.screens.homescreen.components.WallpaperListScreen
@@ -100,7 +101,7 @@ fun HomeScreen(
 fun HomeScreenContent(
     textFieldState : TextFieldState,
     activeSort: String,
-    wallpapers: LazyPagingItems<Wallpaper>,
+    wallpapers: LazyPagingItems<WallpaperListItem>,
     onPhotoClick: (String) -> Unit,
     updateSort: (String) -> Unit,
     onSearch: (String) -> Unit,
@@ -199,7 +200,7 @@ fun HomeScreenContent(
 
                 // 3. The Paging Grid (Takes remaining space)
                 WallpaperListScreen(
-                    uiState = wallpapers,
+                    wallpapers = wallpapers,
                     onPhotoClick = onPhotoClick,
                     onLoadMore = {}
                 )

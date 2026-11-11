@@ -100,8 +100,8 @@ fun AutoWallpaperContent(
                 .fillMaxSize()
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
-                .navigationBarsPadding()
-                .padding(bottom = 52.dp),
+                //.navigationBarsPadding()
+                .padding(bottom = 102.dp),
         ) {
             ClickablePrefWithButton(
                 isChecked = state.switch,

@@ -1,6 +1,5 @@
 package com.enigmaticdevs.wallhaven.ui.screens.wallpaperdetail.bottomsheet
 
-import android.graphics.Color
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
@@ -27,7 +25,6 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,6 +39,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.enigmaticdevs.wallhaven.R
 import com.enigmaticdevs.wallhaven.data.repository.CollectionMembership
+import com.enigmaticdevs.wallhaven.ui.screens.features.collections.components.CreateCollectionDialog
+import com.enigmaticdevs.wallhaven.ui.screens.features.collections.components.CreateCollectionDialogContent
+import com.enigmaticdevs.wallhaven.ui.screens.features.collections.components.CreateCollectionRequest
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -49,7 +49,7 @@ import com.enigmaticdevs.wallhaven.data.repository.CollectionMembership
 fun CollectionsSheet(
     memberships: List<CollectionMembership>,
     onToggle: (collectionId: Long, shouldContain: Boolean) -> Unit,
-    onCreate: (name: String, isSynced: Boolean, isPublic: Boolean) -> Unit,
+    onCreate: (CreateCollectionRequest) -> Unit,
     onDismiss: () -> Unit
 ) {
     var showCreate by remember { mutableStateOf(false) }
@@ -83,9 +83,9 @@ fun CollectionsSheet(
     }
 
     if (showCreate) {
-        CustomDialog(
-            onConfirm = { string, bool, bool1 ->
-                onCreate(string, bool, bool1); showCreate = false
+        CreateCollectionDialog(
+            onConfirm = { it ->
+                onCreate(CreateCollectionRequest(it.name,it.isSynced,it.isPublic)); showCreate = false
             },
             onDismiss = { showCreate = false }
         )
@@ -93,107 +93,7 @@ fun CollectionsSheet(
 }
 
 
-@Composable
-fun CustomDialog(onConfirm: (String, Boolean, Boolean) -> Unit, onDismiss: () -> Unit) {
-    var name by remember { mutableStateOf("") }
-    var sync by remember { mutableStateOf(false) }
-    var public by remember { mutableStateOf(false) }
-    Dialog(
-        onDismissRequest = onDismiss,
-        content = {
-            CustomDialogContent(
-                name = name,
-                isSynced = sync,
-                isPublic = public,
-                onTextChange = { name = it.take(40) },
-                onSyncedChange = {sync =it},
-                onPublicChange = {public = it},
-                onConfirm = {onConfirm(name,sync,public)},
-                onDismiss = onDismiss
-            )
-        }
-    )
-}
 
-@Composable
-fun CustomDialogContent(
-    name : String,
-    isSynced : Boolean,
-    isPublic : Boolean,
-    onTextChange : (String) -> Unit,
-    onSyncedChange: (Boolean) -> Unit,
-    onPublicChange: (Boolean) -> Unit,
-    onConfirm : ()-> Unit,
-    onDismiss: () -> Unit
-) {
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        shape = RoundedCornerShape(25)
-    ) {
-
-        Column(
-            modifier = Modifier.padding(24.dp)
-        ) {
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp, vertical = 8.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.new_collection),
-                    style = MaterialTheme.typography.titleLarge
-                )
-            }
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-
-                OutlinedTextField(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp),
-                    value = name,
-                    onValueChange = onTextChange,
-                    singleLine = true,
-                    label = { Text("Name") }
-                )
-                CheckboxWithText(
-                    text = stringResource(R.string.isSynced),
-                    isChecked = isSynced,
-                    checkedChange =  onSyncedChange,
-                    enabled = true
-                )
-                CheckboxWithText(
-                    text = stringResource(R.string.isPublic),
-                    isChecked = isPublic,
-                    checkedChange = onPublicChange,
-                    enabled = isSynced
-                )
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp,Alignment.End)
-                ) {
-                    TextButton(
-                        onClick = onDismiss
-                    ) {
-                        Text("Cancel")
-                    }
-                    Button(
-                        onClick = onConfirm
-                    ) {
-                        Text("Submit")
-                    }
-                }
-
-            }
-        }
-    }
-}
 
 
 @Composable
@@ -223,7 +123,7 @@ fun Preview() {
         onConfirm = { string, bool, bool1 -> },
         onDismiss = {}
     )*/
-    CustomDialogContent(
+    CreateCollectionDialogContent(
         name ="",
         isSynced = false,
         isPublic = false,

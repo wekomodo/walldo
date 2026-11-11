@@ -1,5 +1,6 @@
 package com.enigmaticdevs.wallhaven.data.local.collections
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -54,13 +55,14 @@ abstract class CollectionDao {
 
     /** The collections list screen: name, cover (newest item) and count (same rule as observeCollections). */
     @Query("""
-        SELECT c.id, c.name, c.isSynced,
-               (SELECT thumbUrl FROM collection_item WHERE collectionId = c.id ORDER BY addedAt DESC LIMIT 1) AS coverThumbUrl,
-               CASE WHEN c.isSynced = 1 AND c.remoteId IS NOT NULL AND (c.lastPage = 0 OR c.syncedPages < c.lastPage)
-                    THEN MAX(c.remoteCount, (SELECT COUNT(*) FROM collection_item WHERE collectionId = c.id))
-                    ELSE (SELECT COUNT(*) FROM collection_item WHERE collectionId = c.id) END AS count
-        FROM collection c
-    """)
+    SELECT c.id, c.name, c.isSynced,
+           (SELECT thumbUrl FROM collection_item WHERE collectionId = c.id ORDER BY addedAt DESC LIMIT 1) AS coverThumbUrl,
+           CASE WHEN c.isSynced = 1 AND c.remoteId IS NOT NULL AND (c.lastPage = 0 OR c.syncedPages < c.lastPage)
+                THEN MAX(c.remoteCount, (SELECT COUNT(*) FROM collection_item WHERE collectionId = c.id))
+                ELSE (SELECT COUNT(*) FROM collection_item WHERE collectionId = c.id) END AS count
+    FROM collection c
+    ORDER BY c.sortOrder ASC, c.createdAt ASC
+""")
     abstract fun getCollectionsInfo(): Flow<List<CollectionCover>>
 
     // ---- sync progress, used by the manager's indicator (synced collections only; local ones never count)
@@ -76,6 +78,15 @@ abstract class CollectionDao {
 
     // ============================================================ lookups
 
+    /** looking up a collection items based on collectionID and using paging3 */
+    @Query("""SELECT * FROM collection_item WHERE collectionId = :collectionId 
+        AND (
+          (SUBSTR(:purity, 1, 1) = '1' AND purity = 'sfw') OR
+          (SUBSTR(:purity, 2, 1) = '1' AND purity = 'sketchy') OR
+          (SUBSTR(:purity, 3, 1) = '1' AND purity = 'nsfw') OR
+          purity IS NULL
+      )ORDER BY addedAt DESC""")
+    abstract fun getPagedWallpapers(collectionId: Long, purity : String): PagingSource<Int, CollectionItemEntity>
     @Query("SELECT * FROM collection WHERE id = :id")
     abstract suspend fun collection(id: Long): CollectionEntity?
 
@@ -172,6 +183,16 @@ abstract class CollectionDao {
     @Query("DELETE FROM collection_item WHERE wallpaperId = :wallpaperId AND collectionId = :collectionId")
     abstract suspend fun deleteItem(wallpaperId: String, collectionId: Long)
 
+    @Query("UPDATE collection SET sortOrder = :sortOrder WHERE id = :id")
+    abstract suspend fun updateSortOrder(id: Long, sortOrder: Int)
+
+    @Transaction
+    open suspend fun updateCollectionOrder(orderedIds: List<Long>) {
+        orderedIds.forEachIndexed { index, id ->
+            updateSortOrder(id, index)
+        }
+    }
+
     /**
      * End of a pull: drops synced items the site no longer has (they carry an older pull id).
      * Never touches items with a queued op, or items added here after this pull started.
@@ -260,7 +281,8 @@ abstract class CollectionDao {
                 collectionId = collection.id,
                 thumbUrl = wallpaper.thumbs.large,
                 fullUrl = wallpaper.url,
-                resolution = wallpaper.resolution,
+                dimensionsX = wallpaper.dimension_x,
+                dimensionsY = wallpaper.dimension_y,
                 purity = wallpaper.purity,
                 syncedSlot = if (collection.isSynced) 1 else null
             )
@@ -385,7 +407,8 @@ abstract class CollectionDao {
                     wallpaperId = w.id,
                     collectionId = collectionId,
                     fullUrl = w.path,
-                    resolution = w.resolution,
+                    dimensionsX = w.dimension_x,
+                    dimensionsY = w.dimension_y,
                     purity = w.purity,
                     thumbUrl = w.thumbs.original,
                     syncedSlot = 1,

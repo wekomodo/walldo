@@ -18,6 +18,7 @@ import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Face
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -294,10 +295,10 @@ fun PrefTopAppBar(title: String, onBack: () -> Unit){
 
     TopAppBar(
         title = {
-Row(
-    modifier = Modifier.fillMaxWidth(),
-    horizontalArrangement = Arrangement.Center
-) { }
+            /*Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) { }*/
             Text(title) },
         /*navigationIcon = {
             IconButton(onClick = {onBack()}) {
@@ -306,3 +307,28 @@ Row(
         }*/
     )
 }
+
+@Composable
+fun PrefTopAppBar(title: String, onBack: () -> Unit,actions : NavigationIcon){
+
+    TopAppBar(
+        title = {
+            /*Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) { }*/
+            Text(title) },
+        actions = {
+            if(actions.enabled)
+                FilledTonalButton(onClick = actions.onClick) {
+                    Icon(actions.icon, contentDescription = "add Collection")
+                }
+        }
+    )
+}
+
+data class NavigationIcon(
+    val icon : ImageVector,
+    val enabled : Boolean,
+    val onClick : () -> Unit
+)

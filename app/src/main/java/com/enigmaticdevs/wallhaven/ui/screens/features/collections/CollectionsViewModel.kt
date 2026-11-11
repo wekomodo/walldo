@@ -2,7 +2,10 @@ package com.enigmaticdevs.wallhaven.ui.screens.features.collections
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionCover
+import com.enigmaticdevs.wallhaven.data.local.collections.CollectionDao
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionsDatabase
 import com.enigmaticdevs.wallhaven.data.remote.model.RemoteCollection
 import com.enigmaticdevs.wallhaven.data.remote.model.RemoteCollections
@@ -13,6 +16,7 @@ import com.enigmaticdevs.wallhaven.data.repository.AddResult
 import com.enigmaticdevs.wallhaven.data.repository.CollectionsRepository
 import com.enigmaticdevs.wallhaven.data.repository.SettingsRepository
 import com.enigmaticdevs.wallhaven.data.repository.WallpaperRepository
+import com.enigmaticdevs.wallhaven.ui.screens.features.collections.components.CreateCollectionRequest
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesIntoMap
 import dev.zacsweers.metro.Inject
@@ -34,12 +38,10 @@ import kotlinx.coroutines.launch
 class CollectionsViewModel(
     private val collectionsRepository: CollectionsRepository,
     private val repository: WallpaperRepository,
-    private val settings : SettingsRepository
+    private val settings: SettingsRepository
 ) : ViewModel() {
-   // private val dao = database.collectionDao()
 
-   /* private val _addResultEvent = Channel<AddResult>(Channel.BUFFERED)
-    val addResultEvent = _addResultEvent.receiveAsFlow()*/
+
     private val _collections = MutableStateFlow<RemoteCollections?>(null)
     val collections = _collections.asStateFlow()
 
@@ -52,44 +54,55 @@ class CollectionsViewModel(
         initialValue = ""
     )
 
-    val collectionsInfo : StateFlow<List<CollectionCover>?> = collectionsRepository.getCollectionInfo().stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = null
-    )
+    val collectionsInfo: StateFlow<List<CollectionCover>?> =
+        collectionsRepository.getCollectionInfo().stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = null
+        )
 
-    init {
+    /*init {
         fetchCollections()
-    }
+    }*/
 
-    fun fetchCollectionWallpaper(id : Long,page : Int){
+    fun fetchCollectionWallpaper(id: Long, page: Int) {
         viewModelScope.launch {
             val currentUsername = username.value
-            val result = repository.fetchCollectionWallpapers(id,currentUsername,page)
+            val result = repository.fetchCollectionWallpapers(id, currentUsername, page)
             _collectionContents.value = result
         }
     }
 
 
-    fun getCollectionCovers() {
+    fun updateSortOrder(order : List<Long>) {
         viewModelScope.launch {
-
+            collectionsRepository.updateSortOrder(order)
         }
     }
 
-
-    fun fetchCollections(){
+    fun createCollection(it : CreateCollectionRequest) {
+        //val wallpaper = wallpaper.value?.data ?: return
         viewModelScope.launch {
-           val collections =  collectionsRepository.getCollectionInfo()
+            runCatching {
+                collectionsRepository.createCollection(it.name, synced = it.isSynced, isPublic = it.isPublic)
+            }.getOrNull() ?: return@launch
+            // val result = collectionsRepository.addWallpaper(wallpaper, id)
+            // _addResultEvent.send(result)
         }
     }
 
- /*   fun fetchCollections(){
+    fun fetchCollections() {
         viewModelScope.launch {
-            val result = repository.fetchCollections()
-            if(result!=null)
-                _collections.value = result
+            val collections = collectionsRepository.getCollectionInfo()
         }
-    }*/
+    }
+
+    /*   fun fetchCollections(){
+           viewModelScope.launch {
+               val result = repository.fetchCollections()
+               if(result!=null)
+                   _collections.value = result
+           }
+       }*/
 
 }
