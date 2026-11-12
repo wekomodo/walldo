@@ -103,6 +103,8 @@ dependencies {
     implementation(libs.androidcrypto)
     //work manager
     implementation(libs.work.manager)
+    //bilinglib
+    implementation(libs.billing.ktx)
 }
 
 ksp { arg("room.schemaLocation", "$projectDir/schemas") }

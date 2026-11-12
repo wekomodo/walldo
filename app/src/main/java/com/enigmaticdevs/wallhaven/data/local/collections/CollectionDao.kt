@@ -69,6 +69,7 @@ abstract class CollectionDao {
                 THEN MAX(c.remoteCount, (SELECT COUNT(*) FROM collection_item WHERE collectionId = c.id))
                 ELSE (SELECT COUNT(*) FROM collection_item WHERE collectionId = c.id) END AS count
     FROM collection c
+    ORDER BY c.sortOrder ASC, c.createdAt ASC
 """)
     abstract fun getCollectionsInfo(purity: String): Flow<List<CollectionCover>>
 

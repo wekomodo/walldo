@@ -7,6 +7,7 @@ import com.enigmaticdevs.wallhaven.di.AppGraph
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.createGraphFactory
+import kotlinx.coroutines.launch
 
 class MyApp(): Application() {
 
@@ -18,12 +19,20 @@ class MyApp(): Application() {
         appGraph = createGraphFactory<AppGraph.Factory>().create(this,this)
         // Initialize your Metro Dependency Graph
 
+        appGraph.appScope.launch {
 
-        // 2. Map Metro's ImageLoader instance to Coil's global instance
-        SingletonImageLoader.setSafe {
-            appGraph.provideImageLoaderInstance()
+            /** Map Metro's ImageLoader instance to Coil's global instance */
+            SingletonImageLoader.setSafe {
+                appGraph.provideImageLoaderInstance()
+            }
+
+            /** sync collections with wallhaven.cc */
+            appGraph.collectionSyncManager.start()
+
+            /** legacy billing migrations */
+            appGraph.legacyBillingMigration.runIfNeeded()
+            appGraph.billingRepository.refresh()
         }
-        appGraph.collectionSyncManager.start()
     }
 
 }

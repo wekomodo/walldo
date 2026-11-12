@@ -25,6 +25,8 @@ annotation = "1.11.0"
 android-crypto = "1.1.0"
 jsoup = "1.24.1"
 work = "2.12.0"
+billinglib = "9.1.0"
+billingKtx = "9.1.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -65,6 +67,12 @@ metro-viewModel = {group="dev.zacsweers.metro",name="metrox-viewmodel",version.r
 metro-viewmodel-compose = {group="dev.zacsweers.metro",name="metrox-viewmodel-compose",version.ref="metro"}
 paging-runtime = { module = "androidx.paging:paging-runtime", version.ref = "paging" }
 paging-compose = { module = "androidx.paging:paging-compose", version.ref = "paging" }
+
+#billing lib
+billing-ktx = { group = "com.android.billingclient", name = "billing-ktx", version.ref = "billingKtx" }
+
+
+#room
 room-paging = { group = "androidx.room", name = "room-paging", version.ref = "room" }
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }

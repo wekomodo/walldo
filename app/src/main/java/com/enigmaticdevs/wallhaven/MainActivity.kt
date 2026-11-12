@@ -21,7 +21,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val appGraph = (application as MyApp).appGraph
         val metroViewModelFactory = appGraph.metroViewModelFactory
-        val globalFilterRepository = appGraph.provideGlobalFiltersRepository()
+       // val globalFilterRepository = appGraph.provideGlobalFiltersRepository()
         enableEdgeToEdge()
       //  runSpike("spikeControl")
         setContent {

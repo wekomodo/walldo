@@ -140,9 +140,9 @@ fun SettingsScreen(
             ClickablePref(
                 text = if (!state.loginStatus) ResourceString(R.string.login)
                 else
-                    ResourceString(R.string.logout),
+                    ResourceString(R.string.logout,state.username),
                 description = ResourceString(R.string.login_desc),
-                icon = if (state.loginStatus) R.drawable.wall
+                icon = if (state.loginStatus) R.drawable.ic_logged_in
                 else
                     R.drawable.ic_logout
             ) {
@@ -271,7 +271,7 @@ fun LogoutDialog(
                         Button(
                             onClick = onConfirm
                         ) {
-                            Text(stringResource(R.string.logout))
+                            Text(stringResource(R.string.logout_dialog_button))
                         }
                     }
                 }

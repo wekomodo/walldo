@@ -1,62 +1,59 @@
 <resources>
-    <string name="app_name">walldo</string>
+ <string name="app_name">Walldo</string>
 
+ <!-- Settings Screen -->
+ <string name="settings_dynamic_colors">Dynamic Colors</string>
+ <string name="settings_dynamic_colors_desc">Use accent colors from your system</string>
+ <string name="login">Log in</string>
+ <string name="theme">Theme</string>
+ <string name="theme_desc">Change the app theme</string>
+ <string name="logout">Log out (%1$s)</string>
+ <string name="login_desc">Log in using wallhaven.cc</string>
+ <string name="apiKey">API Key</string>
+ <string name="apiKey_empty">Required for NSFW filters</string>
+ <string name="apiKey_exists">Key added (tap to change)</string>
+ <string name="settings_data_and_storage">Data and Storage</string>
+ <string name="image_cache">Clear Image Cache</string>
+ <string name="image_cache_desc">Free up space (%1$s)</string>
+ <string name="settings_category_appearance">Appearance</string>
+ <string name="settings_category_about">About</string>
+ <string name="github_repo">Open-source Wallhaven client (GitHub)</string>
 
+ <!-- Filter Bottom Sheet -->
+ <string name="filter_category_general">General</string>
+ <string name="filter_resolution_filter">Resolution Filter</string>
+ <string name="filter_resolution_filter_desc">Only wallpapers at or above your chosen resolution will be shown</string>
+ <string name="filter_ratio_title">Aspect Ratio Filter</string>
+ <string name="filter_ratio_desc">Only selected aspect ratios will be shown</string>
+ <string name="filter_category_filter">Category Filter</string>
+ <string name="filter_purity_filter">Purity Filter</string>
 
+ <!-- Auto Wallpaper -->
+ <string name="autoWallpaper">Auto Wallpaper</string>
+ <string name="autoWallpaperDesc">Change wallpaper automatically</string>
+ <string name="onWifi">Only on Wi-Fi</string>
+ <string name="onWifidesc">Only update when connected to Wi-Fi to save mobile data</string>
+ <string name="onCharing">Only when charging</string>
+ <string name="onChargingdesc">Only update when connected to a power source</string>
+ <string name="onIdle">Only when idle</string>
+ <string name="onIdleDesc">Only run in the background while the device is asleep and unused</string>
+ <string name="autoWallpaper_category_conditions">Conditions</string>
+ <string name="battery_not_low">Require battery not low</string>
+ <string name="battery_not_low_desc">Pauses when battery is low</string>
+ <string name="low_storage">Require storage not low</string>
+ <string name="low_storage_desc">Pauses when device storage is low</string>
+ <string name="interval">Interval</string>
+ <string name="interval_desc">How often to change the wallpaper</string>
+ <string name="Source">Source</string>
+ <string name="wallpaper_source">Wallpaper Source</string>
+ <string name="wallpaper_source_desc">Choose which collection or feed to use</string>
 
-   #Settings Screen
-    <string name="settings_dynamic_colors">Dynamic Colors</string>
-    <string name="settings_dynamic_colors_desc">Accents from system</string>
-    <string name="login">Login</string>
-    <string name="theme">Theme</string>
-    <string name="theme_desc">Change the theme of the app</string>
-    <string name="logout">Logout</string>
-    <string name="login_desc">Login using wallhaven.cc</string>
-    <string name="apiKey">API key</string>
-    <string name="apiKey_empty">Required for NSFW filters</string>
-    <string name="apiKey_exists">Key added (tap to change)</string>
-    <string name="settings_data_and_storage">Data and Storage</string>
-    <string name="image_cache">Clear Image Cache</string>
-    <string name="image_cache_desc">\"Free up space :(%1$s)</string>
-    <string name="settings_category_appearance">Appearance</string>
-    <string name="settings_category_about">About</string>
-    <string name="github_repo">Open-Source Wallhaven client (Github)</string>
-
-
-    #filterBottomSheet
-    <string name="filter_category_general">General</string>
-    <string name="filter_resolution_filter">Resolution Filter</string>
-    <string name="filter_resolution_filter_desc">Only greater than your chosen resolution will be shown</string>
-    <string name="filter_ratio_title">Ratio Filter</string>
-    <string name="filter_ratio_desc">Selected Ratios will be shown</string>
-    <string name="filter_category_filter">Category Filter</string>
-    <string name="filter_purity_filter">Purity Filter</string>
-
-
-    #auto wallpaper
-    <string name="autoWallpaper">Auto Wallpaper</string>
-    <string name="autoWallpaperDesc">Change wallpaper automatically</string>
-    <string name="onWifi">"Only when on Wi-Fi"</string>
-    <string name="onChargingdesc">Only when connected to charging source</string>
-    <string name="onWifidesc">Only when connected to Wi-Fi to save mobile data</string>
-    <string name="onCharing">Only when charging</string>
-    <string name="onIdle">only when Idle</string>
-    <string name="onIdleDesc">Only run in the background while the phone is asleep and unused.</string>
-    <string name="autoWallpaper_category_conditions">Conditions</string>
-    <string name="battery_not_low">Require Battery not low</string>
-    <string name="battery_not_low_desc">Will pause if battery is low</string>
-    <string name="low_storage">Require Storage not low</string>
-    <string name="low_storage_desc">will pause if storage is low</string>
-    <string name="interval">Interval</string>
-    <string name="interval_desc">Change wallpaper after interval</string>
-    <string name="Source">Source</string>
-    <string name="wallpaper_source">Wallpaper Source</string>
-    <string name="wallpaper_source_desc">Which list you want to use for this</string>
-    <string name="new_collection">New Collection</string>
-    <string name="isPublic">Public</string>
+ <!-- Collections & Account -->
+ <string name="new_collection">New Collection</string>
+ <string name="isPublic">Public</string>
  <string name="isSynced">Sync with wallhaven.cc</string>
-    <string name="cancel">Cancel</string>
- <string name="logout_desc">you sure about logging out?\nthis will remove your synced collections from the app</string>
+ <string name="cancel">Cancel</string>
+ <string name="logout_desc">Are you sure you want to log out?\nThis will remove your synced collections from the app.</string>
  <string name="synced">Synced</string>
-
+ <string name="logout_dialog_button">Logout</string>
 </resources>
