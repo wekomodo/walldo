@@ -28,4 +28,8 @@ class AutoWallpaperViewModel(
     fun updateOnIdle(value: Boolean) = repository.updateOnIdle(value)
     fun updateInterval(value : String) = repository.updateInterval(value)
     fun updateIfLowOnStorage(value: Boolean) = repository.updateIfLowOnStorage(value)
+
+    fun updateOrientationFix(value: Boolean) = repository.updateOrientationFix(value)
+
+    fun updateScreenSelect(value : String) = repository.updateScreenSelect(value)
 }

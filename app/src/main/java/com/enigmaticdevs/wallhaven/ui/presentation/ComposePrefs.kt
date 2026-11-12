@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Face
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -48,6 +49,13 @@ sealed interface ImageSource {
     data class Resource(@DrawableRes val resId: Int) : ImageSource
     data class CustomPainter(val painter: Painter) : ImageSource
 }
+
+data class NavigationIcon(
+    val icon : ImageVector,
+    val enabled : Boolean,
+    val onClick : () -> Unit
+)
+
 
 fun ImageVector.asSource() = ImageSource.Vector(this)
 fun Int.asSource() = ImageSource.Resource(this)
@@ -326,9 +334,53 @@ fun PrefTopAppBar(title: String, onBack: () -> Unit,actions : NavigationIcon){
         }
     )
 }
+@Composable
+fun SingleSelectDialog(
+    title: String,
+    currentValue: String,
+    options : List<Pair<String, String>>,
+    onSelection: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
 
-data class NavigationIcon(
-    val icon : ImageVector,
-    val enabled : Boolean,
-    val onClick : () -> Unit
-)
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(title) },
+        text = {
+            Column(
+                Modifier
+                    .selectableGroup()
+                    .wrapContentSize()
+            ) {
+                options.forEach { it ->
+                    val isSelected = (it.second == currentValue)
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                            .selectable(
+                                selected = currentValue == it.second,
+                                onClick = { onSelection(it.second)}),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = isSelected,
+                            onClick = null
+                        )
+                        (Spacer(Modifier.width(12.dp)))
+                        Text(
+                            text = it.first,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(onClick = onDismiss) {
+                Text("Done")
+            }
+        },
+
+    )
+}

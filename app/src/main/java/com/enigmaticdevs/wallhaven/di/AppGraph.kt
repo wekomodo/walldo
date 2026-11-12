@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
+import androidx.work.WorkerFactory
 import coil3.ImageLoader
 import coil3.annotation.ExperimentalCoilApi
 import coil3.disk.DiskCache
@@ -67,6 +68,7 @@ interface AppGraph : ViewModelGraph {
     val legacyFavoritesMigration : LegacyFavoritesMigration
     val billingRepository: BillingRepository
     val appScope: CoroutineScope
+    val workerFactory: WorkerFactory
 
     @Binds
     val MyViewModelFactory.bind: MetroViewModelFactory

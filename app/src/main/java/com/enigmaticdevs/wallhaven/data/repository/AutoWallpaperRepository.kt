@@ -21,13 +21,16 @@ import java.util.concurrent.TimeUnit
 
 data class AutoWallpaperState(
     val switch : Boolean = false,
+    val source : String = "",
+    val interval : String = AutoWallpaperInterval.MINS_15.name,
     val onWifi: Boolean = false,
     val onCharging: Boolean = false,
     val onIdle : Boolean = false,
    // val condition : Conditions = Conditions(onCharging = false, onWifi = false, onIdle = false),
-    val interval : String = AutoWallpaperInterval.MINS_15.name,
+    val orientationFix : Boolean = true,
     val pauseOnLowBattery : Boolean = true,
-    val ifLowOnStorage : Boolean = true
+    val ifLowOnStorage : Boolean = true,
+    val screenSelect: String = "both"
 )
 
 data class Conditions(
@@ -44,6 +47,10 @@ private object AutoWallpaperKeys{
     val ON_IDLE = booleanPreferencesKey("auto_wallpaper_idle")
     val INTERVAL = stringPreferencesKey("auto_wallpaper_interval")
     val STORAGE_LOW = booleanPreferencesKey("auto_wallpaper_storage_low")
+
+    val ORIENTATION_FIX = booleanPreferencesKey("auto_wallpaper_orientation_fix")
+
+    val SCREEN = stringPreferencesKey("autoWallpaper_select_screen")
 }
 
 
@@ -65,7 +72,9 @@ class AutoWallpaperRepository(
             pauseOnLowBattery = it[AutoWallpaperKeys.PAUSE_ON_BATTERY_LOW] ?: defaults.pauseOnLowBattery,
             onIdle = it[AutoWallpaperKeys.ON_IDLE] ?: defaults.onIdle,
             interval = it[AutoWallpaperKeys.INTERVAL] ?: defaults.interval,
-            ifLowOnStorage = it[AutoWallpaperKeys.STORAGE_LOW] ?: defaults.ifLowOnStorage
+            ifLowOnStorage = it[AutoWallpaperKeys.STORAGE_LOW] ?: defaults.ifLowOnStorage,
+            orientationFix = it[AutoWallpaperKeys.ORIENTATION_FIX] ?: defaults.orientationFix,
+            screenSelect = it[AutoWallpaperKeys.SCREEN] ?: defaults.screenSelect
         )
     }.stateIn(
         scope = scope,
@@ -88,6 +97,10 @@ class AutoWallpaperRepository(
     fun updateInterval(value: String) = save { it[AutoWallpaperKeys.INTERVAL] = value }
 
     fun updateIfLowOnStorage(value: Boolean) = save { it[AutoWallpaperKeys.STORAGE_LOW] = value }
+
+    fun updateOrientationFix(value: Boolean) = save { it[AutoWallpaperKeys.ORIENTATION_FIX] = value }
+
+    fun updateScreenSelect(value : String) = save { it[AutoWallpaperKeys.SCREEN] = value }
 
 
 
@@ -113,3 +126,4 @@ enum class AutoWallpaperInterval(val value: Long, val timeUnit: TimeUnit) {
         }
     }
 }
+

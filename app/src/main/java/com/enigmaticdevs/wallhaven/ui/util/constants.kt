@@ -20,6 +20,12 @@ val ratioOptions = listOf(
     "None" to ""
 )
 
+val autoWallpaperScreen = listOf(
+    "Homescreen" to "home",
+    "Lockscreen" to "lock",
+    "Both" to "both"
+)
+
 val resolutionOptions = listOf(
     "3840x1600 (Ultra wide)" to "3840x1600",
     "3440x1440 (Ultra wide)" to "3440x1440",

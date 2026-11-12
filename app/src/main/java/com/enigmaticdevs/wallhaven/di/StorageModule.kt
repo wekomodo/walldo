@@ -57,8 +57,8 @@ object StorageModule {
                 // runs once, when the file is first created: guarantees exactly one "Favorites"
                 override fun onCreate(db: SupportSQLiteDatabase) {
                     db.execSQL(
-                        "INSERT INTO collection (name, isSynced, createdAt, sortOrder, lastPage, syncedPages, pullGen, lastSyncedAt) " +
-                                "VALUES ('Favorites', 0, ${System.currentTimeMillis()}, 0, 0, 0, 0, 0)"
+                        "INSERT INTO collection (name, isSynced, createdAt, sortOrder, lastPage, syncedPages, pullGen, lastSyncedAt,isAutoWallpaper) " +
+                                "VALUES ('Favorites', 0, ${System.currentTimeMillis()}, 0, 0, 0, 0, 0,1)"
                     )
                 }
             })
@@ -66,7 +66,8 @@ object StorageModule {
 }
 
 
-@Inject
+
+/** can be deleted later when bumping the version */
 private class LegacyPreferencesMigration : DataMigration<Preferences> {
 
     // Old keys

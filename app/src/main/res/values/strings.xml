@@ -58,4 +58,9 @@
  <string name="logout_dialog_button">Logout</string>
  <string name="upgrade">Upgrade to Pro!</string>
  <string name="upgrade_desc">Unlocks exclusive features!</string>
+    <string name="autoWallpaper_options">Options</string>
+ <string name="autoWallpaper_device_orientation">Device Orientation Fix</string>
+ <string name="autoWallpaper_device_orientation_desc">"Reschedule if device is in landscape "</string>
+ <string name="autoWallpaper_select_screen">Select Screen</string>
+ <string name="autoWallpaper_select_screen_desc"><![CDATA[Home & LockScreen]]></string>
 </resources>

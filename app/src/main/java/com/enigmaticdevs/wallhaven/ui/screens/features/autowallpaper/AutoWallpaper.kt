@@ -1,5 +1,6 @@
 package com.enigmaticdevs.wallhaven.ui.screens.features.autowallpaper
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -28,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -42,6 +44,8 @@ import com.enigmaticdevs.wallhaven.ui.presentation.SingleSelectDialog
 import com.enigmaticdevs.wallhaven.ui.presentation.UiText.DynamicString
 import com.enigmaticdevs.wallhaven.ui.presentation.UiText.ResourceString
 import com.enigmaticdevs.wallhaven.ui.presentation.asSource
+import com.enigmaticdevs.wallhaven.ui.screens.homescreen.bottomsheet.FilterSelectionDialog
+import com.enigmaticdevs.wallhaven.ui.util.autoWallpaperScreen
 import com.enigmaticdevs.wallhaven.ui.util.intervalList
 import dev.zacsweers.metrox.viewmodel.metroViewModel
 
@@ -61,7 +65,9 @@ fun AutoWallpaperRoute(
         onIdleChange = { viewModel.updateOnIdle(!state.onIdle) },
         requireBatteryNotLow = { viewModel.updatePauseOnChargingLow(!state.pauseOnLowBattery) },
         ifLowOnStorage = { viewModel.updateIfLowOnStorage(!state.ifLowOnStorage) },
-        onIntervalSelect = {viewModel.updateInterval(it)}
+        onIntervalSelect = {viewModel.updateInterval(it)},
+        orientationFix = {viewModel.updateOrientationFix(!state.orientationFix)},
+        onScreenSelect = viewModel::updateScreenSelect
     )
 }
 
@@ -76,11 +82,14 @@ fun AutoWallpaperContent(
     onIdleChange: () -> Unit,
     requireBatteryNotLow: () -> Unit,
     ifLowOnStorage: () -> Unit,
-    onIntervalSelect : (String) -> Unit
+    onIntervalSelect : (String) -> Unit,
+    orientationFix : () -> Unit,
+    onScreenSelect : (String) -> Unit
 ) {
 
     val snackBarHostState = remember { SnackbarHostState() }
     var showIntervalDialog by remember { mutableStateOf(false) }
+    var showScreenSelectionDialog by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         //  viewModel.events.collect { snackBarHostState.showSnackbar(it) }
         //  viewModel.getCurrentKey()
@@ -194,6 +203,22 @@ fun AutoWallpaperContent(
                 onCheckedChange = ifLowOnStorage,
                 isEnabled = state.switch
             )
+            HorizontalDivider()
+            CategoryTitle(ResourceString(R.string.autoWallpaper_options))
+            ClickablePrefWithButton(
+                isChecked = state.orientationFix,
+                text = ResourceString(R.string.autoWallpaper_device_orientation),
+                description = ResourceString(R.string.autoWallpaper_device_orientation_desc),
+                imageSource = R.drawable.ic_device_orientation.asSource(),
+                onCheckedChange =  orientationFix,
+                isEnabled = true,
+            )
+            ClickablePref(
+                text = ResourceString(R.string.autoWallpaper_select_screen),
+                description = ResourceString(R.string.autoWallpaper_select_screen_desc),
+                icon = R.drawable.ic_select_screen,
+                onClick =  { showScreenSelectionDialog = true }
+            )
         }
         if(showIntervalDialog)
         SingleSelectDialog(
@@ -204,6 +229,16 @@ fun AutoWallpaperContent(
                 showIntervalDialog = false
             }
         )
+        if(showScreenSelectionDialog)
+        {
+            SingleSelectDialog(
+                currentValue = state.screenSelect,
+                options = autoWallpaperScreen,
+                title = stringResource(R.string.autoWallpaper_select_screen),
+                onSelection = onScreenSelect,
+                onDismiss = {showScreenSelectionDialog = false }
+            )
+        }
     }
 
 }
@@ -230,6 +265,8 @@ fun Preview() {
         onIdleChange = {},
         requireBatteryNotLow = {},
         ifLowOnStorage = {},
-        onIntervalSelect = {}
+        onIntervalSelect = {},
+        orientationFix = {},
+        onScreenSelect = {}
     )
 }
