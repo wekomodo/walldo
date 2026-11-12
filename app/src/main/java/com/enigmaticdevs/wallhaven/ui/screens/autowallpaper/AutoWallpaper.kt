@@ -1,25 +1,26 @@
-package com.enigmaticdevs.wallhaven.ui.screens.features.autowallpaper
+package com.enigmaticdevs.wallhaven.ui.screens.autowallpaper
 
-import android.util.Log
-import androidx.compose.foundation.clickable
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -28,24 +29,23 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.enigmaticdevs.wallhaven.R
-import com.enigmaticdevs.wallhaven.data.repository.AutoWallpaperInterval
+import com.enigmaticdevs.wallhaven.data.local.collections.CollectionCover
 import com.enigmaticdevs.wallhaven.data.repository.AutoWallpaperState
 import com.enigmaticdevs.wallhaven.ui.presentation.CategoryTitle
 import com.enigmaticdevs.wallhaven.ui.presentation.ClickablePref
 import com.enigmaticdevs.wallhaven.ui.presentation.ClickablePrefWithButton
 import com.enigmaticdevs.wallhaven.ui.presentation.PrefTopAppBar
 import com.enigmaticdevs.wallhaven.ui.presentation.SingleSelectDialog
-import com.enigmaticdevs.wallhaven.ui.presentation.UiText.DynamicString
+import com.enigmaticdevs.wallhaven.ui.presentation.UiText
 import com.enigmaticdevs.wallhaven.ui.presentation.UiText.ResourceString
 import com.enigmaticdevs.wallhaven.ui.presentation.asSource
-import com.enigmaticdevs.wallhaven.ui.screens.homescreen.bottomsheet.FilterSelectionDialog
 import com.enigmaticdevs.wallhaven.ui.util.autoWallpaperScreen
+import com.enigmaticdevs.wallhaven.ui.util.autoWallpaperSource
 import com.enigmaticdevs.wallhaven.ui.util.intervalList
 import dev.zacsweers.metrox.viewmodel.metroViewModel
 
@@ -56,8 +56,10 @@ fun AutoWallpaperRoute(
     viewModel: AutoWallpaperViewModel = metroViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val collections by viewModel.collectionsInfo.collectAsStateWithLifecycle()
     AutoWallpaperContent(
         state = state,
+        collections = collections,
         onBack = onBack,
         onSwitchUpdate = { viewModel.updateSwitch(!state.switch) },
         onWifiChange = { viewModel.updateOnWifi(!state.onWifi) },
@@ -67,14 +69,18 @@ fun AutoWallpaperRoute(
         ifLowOnStorage = { viewModel.updateIfLowOnStorage(!state.ifLowOnStorage) },
         onIntervalSelect = {viewModel.updateInterval(it)},
         orientationFix = {viewModel.updateOrientationFix(!state.orientationFix)},
-        onScreenSelect = viewModel::updateScreenSelect
+        onScreenSelect = viewModel::updateScreenSelect,
+        onSourceSelected = viewModel::updateSource,
+        onCollectionSelect = viewModel::updateAutoWallpaperCollection
     )
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AutoWallpaperContent(
     state: AutoWallpaperState,
+    collections : List<CollectionCover>,
     onBack: () -> Unit,
     onSwitchUpdate: () -> Unit,
     onWifiChange: () -> Unit,
@@ -84,12 +90,21 @@ fun AutoWallpaperContent(
     ifLowOnStorage: () -> Unit,
     onIntervalSelect : (String) -> Unit,
     orientationFix : () -> Unit,
-    onScreenSelect : (String) -> Unit
+    onScreenSelect : (String) -> Unit,
+    onSourceSelected : (String) -> Unit,
+    onCollectionSelect : (Long) -> Unit
 ) {
 
     val snackBarHostState = remember { SnackbarHostState() }
     var showIntervalDialog by remember { mutableStateOf(false) }
     var showScreenSelectionDialog by remember { mutableStateOf(false) }
+    var showAutoWallpaperSourceDialog by remember { mutableStateOf(false) }
+    var showCollectionSheet by remember { mutableStateOf(false) }
+    val activeCollection = collections.firstOrNull { it.isAutoWallpaper }
+        ?: collections.firstOrNull()
+
+    val sheetState = rememberBottomSheetState(SheetValue.Hidden , enabledValues = setOf(SheetValue.Hidden,
+        SheetValue.Expanded))
     LaunchedEffect(Unit) {
         //  viewModel.events.collect { snackBarHostState.showSnackbar(it) }
         //  viewModel.getCurrentKey()
@@ -142,15 +157,27 @@ fun AutoWallpaperContent(
                 text = ResourceString(R.string.wallpaper_source),
                 description = ResourceString(R.string.wallpaper_source_desc),
                 icon = R.drawable.ic_wallpaper_source,
-                onClick = {}
+                onClick = {
+                    showAutoWallpaperSourceDialog = true
+                }
             )
+
+            AnimatedVisibility(visible = state.source == "collections") {
+                ClickablePref(
+                    text = UiText.DynamicString("Selected Collection"),
+                    description = UiText.DynamicString(activeCollection?.let { "${it.name} (${it.count} wallpapers)" }
+                        ?: "Tap to choose a collection"),
+                    onClick = { showCollectionSheet = true },
+                    icon = R.drawable.ic_heart_filled
+                )
+            }
             HorizontalDivider()
             CategoryTitle(ResourceString(R.string.autoWallpaper_category_conditions))
             ClickablePref(
                 text = ResourceString(R.string.interval),
                 description = ResourceString(R.string.interval_desc),
                 icon = R.drawable.ic_interval,
-                onClick =  { showIntervalDialog = true }
+                onClick = { showIntervalDialog = true }
             )
             ClickablePrefWithButton(
                 isChecked = state.onWifi,
@@ -210,54 +237,64 @@ fun AutoWallpaperContent(
                 text = ResourceString(R.string.autoWallpaper_device_orientation),
                 description = ResourceString(R.string.autoWallpaper_device_orientation_desc),
                 imageSource = R.drawable.ic_device_orientation.asSource(),
-                onCheckedChange =  orientationFix,
+                onCheckedChange = orientationFix,
                 isEnabled = true,
             )
             ClickablePref(
                 text = ResourceString(R.string.autoWallpaper_select_screen),
                 description = ResourceString(R.string.autoWallpaper_select_screen_desc),
                 icon = R.drawable.ic_select_screen,
-                onClick =  { showScreenSelectionDialog = true }
+                onClick = { showScreenSelectionDialog = true }
             )
-        }
-        if(showIntervalDialog)
-        SingleSelectDialog(
-            currentSelection = state.interval,
-            options = intervalList,
-            onSelection =  onIntervalSelect,
-            onDismiss = {
-                showIntervalDialog = false
+            if (showIntervalDialog)
+                SingleSelectDialog(
+                    currentSelection = state.interval,
+                    options = intervalList,
+                    onSelection = onIntervalSelect,
+                    onDismiss = {
+                        showIntervalDialog = false
+                    }
+                )
+            if (showScreenSelectionDialog) {
+                SingleSelectDialog(
+                    currentValue = state.screenSelect,
+                    options = autoWallpaperScreen,
+                    title = stringResource(R.string.autoWallpaper_select_screen),
+                    onSelection = onScreenSelect,
+                    onDismiss = { showScreenSelectionDialog = false }
+                )
             }
-        )
-        if(showScreenSelectionDialog)
-        {
-            SingleSelectDialog(
-                currentValue = state.screenSelect,
-                options = autoWallpaperScreen,
-                title = stringResource(R.string.autoWallpaper_select_screen),
-                onSelection = onScreenSelect,
-                onDismiss = {showScreenSelectionDialog = false }
-            )
+            if (showAutoWallpaperSourceDialog) {
+                SingleSelectDialog(
+                    currentValue = state.source,
+                    options = autoWallpaperSource,
+                    title = stringResource(R.string.wallpaper_source),
+                    onSelection = onSourceSelected,
+                    onDismiss = { showAutoWallpaperSourceDialog = false }
+                )
+            }
+            if (showCollectionSheet) {
+                CollectionPickerBottomSheet(
+                    sheetState = sheetState,
+                    collections = collections,
+                    selectedCollectionId = activeCollection?.id ?: 0L,
+                    onSelectCollection = onCollectionSelect,
+                    onDismiss = {
+                        showCollectionSheet = false
+                    }
+                )
+            }
         }
+
     }
 
 }
-
-
-fun stringFromBool(vararg options: Boolean): String {
-    return options.joinToString("") { if (it) "1" else "0" }
-}
-
-fun boolFromString(bitmask: String): List<Boolean> {
-    return bitmask.map { it == '1' }
-}
-
-
 @Preview
 @Composable
 fun Preview() {
     AutoWallpaperContent(
         AutoWallpaperState(),
+        collections = listOf(),
         onBack = {},
         onSwitchUpdate = {},
         onWifiChange = {},
@@ -267,6 +304,8 @@ fun Preview() {
         ifLowOnStorage = {},
         onIntervalSelect = {},
         orientationFix = {},
-        onScreenSelect = {}
+        onScreenSelect = {},
+        onSourceSelected = {},
+        onCollectionSelect = {}
     )
 }

@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "c170423604cc47dcc8028efa90bf8aec",
+    "identityHash": "e84118c3373801642d80221344044127",
     "entities": [
       {
         "tableName": "collection",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `isSynced` INTEGER NOT NULL, `remoteId` INTEGER, `createdAt` INTEGER NOT NULL, `sortOrder` INTEGER NOT NULL, `remoteCount` INTEGER, `lastPage` INTEGER NOT NULL, `syncedPages` INTEGER NOT NULL, `pullGen` INTEGER NOT NULL, `lastSyncedAt` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `isSynced` INTEGER NOT NULL, `remoteId` INTEGER, `createdAt` INTEGER NOT NULL, `sortOrder` INTEGER NOT NULL, `remoteCount` INTEGER, `lastPage` INTEGER NOT NULL, `syncedPages` INTEGER NOT NULL, `pullGen` INTEGER NOT NULL, `lastSyncedAt` INTEGER NOT NULL, `isAutoWallpaper` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -69,6 +69,12 @@
           {
             "fieldPath": "lastSyncedAt",
             "columnName": "lastSyncedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isAutoWallpaper",
+            "columnName": "isAutoWallpaper",
             "affinity": "INTEGER",
             "notNull": true
           }
@@ -262,7 +268,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c170423604cc47dcc8028efa90bf8aec')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e84118c3373801642d80221344044127')"
     ]
   }
 }

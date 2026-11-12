@@ -9,7 +9,7 @@ import com.enigmaticdevs.wallhaven.data.repository.AddResult
 import com.enigmaticdevs.wallhaven.data.repository.CollectionMembership
 import com.enigmaticdevs.wallhaven.data.repository.CollectionsRepository
 import com.enigmaticdevs.wallhaven.data.repository.WallpaperRepository
-import com.enigmaticdevs.wallhaven.ui.screens.features.collections.components.CreateCollectionRequest
+import com.enigmaticdevs.wallhaven.ui.screens.collections.components.CreateCollectionRequest
 import com.enigmaticdevs.wallhaven.ui.screens.homescreen.components.QueryNames
 import com.enigmaticdevs.wallhaven.ui.screens.homescreen.components.SavedQueries
 import dev.zacsweers.metro.AppScope

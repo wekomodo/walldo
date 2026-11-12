@@ -1,4 +1,4 @@
-package com.enigmaticdevs.wallhaven.ui.screens.features.login
+package com.enigmaticdevs.wallhaven.ui.screens.login
 
 import android.util.Log
 import android.webkit.CookieManager

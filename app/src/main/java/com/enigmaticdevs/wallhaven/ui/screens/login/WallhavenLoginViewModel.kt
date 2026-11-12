@@ -1,9 +1,8 @@
-package com.enigmaticdevs.wallhaven.ui.screens.features.login
+package com.enigmaticdevs.wallhaven.ui.screens.login
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.enigmaticdevs.wallhaven.di.AppGraph
 import com.enigmaticdevs.wallhaven.data.local.SecureStorage
 import com.enigmaticdevs.wallhaven.data.remote.WallhavenWebClient
 import com.enigmaticdevs.wallhaven.data.repository.GlobalFlagsRepository
@@ -12,7 +11,6 @@ import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesIntoMap
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metrox.viewmodel.ViewModelKey
-import io.ktor.client.HttpClient
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch

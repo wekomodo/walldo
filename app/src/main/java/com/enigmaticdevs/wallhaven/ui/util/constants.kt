@@ -26,6 +26,11 @@ val autoWallpaperScreen = listOf(
     "Both" to "both"
 )
 
+val autoWallpaperSource = listOf(
+    "Popular" to "popular",
+    "Collections" to "collections"
+)
+
 val resolutionOptions = listOf(
     "3840x1600 (Ultra wide)" to "3840x1600",
     "3440x1440 (Ultra wide)" to "3440x1440",

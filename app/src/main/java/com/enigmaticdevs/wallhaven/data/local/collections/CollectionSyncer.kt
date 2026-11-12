@@ -4,8 +4,8 @@ import android.util.Log
 import com.enigmaticdevs.wallhaven.data.repository.GlobalFlagsRepository
 import com.enigmaticdevs.wallhaven.data.repository.SettingsRepository
 import com.enigmaticdevs.wallhaven.data.repository.WallpaperRepository
-import com.enigmaticdevs.wallhaven.ui.screens.features.login.AccountOutcome
-import com.enigmaticdevs.wallhaven.ui.screens.features.login.WallhavenAccountApi
+import com.enigmaticdevs.wallhaven.ui.screens.login.AccountOutcome
+import com.enigmaticdevs.wallhaven.ui.screens.login.WallhavenAccountApi
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.first

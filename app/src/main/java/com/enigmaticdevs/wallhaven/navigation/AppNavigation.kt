@@ -26,10 +26,10 @@ import com.enigmaticdevs.wallhaven.LocalToastTrigger
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionCover
 import com.enigmaticdevs.wallhaven.ui.presentation.DynamicToastOverlay
 import com.enigmaticdevs.wallhaven.ui.presentation.FloatingNavBar
-import com.enigmaticdevs.wallhaven.ui.screens.features.autowallpaper.AutoWallpaperRoute
-import com.enigmaticdevs.wallhaven.ui.screens.features.collections.detail.CollectionDetailRoute
-import com.enigmaticdevs.wallhaven.ui.screens.features.collections.CollectionsRoute
-import com.enigmaticdevs.wallhaven.ui.screens.features.login.WallhavenLoginRoute
+import com.enigmaticdevs.wallhaven.ui.screens.autowallpaper.AutoWallpaperRoute
+import com.enigmaticdevs.wallhaven.ui.screens.collections.detail.CollectionDetailRoute
+import com.enigmaticdevs.wallhaven.ui.screens.collections.CollectionsRoute
+import com.enigmaticdevs.wallhaven.ui.screens.login.WallhavenLoginRoute
 import com.enigmaticdevs.wallhaven.ui.screens.homescreen.HomeScreen
 import com.enigmaticdevs.wallhaven.ui.screens.settings.SettingsScreen
 import com.enigmaticdevs.wallhaven.ui.screens.wallpaperdetail.WallpaperDetailScreen

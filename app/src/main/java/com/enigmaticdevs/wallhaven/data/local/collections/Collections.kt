@@ -32,7 +32,9 @@ data class CollectionEntity(
     /** Id of the pull in progress / last pull (a timestamp). Items saved by that pull carry the same value. */
     val pullGen: Long = 0,
     /** When the last complete pull finished. 0 = never, or the last one was skipped, so pull again. */
-    val lastSyncedAt: Long = 0
+    val lastSyncedAt: Long = 0,
+    /** what collection to use for autowallpaper */
+    val isAutoWallpaper : Boolean = false
 )
 
 // Which wallpaper is in which collection.

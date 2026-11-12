@@ -1,4 +1,4 @@
-package com.enigmaticdevs.wallhaven.ui.screens.features.collections.components
+package com.enigmaticdevs.wallhaven.ui.screens.collections.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

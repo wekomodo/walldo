@@ -1,23 +1,16 @@
-package com.enigmaticdevs.wallhaven.ui.screens.features.collections
+package com.enigmaticdevs.wallhaven.ui.screens.collections
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -37,7 +30,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -51,8 +43,8 @@ import com.enigmaticdevs.wallhaven.ui.presentation.DraggableItem
 import com.enigmaticdevs.wallhaven.ui.presentation.NavigationIcon
 import com.enigmaticdevs.wallhaven.ui.presentation.PrefTopAppBar
 import com.enigmaticdevs.wallhaven.ui.presentation.rememberDragDropState
-import com.enigmaticdevs.wallhaven.ui.screens.features.collections.components.CreateCollectionDialog
-import com.enigmaticdevs.wallhaven.ui.screens.features.collections.components.CreateCollectionRequest
+import com.enigmaticdevs.wallhaven.ui.screens.collections.components.CreateCollectionDialog
+import com.enigmaticdevs.wallhaven.ui.screens.collections.components.CreateCollectionRequest
 import dev.zacsweers.metrox.viewmodel.metroViewModel
 
 @Composable
@@ -223,7 +215,8 @@ fun Preview(){
         id = 123,
         coverThumbUrl = "",
         isSynced = false,
-        count = 45
+        count = 45,
+        isAutoWallpaper = false
     )
     CollectionItem(item,
         onClick = {})

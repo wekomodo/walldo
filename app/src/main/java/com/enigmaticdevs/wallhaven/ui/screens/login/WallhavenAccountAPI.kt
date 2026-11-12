@@ -1,8 +1,7 @@
-package com.enigmaticdevs.wallhaven.ui.screens.features.login
+package com.enigmaticdevs.wallhaven.ui.screens.login
 
 import android.util.Log
 import android.webkit.CookieManager
-import com.enigmaticdevs.wallhaven.ui.screens.features.login.AccountOutcome
 import com.enigmaticdevs.wallhaven.ui.util.WALLHAVEN_UA
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp

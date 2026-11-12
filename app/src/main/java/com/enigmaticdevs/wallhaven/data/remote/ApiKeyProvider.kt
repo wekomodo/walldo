@@ -38,7 +38,7 @@ class ApiKeyProvider(
 class UserPreferences(
     private val dataStore: DataStore<Preferences>
 ) {
-    private val API_KEY = stringPreferencesKey("api_key")
+    private val API_KEY = stringPreferencesKey("wallhaven_api_key")
     val apiKey: Flow<String?> = dataStore.data.map { it[API_KEY] }
     suspend fun setApiKey(key: String) {
 

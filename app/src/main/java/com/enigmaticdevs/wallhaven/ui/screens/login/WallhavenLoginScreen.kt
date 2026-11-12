@@ -1,6 +1,7 @@
-package com.enigmaticdevs.wallhaven.ui.screens.features.login
+package com.enigmaticdevs.wallhaven.ui.screens.login
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.graphics.Bitmap
 import android.util.Log
 import android.webkit.CookieManager
@@ -43,6 +44,22 @@ fun WallhavenLoginRoute(
     viewmodel: WallhavenLoginViewModel = metroViewModel()
 ) {
     val showToast = LocalToastTrigger.current
+    
+    // Listen for events from the ViewModel
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        viewmodel.events.collect { event ->
+            when (event) {
+                is LoginEvent.Success -> {
+                    showToast("Logged in & API Key saved!")
+                    onBack()
+                }
+                is LoginEvent.Logout -> {
+                    // Handle logout if needed
+                }
+            }
+        }
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = { PrefTopAppBar("Wallhaven login form", onBack = onBack) },
@@ -51,12 +68,9 @@ fun WallhavenLoginRoute(
         WallhavenLoginScreen(
             paddingValues = paddingValues,
             onLoginSuccess = { cookies, csrfToken ->
-               // runSpike("testing webview")
-
-                //WallhavenSpike().dumpCookieScopes()
                 viewmodel.onLoginCredentialsReceived(cookies, csrfToken)
-                showToast("Logged in & API Key saved!")
-                onBack()
+                // We no longer call onBack() or showToast() here! 
+                // We wait for the ViewModel to finish and emit LoginEvent.Success
             },
             onBack = onBack
         )
@@ -137,7 +151,7 @@ fun WallhavenLoginScreen(
                             // If the user tries to register, redirect them to the system browser instead.
                             val path = request.url.path ?: ""
                             if (path.contains("/join") || path.contains("/register")) {
-                                val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, request.url)
+                                val intent = Intent(Intent.ACTION_VIEW, request.url)
                                 view.context.startActivity(intent)
                                 return true
                             }

@@ -1,5 +1,6 @@
 package com.enigmaticdevs.wallhaven.data.repository
 
+import android.R
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.IOException
 import androidx.datastore.preferences.core.MutablePreferences
@@ -21,7 +22,7 @@ import java.util.concurrent.TimeUnit
 
 data class AutoWallpaperState(
     val switch : Boolean = false,
-    val source : String = "",
+    val source : String = "popular",
     val interval : String = AutoWallpaperInterval.MINS_15.name,
     val onWifi: Boolean = false,
     val onCharging: Boolean = false,
@@ -51,6 +52,8 @@ private object AutoWallpaperKeys{
     val ORIENTATION_FIX = booleanPreferencesKey("auto_wallpaper_orientation_fix")
 
     val SCREEN = stringPreferencesKey("autoWallpaper_select_screen")
+
+    val SOURCE = stringPreferencesKey("autoWallpaper_source")
 }
 
 
@@ -74,7 +77,8 @@ class AutoWallpaperRepository(
             interval = it[AutoWallpaperKeys.INTERVAL] ?: defaults.interval,
             ifLowOnStorage = it[AutoWallpaperKeys.STORAGE_LOW] ?: defaults.ifLowOnStorage,
             orientationFix = it[AutoWallpaperKeys.ORIENTATION_FIX] ?: defaults.orientationFix,
-            screenSelect = it[AutoWallpaperKeys.SCREEN] ?: defaults.screenSelect
+            screenSelect = it[AutoWallpaperKeys.SCREEN] ?: defaults.screenSelect,
+            source = it[AutoWallpaperKeys.SOURCE] ?: defaults.source
         )
     }.stateIn(
         scope = scope,
@@ -101,6 +105,8 @@ class AutoWallpaperRepository(
     fun updateOrientationFix(value: Boolean) = save { it[AutoWallpaperKeys.ORIENTATION_FIX] = value }
 
     fun updateScreenSelect(value : String) = save { it[AutoWallpaperKeys.SCREEN] = value }
+
+    fun updateSource(value : String) = save { it[AutoWallpaperKeys.SOURCE] = value }
 
 
 

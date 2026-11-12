@@ -17,7 +17,8 @@ data class CollectionCover(
     val name: String,
     val coverThumbUrl: String?,
     val isSynced: Boolean,
-    val count: Int
+    val count: Int,
+    val isAutoWallpaper : Boolean = false,
 )
 
 @Dao
@@ -67,11 +68,35 @@ abstract class CollectionDao {
             ORDER BY addedAt DESC LIMIT 1) AS coverThumbUrl,
            CASE WHEN c.isSynced = 1 AND c.remoteId IS NOT NULL AND (c.lastPage = 0 OR c.syncedPages < c.lastPage)
                 THEN MAX(c.remoteCount, (SELECT COUNT(*) FROM collection_item WHERE collectionId = c.id))
-                ELSE (SELECT COUNT(*) FROM collection_item WHERE collectionId = c.id) END AS count
+                ELSE (SELECT COUNT(*) FROM collection_item WHERE collectionId = c.id) END AS count,
+                c.isAutoWallpaper
     FROM collection c
     ORDER BY c.sortOrder ASC, c.createdAt ASC
 """)
     abstract fun getCollectionsInfo(purity: String): Flow<List<CollectionCover>>
+
+
+    // for AutoWallpaper use
+
+    // 1. Set a single collection as the active Auto-Wallpaper source
+    @Query("UPDATE collection SET isAutoWallpaper = CASE WHEN id = :collectionId THEN 1 ELSE 0 END")
+    abstract suspend fun setAutoWallpaperCollection(collectionId: Long)
+
+    // 2. Worker query: picks 1 random wallpaper across any active Auto-Wallpaper collection
+    @Query("""
+    SELECT i.fullUrl FROM collection_item i
+    INNER JOIN collection c ON i.collectionId = c.id
+    WHERE c.isAutoWallpaper = 1
+      AND i.fullUrl IS NOT NULL
+      AND (
+          (SUBSTR(:purityMask, 1, 1) = '1' AND i.purity = 'sfw') OR
+          (SUBSTR(:purityMask, 2, 1) = '1' AND i.purity = 'sketchy') OR
+          (SUBSTR(:purityMask, 3, 1) = '1' AND i.purity = 'nsfw') OR
+          i.purity IS NULL
+      )
+    ORDER BY RANDOM() LIMIT 1
+""")
+    abstract suspend fun getNextAutoWallpaperUrl(purityMask: String): String?
 
     // ---- sync progress, used by the manager's indicator (synced collections only; local ones never count)
 

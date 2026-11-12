@@ -1,5 +1,6 @@
 package com.enigmaticdevs.wallhaven.data.repository
 
+import android.util.Log
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionCover
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionEntity
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionItemEntity
@@ -128,6 +129,16 @@ class CollectionsRepository(
     /** updates sort order of collections */
     suspend fun updateSortOrder(ids : List<Long>) {
         dao.updateCollectionOrder(ids)
+    }
+
+    suspend fun updateAutoWallpaperCollection(id : Long){
+        try {
+            dao.setAutoWallpaperCollection(id)
+        }
+        catch (e : Exception) {
+            Log.e("Database", "update autoWallpaperCollectionFailed ${e.localizedMessage}")
+        }
+
     }
 
     fun getCollectionInfo(purity : String) : Flow<List<CollectionCover>> = dao.getCollectionsInfo(purity)

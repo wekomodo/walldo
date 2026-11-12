@@ -6,10 +6,8 @@ import androidx.lifecycle.viewModelScope
 import coil3.ImageLoader
 import com.enigmaticdevs.wallhaven.data.local.SecureStorage
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionSyncManager
-import com.enigmaticdevs.wallhaven.data.local.collections.CollectionsDatabase
 import com.enigmaticdevs.wallhaven.data.repository.GlobalFlagsRepository
 import com.enigmaticdevs.wallhaven.data.repository.SettingsRepository
-import com.enigmaticdevs.wallhaven.ui.screens.features.login.LoginEvent
 import com.enigmaticdevs.wallhaven.ui.theme.ThemeMode
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesIntoMap
@@ -27,7 +25,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.math.log
 
 
 data class SettingsUiState(

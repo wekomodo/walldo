@@ -1,4 +1,4 @@
-package com.enigmaticdevs.wallhaven.ui.screens.features.upgrade
+package com.enigmaticdevs.wallhaven.ui.screens.upgrade
 
 // Import metroViewModel the same way your other screens do.
 import android.widget.Toast

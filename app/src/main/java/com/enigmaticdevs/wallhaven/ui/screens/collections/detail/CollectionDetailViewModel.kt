@@ -1,4 +1,4 @@
-package com.enigmaticdevs.wallhaven.ui.screens.features.collections.detail
+package com.enigmaticdevs.wallhaven.ui.screens.collections.detail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
