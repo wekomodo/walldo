@@ -4,6 +4,7 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.enigmaticdevs.wallhaven.data.local.collections.legacy.LegacyImportDao
 
 
 @Database(
@@ -18,4 +19,5 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 abstract class CollectionsDatabase : RoomDatabase() {
     abstract fun collectionDao(): CollectionDao
+    abstract fun legacyImportDao(): LegacyImportDao
 }

@@ -20,6 +20,7 @@ import com.enigmaticdevs.wallhaven.data.billing.legacy.LegacyBillingReader
 import com.enigmaticdevs.wallhaven.data.local.SecureStorage
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionSyncManager
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionsDatabase
+import com.enigmaticdevs.wallhaven.data.local.collections.legacy.LegacyFavoritesMigration
 import com.enigmaticdevs.wallhaven.data.remote.ApiKeyProvider
 import com.enigmaticdevs.wallhaven.data.remote.WallhavenAPI
 import com.enigmaticdevs.wallhaven.data.remote.model.Objects.App
@@ -66,8 +67,9 @@ interface AppGraph : ViewModelGraph {
     val globalFilterRepository: GlobalFilterRepository
     val collectionSyncManager: CollectionSyncManager
     val legacyBillingMigration: LegacyBillingMigration
+    val legacyFavoritesMigration : LegacyFavoritesMigration
     val billingRepository: BillingRepository
-    val appScope: CoroutineScope  
+    val appScope: CoroutineScope
 
     @Binds
     val MyViewModelFactory.bind: MetroViewModelFactory

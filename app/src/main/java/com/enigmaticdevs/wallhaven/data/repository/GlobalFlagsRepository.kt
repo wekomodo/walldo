@@ -24,6 +24,8 @@ private object GlobalFlagsKeys {
 
 
     val LEGACY_BILLING_IMPORTED = booleanPreferencesKey("legacy_billing_imported")
+
+    val LEGACY_FAVORITES_IMPORTED = booleanPreferencesKey("legacy_favorites_imported")
 }
 
 @Inject
@@ -71,6 +73,16 @@ class GlobalFlagsRepository(
 
     fun updateLoginStatus(value : Boolean) = save {
         it[GlobalFlagsKeys.LOGIN_STATUS] = value
+    }
+
+
+    // ---- legacy favorites import marker ----
+
+    suspend fun isLegacyFavoritesImported(): Boolean =
+        dataStore.data.first()[GlobalFlagsKeys.LEGACY_FAVORITES_IMPORTED] ?: false
+
+    suspend fun markLegacyFavoritesImported() {
+        dataStore.edit { it[GlobalFlagsKeys.LEGACY_FAVORITES_IMPORTED] = true }
     }
 
 

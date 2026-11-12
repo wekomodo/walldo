@@ -31,6 +31,7 @@ class MyApp(): Application() {
 
             /** legacy billing migrations */
             appGraph.legacyBillingMigration.runIfNeeded()
+            appGraph.legacyFavoritesMigration.runIfNeeded()
             appGraph.billingRepository.refresh()
         }
     }

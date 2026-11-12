@@ -41,7 +41,7 @@ object StorageModule {
     @Provides
     fun provideCollectionsDatabase(context: Context): CollectionsDatabase =
         Room.databaseBuilder(context, CollectionsDatabase::class.java, "walldo_collections.db")
-            .fallbackToDestructiveMigration(true)
+            //.fallbackToDestructiveMigration(true)
             .addCallback(object : RoomDatabase.Callback() {
                 // runs once, when the file is first created: guarantees exactly one "Favorites"
                 override fun onCreate(db: SupportSQLiteDatabase) {
