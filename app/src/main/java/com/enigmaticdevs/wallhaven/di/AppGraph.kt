@@ -56,9 +56,6 @@ import kotlin.reflect.KClass
 
 val Context.filterDataStore: DataStore<Preferences> by preferencesDataStore(name = "filters")
 
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
-    name = "com.enigmaticdevs.wallhaven_dataStore"
-)
 
 @DependencyGraph(AppScope::class)
 interface AppGraph : ViewModelGraph {

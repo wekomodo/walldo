@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.map
 object PreferenceKeys {
     val DYNAMIC_COLORS = booleanPreferencesKey("dynamic_colors")
     val THEME = stringPreferencesKey("theme")
-    val API_KEY = stringPreferencesKey("api_key")
+    val API_KEY = stringPreferencesKey("wallhaven_api_key")
     val WALLPAPER_SETTER = stringPreferencesKey("wallpaper_setter") // Native vs Custom
 
     val USERNAME = stringPreferencesKey("username")
