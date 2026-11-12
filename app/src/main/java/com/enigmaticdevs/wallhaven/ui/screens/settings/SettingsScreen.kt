@@ -64,6 +64,7 @@ import com.enigmaticdevs.wallhaven.ui.presentation.PrefTopAppBar
 import com.enigmaticdevs.wallhaven.ui.presentation.UiText
 import com.enigmaticdevs.wallhaven.ui.presentation.UiText.ResourceString
 import com.enigmaticdevs.wallhaven.ui.presentation.asSource
+import com.enigmaticdevs.wallhaven.ui.screens.features.upgrade.ProDialog
 import com.enigmaticdevs.wallhaven.ui.theme.ThemeMode
 import dev.zacsweers.metrox.viewmodel.metroViewModel
 import kotlinx.coroutines.launch
@@ -80,6 +81,7 @@ fun SettingsScreen(
     var showApiKeyDialog by remember { mutableStateOf(false) }
     var showThemeDialog by remember { mutableStateOf(false) }
     var showLogoutDialog by remember { mutableStateOf(false) }
+    var showProStatusDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
     val scope = rememberCoroutineScope()
@@ -115,7 +117,16 @@ fun SettingsScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
+                .padding(bottom = 102.dp)
         ) {
+            CategoryTitle(ResourceString(R.string.upgrade))
+            ClickablePref(
+                text = ResourceString(R.string.upgrade),
+                description = ResourceString(R.string.upgrade_desc),
+                icon = if(!state.isPro)R.drawable.ic_upgrade else R.drawable.ic_logged_in
+            ) {
+                showProStatusDialog = true
+            }
             CategoryTitle(ResourceString(R.string.settings_category_appearance))
             ClickablePrefWithButton(
                 isChecked = state.dynamicColors,
@@ -221,6 +232,7 @@ fun SettingsScreen(
         )
 
     }
+    if (showProStatusDialog) ProDialog(onDismiss = { showProStatusDialog = false })
 
 }
 

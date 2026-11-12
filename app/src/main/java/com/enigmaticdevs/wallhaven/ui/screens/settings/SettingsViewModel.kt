@@ -38,7 +38,8 @@ data class SettingsUiState(
     val isLoaded: Boolean = false,
     val cacheSizeBytes: Long = 0L,
     val loginStatus : Boolean = false,
-    val username : String = ""
+    val username : String = "",
+    val isPro : Boolean = false
 )
 
 enum class KeyCheck { Idle, Checking, Invalid, NetworkError, Saved }
@@ -91,8 +92,9 @@ class SettingsViewModel(
         },
         cacheSize,
         globalFlagsRepository.loginStatus,
-        repository.usernameFlow
-    ) { repoState, size, loginStatus,username ->
+        repository.usernameFlow,
+        globalFlagsRepository.isPro
+    ) { repoState, size, loginStatus,username, ispro ->
         SettingsUiState(
             dynamicColors = repoState.colors,
             theme = ThemeMode.from(repoState.theme),
@@ -102,6 +104,7 @@ class SettingsViewModel(
             loginStatus = loginStatus,
             username = username,
             isLoaded = true,
+            isPro = ispro
         )
     }.stateIn(
         scope = viewModelScope,

@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
@@ -122,7 +123,13 @@ fun WallpaperListGrid(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = modifier
                 .fillMaxSize()
-                .padding(4.dp)
+                .padding(4.dp),
+            contentPadding = PaddingValues(
+                start = 4.dp,
+                top = 4.dp,
+                end = 4.dp,
+                bottom = 4.dp + 102.dp
+            ),
         ) {
             // Log.d("$TAG(wallpaperList)", photos.toString())
 
