@@ -91,8 +91,13 @@ class WallpaperDetailViewModel (
         viewModelScope.launch {
             if(shouldContain)
             {
-            val result = collectionsRepository.addWallpaper(wallpaper, collectionId)
-            _addResultEvent.send(result)
+            when(val result = collectionsRepository.addWallpaper(wallpaper, collectionId)){
+                is AddResult.NeedsMove ->{
+                    //for radiobutton events
+                    collectionsRepository.moveWallpaper(wallpaper,collectionId)
+                }
+                else -> _addResultEvent.send(result)
+            }
             }
             else {
                 collectionsRepository.removeWallpaper(wallpaper.id, collectionId)

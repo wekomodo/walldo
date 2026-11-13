@@ -151,6 +151,8 @@ abstract class CollectionDao {
     @Query("SELECT COUNT(*) FROM pending_op WHERE state = 'PENDING'")
     abstract suspend fun pendingCount(): Int
 
+    @Query("UPDATE collection_item SET collectionId = :toId WHERE wallpaperId = :wallpaperId AND collectionId = :fromId")
+    abstract suspend fun updateItemCollection(wallpaperId: String, fromId: Long, toId: Long)
     /** Wallpapers with an unsent add/remove. A pull must not overwrite or delete these. */
     @Query("SELECT wallpaperId FROM pending_op WHERE state = 'PENDING' AND wallpaperId IS NOT NULL")
     abstract suspend fun pendingWallpaperIds(): List<String>
@@ -338,8 +340,9 @@ abstract class CollectionDao {
     /** Moves a wallpaper between two synced collections: remove, then add (the site ignores a plain add). */
     @Transaction
     open suspend fun moveSynced(wallpaperId: String, from: CollectionEntity, to: CollectionEntity) {
-        deleteItem(wallpaperId, from.id)
-        insertItem(CollectionItemEntity(wallpaperId = wallpaperId, collectionId = to.id, syncedSlot = 1))
+        updateItemCollection(wallpaperId,from.id ,to.id)
+      //  deleteItem(wallpaperId, from.id)
+       // insertItem(CollectionItemEntity(wallpaperId = wallpaperId, collectionId = to.id, syncedSlot = 1))
         insertOp(PendingOpEntity(type = OpType.REMOVE, wallpaperId = wallpaperId))
         insertOp(PendingOpEntity(type = OpType.ADD, collectionId = to.id, wallpaperId = wallpaperId))
     }

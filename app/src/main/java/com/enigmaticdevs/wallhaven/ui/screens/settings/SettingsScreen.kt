@@ -209,6 +209,7 @@ fun SettingsScreen(
 
     if (showApiKeyDialog) {
         ApiKeyDialog(
+            isEnabled = !state.loginStatus,
             currentKey = state.apiKey, // pass from ViewModel
             onSave = viewModel::authenticateAPIkey,
             keyCheck = keyCheck,
@@ -302,6 +303,7 @@ fun Preview() {
 
 @Composable
 fun ApiKeyDialog(
+    isEnabled : Boolean,
     currentKey: String,
     onSave: (String) -> Unit,
     keyCheck: KeyCheck,
@@ -323,6 +325,7 @@ fun ApiKeyDialog(
         title = { Text("Enter API Key") },
         text = {
             OutlinedTextField(
+                enabled = isEnabled,
                 value = keyText,
                 // visualTransformation = VisualTransformation.None,
                 // textStyle = TextStyle(brush),

@@ -23,7 +23,7 @@ sealed interface AddResult {
 }
 
 data class CollectionMembership(
-    val collection: CollectionEntity,
+    val collection: CollectionCover,
     val contains: Boolean
 )
 
@@ -64,12 +64,12 @@ class CollectionsRepository(
 
     val isPro = globalFlagsRepository.proStatus
     fun observeMemberships(wallpaperId: String): Flow<List<CollectionMembership>> =
-        combine(dao.observeCollections(), dao.observeCollectionIdsOf(wallpaperId)) { allWithCount, activeIds ->
+        combine(dao.getCollectionsInfo("111"), dao.observeCollectionIdsOf(wallpaperId)) { covers, activeIds ->
             val activeSet = activeIds.toSet()
-            allWithCount.map { withCount ->
+            covers.map { cover ->
                 CollectionMembership(
-                    collection = withCount.collection,
-                    contains = withCount.collection.id in activeSet
+                    collection = cover,
+                    contains = cover.id in activeSet
                 )
             }
         }
@@ -113,10 +113,9 @@ class CollectionsRepository(
     suspend fun moveWallpaper(wallpaper: Wallpaper, toCollectionId: Long) {
         val to = dao.collection(toCollectionId) ?: return
         require(to.isSynced) { "Moves are only for synced collections" }
-        val fromId = dao.syncedCollectionOf(wallpaper.id)
-        when {
-            fromId == null -> dao.addItem(wallpaper, to)
-            fromId == toCollectionId -> Unit
+        when (val fromId = dao.syncedCollectionOf(wallpaper.id)) {
+            null -> dao.addItem(wallpaper, to)
+            toCollectionId -> Unit
             else -> dao.collection(fromId)?.let { dao.moveSynced(wallpaper.id, it, to) }
         }
     }
