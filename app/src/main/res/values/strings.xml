@@ -26,7 +26,7 @@
  <string name="filter_ratio_title">Aspect Ratio Filter</string>
  <string name="filter_ratio_desc">Only selected aspect ratios will be shown</string>
  <string name="filter_category_filter">Category Filter</string>
- <string name="filter_purity_filter">Purity Filter</string>
+ <string name="filter_purity_filter">Content Rating(Purity)</string>
 
  <!-- Auto Wallpaper -->
  <string name="autoWallpaper">Auto Wallpaper</string>
@@ -63,4 +63,6 @@
  <string name="autoWallpaper_device_orientation_desc">"Reschedule if device is in landscape "</string>
  <string name="autoWallpaper_select_screen">Select Screen</string>
  <string name="autoWallpaper_select_screen_desc"><![CDATA[Home & LockScreen]]></string>
+ <string name="filter_purity">SFW (Safe) • Sketchy (Suggestive) • NSFW (18+)</string>
+ <string name="filter_purity_helper_text">SFW (Safe) • Sketchy (Suggestive) • NSFW (18+)</string>
 </resources>

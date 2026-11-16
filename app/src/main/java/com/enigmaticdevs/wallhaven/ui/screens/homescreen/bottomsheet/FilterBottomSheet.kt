@@ -2,12 +2,15 @@ package com.enigmaticdevs.wallhaven.ui.screens.homescreen.bottomsheet
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetValue
+import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -16,7 +19,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.enigmaticdevs.wallhaven.R
 import com.enigmaticdevs.wallhaven.data.repository.FilterState
 import com.enigmaticdevs.wallhaven.ui.presentation.CategoryTitle
@@ -107,6 +112,11 @@ fun FilterBottomSheetContent(
         )
         HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
         CategoryTitle(ResourceString(R.string.filter_purity_filter))
+        Text(
+            modifier = Modifier.padding(start = 8.dp),
+            text = stringResource(R.string.filter_purity_helper_text),
+            style = MaterialTheme.typography.bodySmall
+        )
         MultiChoiceSegmentedButton(
             options = purity,
             currentSelection = filterState.purity,

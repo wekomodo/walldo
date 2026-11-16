@@ -5,6 +5,8 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredSize
+import android.util.Log
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,12 +21,25 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntSize
+import coil3.compose.AsyncImagePainter
 import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest
+import com.enigmaticdevs.wallhaven.ui.presentation.ErrorOccurred
 import coil3.size.Size as CoilSize
+import kotlinx.coroutines.delay
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.time.Duration.Companion.milliseconds
 
+private const val LOAD_TIMEOUT_MS = 20_000L
+
+/**
+ * Zoomable image with a built-in error state.
+ *
+ * Retry works by wrapping the real implementation in key(retryKey): bumping the key throws away
+ * the old painter and zoom state, so a brand-new load is always started (Coil would otherwise
+ * ignore a rebuilt request that equals the failed one).
+ */
 @Composable
 fun PhotoView(
     model: Any?,
@@ -33,6 +48,30 @@ fun PhotoView(
     fillScreen: Boolean = false,
     maxZoom: Float = 4f,
     doubleTapZoom: Float = 2.5f,
+) {
+    var retryKey by remember { mutableIntStateOf(0) }
+    key(retryKey) {
+        PhotoViewContent(
+            model = model,
+            modifier = modifier,
+            contentDescription = contentDescription,
+            fillScreen = fillScreen,
+            maxZoom = maxZoom,
+            doubleTapZoom = doubleTapZoom,
+            onRetry = { retryKey++ },
+        )
+    }
+}
+
+@Composable
+private fun PhotoViewContent(
+    model: Any?,
+    modifier: Modifier,
+    contentDescription: String?,
+    fillScreen: Boolean,
+    maxZoom: Float,
+    doubleTapZoom: Float,
+    onRetry: () -> Unit,
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
@@ -44,7 +83,22 @@ fun PhotoView(
         }.size(CoilSize(2048, 2048)).build()
     }
     val painter = rememberAsyncImagePainter(request)
+    val state by painter.state.collectAsState()
     val intrinsic = painter.intrinsicSize
+
+    val isLoading = state is AsyncImagePainter.State.Loading ||
+            state is AsyncImagePainter.State.Empty
+
+    // A hung connection never reports an error, so treat a long load as a failure too
+    var stalled by remember { mutableStateOf(false) }
+    LaunchedEffect(isLoading) {
+        stalled = false
+        if (isLoading) {
+            delay(LOAD_TIMEOUT_MS.milliseconds)
+            stalled = true
+        }
+    }
+    LaunchedEffect(state) { Log.d("PhotoView", "state = ${state::class.simpleName}") }
 
     var boxSize by remember { mutableStateOf(IntSize.Zero) }
     var zoom by remember { mutableFloatStateOf(1f) }
@@ -67,7 +121,7 @@ fun PhotoView(
         baseH = boxSize.height.toFloat()
     }
 
-    // Keep the image edges from leaving the box (this is the part ZoomableBox got wrong)
+    // Keep the image edges from leaving the box
     fun clamp(o: Offset, z: Float): Offset {
         val maxX = max(0f, (baseW * z - boxSize.width) / 2f)
         val maxY = max(0f, (baseH * z - boxSize.height) / 2f)
@@ -119,5 +173,17 @@ fun PhotoView(
                     translationY = offset.y
                 }
         )
+
+        // Drawn after the Image so it sits on top and receives taps
+        when {
+            state is AsyncImagePainter.State.Error ->
+                ErrorOccurred("Couldn't load image\nTap to retry", onRetry = onRetry)
+
+            isLoading && stalled ->
+                ErrorOccurred("Taking too long\nTap to retry", onRetry = onRetry)
+
+            // the blurry thumbnail is only a placeholder, so say the full image is still coming
+            isLoading -> CircularProgressIndicator()
+        }
     }
 }

@@ -45,6 +45,7 @@ fun ErrorOccurred(
             onClick = onRetry
         ) {
             Icon(imageVector = Icons.Rounded.Refresh, contentDescription = "Retry")
+            Text("Retry")
         }
     }
 }

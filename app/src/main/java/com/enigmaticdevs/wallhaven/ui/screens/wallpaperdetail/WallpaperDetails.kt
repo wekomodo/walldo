@@ -1,35 +1,32 @@
 package com.enigmaticdevs.wallhaven.ui.screens.wallpaperdetail
 
 import android.content.ClipData
-import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -37,6 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,7 +43,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.ClipEntry
@@ -55,25 +52,25 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil3.request.ImageRequest
-import coil3.request.crossfade
-import com.enigmaticdevs.wallhaven.R
-import com.enigmaticdevs.wallhaven.data.remote.model.WallpaperDetail
-import com.enigmaticdevs.wallhaven.ui.screens.wallpaperdetail.bottomsheet.InfoBottomSheet
-import com.enigmaticdevs.wallhaven.ui.util.PhotoView
-import dev.zacsweers.metrox.viewmodel.metroViewModel
 import androidx.core.graphics.toColorInt
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.request.ImageRequest
+import coil3.request.crossfade
+import coil3.size.Size
 import com.enigmaticdevs.wallhaven.LocalToastTrigger
+import com.enigmaticdevs.wallhaven.R
+import com.enigmaticdevs.wallhaven.data.remote.model.WallpaperDetail
 import com.enigmaticdevs.wallhaven.ui.screens.wallpaperdetail.bottomsheet.CollectionsSheet
+import com.enigmaticdevs.wallhaven.ui.screens.wallpaperdetail.bottomsheet.InfoBottomSheet
 import com.enigmaticdevs.wallhaven.ui.util.DownloadListener
 import com.enigmaticdevs.wallhaven.ui.util.DownloadUtils
+import com.enigmaticdevs.wallhaven.ui.util.PhotoView
 import com.enigmaticdevs.wallhaven.ui.util.downloadWallpaper
 import com.enigmaticdevs.wallhaven.ui.util.rememberDownloadStarter
 import com.enigmaticdevs.wallhaven.ui.util.setAsWallpaperWithSystem
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlin.collections.firstOrNull
 import kotlin.coroutines.cancellation.CancellationException
 
 
@@ -87,7 +84,7 @@ fun WallpaperDetailScreen(
     viewModel: WallpaperDetailViewModel = metroViewModel()
 ) {
     Log.d("$TAG(wallpaperId)", wallpaperId)
-    val wallpaper = viewModel.wallpaper.collectAsState().value
+    val wallpaper = viewModel.wallpaper.collectAsState()
     val memberships by viewModel.memberships.collectAsStateWithLifecycle()
     var showSheet by remember { mutableStateOf(false) }
     val isFavorite by viewModel.isFavorite.collectAsStateWithLifecycle()
@@ -100,14 +97,14 @@ fun WallpaperDetailScreen(
     WallpaperDetailScreenContent(
         isFavorite = isFavorite,
         onFavoriteClick = { showSheet = true },
-        wallpaper = wallpaper,
+        wallpaper = wallpaper.value,
         onBack = onBack,
         onTagClick = { tag ->
             viewModel.searchTag(tag)
             onTagClick()
         },
         onSetAsWallpaperClick = {
-            wallpaper?.let { w ->
+            wallpaper.value?.let { w ->
                 if (!isPreparing) scope.launch {
                     isPreparing = true
                     try {
@@ -148,11 +145,13 @@ fun WallpaperDetailScreenContent(
 ) {
     var showInfoSheet by remember { mutableStateOf(false) }
     var currentDownload by remember { mutableLongStateOf(-1L) }
+    var showRetry by remember { mutableStateOf(false) }
+    var attempt by remember { mutableIntStateOf(0) }
     val startDownload = rememberDownloadStarter()
     val scope = rememberCoroutineScope()
     val showToast = LocalToastTrigger.current
     val context = LocalContext.current
-    val clipboardManager = LocalClipboard.current
+    val clipboard = LocalClipboard.current
 
     if (currentDownload != -1L) {
         DownloadListener(currentDownload) { uri ->
@@ -211,108 +210,103 @@ fun WallpaperDetailScreenContent(
                 }
             )
         },
-        content = { paddingValues ->
-            // Text(modifier = Modifier.padding(paddingValues), text = "")
-            Column(
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxHeight(.92f)
-                        .fillMaxWidth()
-                        .padding(bottom = 8.dp)
-                        .shadow(elevation = 8.dp, shape = RoundedCornerShape(8.dp))
-                        // 2. Clip the content to match the shadow's shape
-                        .clip(RoundedCornerShape(8.dp))
-                ) {
-
-                    wallpaper?.let {
-                        /*  ZoomableBox(
-                              modifier = Modifier.fillMaxSize()
-                          ) {*/
-                        PhotoView(
-                            model = ImageRequest.Builder(LocalContext.current)
-                                .data(wallpaper.data.path).crossfade(true)
-                                .placeholderMemoryCacheKey(it.data.id).build(),
-                            // contentDescription = "Wallpaper Image",
-                            fillScreen = true,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                        /* }*/
-                        if (showInfoSheet)
-                            InfoBottomSheet(
-                                wallpaperInfo = wallpaper.data,
-                                onTagClick = onTagClick,
-                                onDismiss = {
-                                    showInfoSheet = false
-                                })
-                    } ?: run {
-                        CenteredLoadingIndicator()
-                    }
-
-                    ExtendedFloatingActionButton(
-                        modifier = Modifier
-                            .padding(end = 8.dp, bottom = 8.dp)
-                            .align(Alignment.BottomEnd),
-                        elevation = FloatingActionButtonDefaults.elevation(8.dp),
-                        onClick = {
-                            onSetAsWallpaperClick()
-                        },
-                        icon = {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_wallpaper),
-                                contentDescription = "Info"
-                            )
-                        },
-                        text = { Text("Set as wallpaper") }
-
+                    .padding(end = 8.dp, bottom = 8.dp),
+                elevation = FloatingActionButtonDefaults.elevation(8.dp),
+                onClick = {
+                    onSetAsWallpaperClick()
+                },
+                icon = {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_wallpaper),
+                        contentDescription = "Info"
                     )
+                },
+                text = { Text("Set as wallpaper") }
 
-
-                }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(end = 8.dp, start = 8.dp),
-                    horizontalArrangement = Arrangement.Start
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .fillMaxWidth(.8f)
-                    )
-                    {
-                        wallpaper?.let {
-                            CircleColorPalette(
-                                colors = wallpaper.data.colors,
-                                onClick = {
-                                    copyToClipboard(clipboardManager, it, scope, context)
-                                })
-                        } ?: run {
-                            CenteredLoadingIndicator()
-                        }
-                    }
-                    FilledIconButton(
-                        modifier = Modifier.fillMaxSize(),
-                        onClick = {
-                            onFavoriteClick()
-                            // Toast.makeText(context, "Favorite Clicked : $isFavorite", Toast.LENGTH_SHORT).show()
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.Add,
-                            contentDescription = "Favorite Icon"
+            )
+        },
+    ) { padding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
+                .clip(RoundedCornerShape(24.dp))
+        ) {
+            if (wallpaper == null) {
+                CenteredLoadingIndicator()
+            } else {
+                val context = LocalContext.current
+                val request = remember(wallpaper.data.path, attempt) {
+                    ImageRequest.Builder(context)
+                        .data(wallpaper.data.path)
+                        .crossfade(false)
+                        .size(Size.ORIGINAL)
+                        .placeholderMemoryCacheKey(wallpaper.data.id)
+                        .listener(
+                            onError = { _, result ->
+                                Log.e(
+                                    "WallpaperImage",
+                                    "Load failed: ${wallpaper.data.path}",
+                                    result.throwable
+                                )
+                            },
+                            onCancel = { Log.w("WallpaperImage", "Load cancelled") },
                         )
-                    }
-
-                    /*Spacer(
-                        modifier = Modifier.weight(1f)
-                    )*/
+                        .build()
                 }
+                PhotoView(
+                    model = request,
+                    fillScreen = true,
+                    modifier = Modifier.fillMaxSize()
+                )
+                // Top end: add to collection / favorite state
+                FilledTonalIconButton(
+                    onClick = onFavoriteClick,
+                    enabled = isFavorite != null,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(12.dp),
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_bookmark_heart),
+                        contentDescription = "Add to collection",
+                    )
+                }
+
+                // Bottom start: palette. Vertical so it never competes with the FAB for width.
+                CircleColorPalette(
+                    colors = wallpaper.data.colors,
+                    onClick = { hex -> copyToClipboard(clipboard, hex, scope) },
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(16.dp),
+                )
+
+                // Bottom end: primary action
+                ExtendedFloatingActionButton(
+                    onClick = onSetAsWallpaperClick,
+                    icon = {
+                        Icon(painterResource(R.drawable.ic_wallpaper), contentDescription = null)
+                    },
+                    text = { Text("Set as wallpaper") },
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(16.dp),
+                )
             }
-        })
+        }
+    }
+    if (showInfoSheet && wallpaper != null)
+        InfoBottomSheet(
+            wallpaperInfo = wallpaper.data,
+            onTagClick = onTagClick,
+            onDismiss = {
+                showInfoSheet = false
+            })
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -326,7 +320,7 @@ fun CenteredLoadingIndicator() {
 }
 
 
-fun copyToClipboard(clipboard: Clipboard, color: String, scope: CoroutineScope, context: Context) {
+fun copyToClipboard(clipboard: Clipboard, color: String, scope: CoroutineScope) {
     scope.launch {
         clipboard.setClipEntry(
             ClipEntry(
@@ -336,37 +330,44 @@ fun copyToClipboard(clipboard: Clipboard, color: String, scope: CoroutineScope, 
                 )
             )
         )
-        Toast.makeText(context, "$color copied!", Toast.LENGTH_SHORT).show()
+        //   Toast.makeText(context, "$color copied!", Toast.LENGTH_SHORT).show()
     }
 }
 
 @Composable
-fun CircleColorPalette(colors: List<String>, onClick: (String) -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxSize()
+fun CircleColorPalette(
+    colors: List<String>,
+    onClick: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(28.dp),
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.75f),
+        tonalElevation = 2.dp,
     ) {
-        colors.forEach { hexString ->
-            // 2. Convert the Hex string to a Compose Color safely
-            val color = try {
-                Color(hexString.toColorInt())
+        Column(
+            modifier = Modifier.padding(6.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            colors.forEach { hex ->
+                val color = runCatching { Color(hex.toColorInt()) }
+                    .getOrDefault(Color.Transparent)
 
-            } catch (e: Exception) {
-                Color.Transparent // Fallback in case of a bad hex code
+                Box(
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clip(CircleShape)
+                        .background(color)
+                        // thin outline so very light/dark swatches don't vanish
+                        .border(
+                            1.dp,
+                            MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
+                            CircleShape
+                        )
+                        .clickable(onClickLabel = "Copy $hex") { onClick(hex) }
+                )
             }
-
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(8.dp)// Size of your circles
-                    .aspectRatio(1f)
-                    .clip(CircleShape) // Makes it perfectly round
-                    .background(color = color)
-                    .clickable {
-                        // 4. Copy to clipboard on tap
-                        onClick(hexString)
-                    }
-
-            )
         }
     }
 }

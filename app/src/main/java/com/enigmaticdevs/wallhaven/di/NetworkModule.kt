@@ -22,6 +22,7 @@ import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.serialization.kotlinx.json.json
@@ -67,7 +68,11 @@ object NetworkModule {
     @Named("images")
     @SingleIn(AppScope::class)
     @Provides
-    fun provideImageHttpClient(): HttpClient = HttpClient(CIO)
+    fun provideImageHttpClient(): HttpClient = HttpClient(CIO) {
+        install(HttpTimeout){
+            requestTimeoutMillis = 30_000L // 30 seconds
+        }
+    }
 
 
     // --- COIL 3 IMAGE LOADER ADDITION ---
