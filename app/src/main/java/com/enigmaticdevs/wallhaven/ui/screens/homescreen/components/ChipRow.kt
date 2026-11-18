@@ -19,10 +19,10 @@ fun SortChipRow(
 ) {
     val sortOptions = listOf(
         Sorting.topList,
-        Sorting.dateAdded,
-        Sorting.views,
-        Sorting.favorites,
         Sorting.relevance,
+        Sorting.favorites,
+        Sorting.views,
+        Sorting.dateAdded
     )
 
     LazyRow(

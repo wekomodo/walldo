@@ -2,6 +2,7 @@ package com.enigmaticdevs.wallhaven.ui.screens.homescreen.components
 
 import android.graphics.Color.HSVToColor
 import android.graphics.Color.colorToHSV
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,8 +12,10 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ContainedLoadingIndicator
@@ -26,31 +29,28 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.toColorInt
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import com.enigmaticdevs.wallhaven.data.remote.model.Wallpaper
-import com.enigmaticdevs.wallhaven.ui.presentation.ErrorOccurred
-import com.enigmaticdevs.wallhaven.ui.util.aspectRatio
-import androidx.core.graphics.toColorInt
 import com.enigmaticdevs.wallhaven.LocalToastTrigger
 import com.enigmaticdevs.wallhaven.R
 import com.enigmaticdevs.wallhaven.domain.pagingsource.WallpaperListItem
+import com.enigmaticdevs.wallhaven.ui.presentation.ErrorOccurred
+import com.enigmaticdevs.wallhaven.ui.util.aspectRatio
 import com.enigmaticdevs.wallhaven.ui.util.rememberDownloadStarter
 import com.enigmaticdevs.wallhaven.ui.util.rememberPermissionUtilsState
 
 
 val TAG = "WallpaperListScreen"
-
-
 
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -170,24 +170,23 @@ fun WallpaperCard(wallpaper: WallpaperListItem, onPhotoClick: (String) -> Unit) 
                     .crossfade(true)
                     .memoryCacheKey(wallpaper.id)
                     .build(),
-               // placeholder = ColorPainter(getGreenShade(wallpaper.colors[0])),
+                // placeholder = ColorPainter(getGreenShade(wallpaper.colors[0])),
                 contentScale = ContentScale.Crop,
                 contentDescription = "image_name"
             )
         }
-
         IconButton(
-            modifier = Modifier.align(Alignment.BottomEnd),
+            modifier = Modifier.clip(CircleShape)
+                .background(Color.Black.copy(alpha = 0.45f))
+                .align(Alignment.BottomEnd),
             onClick = {
-
             }
         ) {
             Icon(
                 painter = painterResource(R.drawable.ic_download),
-                contentDescription = "favorite toggle"
+                contentDescription = "Download Button"
             )
         }
-
     }
 
 

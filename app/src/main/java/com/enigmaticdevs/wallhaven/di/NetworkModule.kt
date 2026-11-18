@@ -70,7 +70,9 @@ object NetworkModule {
     @Provides
     fun provideImageHttpClient(): HttpClient = HttpClient(CIO) {
         install(HttpTimeout){
-            requestTimeoutMillis = 30_000L // 30 seconds
+            // Give slow connections plenty of time to finish as long as bytes keep flowing
+            requestTimeoutMillis = 60_000L
+            socketTimeoutMillis = 15_000L
         }
     }
 

@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.enigmaticdevs.wallhaven.R
+import com.enigmaticdevs.wallhaven.data.remote.model.Objects.Sorting
 import com.enigmaticdevs.wallhaven.data.remote.model.Wallpaper
 import com.enigmaticdevs.wallhaven.data.remote.model.local.WallhavenAPIparams
 import com.enigmaticdevs.wallhaven.domain.pagingsource.WallpaperListItem
@@ -67,7 +68,6 @@ fun HomeScreen(
 ) {
     val currentFilters by viewModel.globalFilterRepository.filters.collectAsState()
     val lazyWallpapers = viewModel.wallpapers.collectAsLazyPagingItems()
-    val activeSort by viewModel.activeSort.collectAsState()
     val textFieldState = rememberTextFieldState()
     LaunchedEffect(Unit) {
         viewModel.savedQuery.filterNotNull().collect {
@@ -77,7 +77,7 @@ fun HomeScreen(
 
     LaunchedEffect(key1 = currentFilters) {
         val params = WallhavenAPIparams(
-            sorting = activeSort,
+            sorting = currentFilters.sorting,
             purity = currentFilters.purity,
             category = currentFilters.category,
             ratio = currentFilters.ratio,
@@ -87,7 +87,7 @@ fun HomeScreen(
     }
     HomeScreenContent(
         textFieldState = textFieldState,
-        activeSort = activeSort,
+        activeSort = currentFilters.sorting,
         wallpapers = lazyWallpapers,
         onPhotoClick = onPhotoClick,
         updateSort = { viewModel.updateSort(it) },
@@ -185,10 +185,10 @@ fun HomeScreenContent(
                     searchResults = emptyList(), // Hook this up to local search history later
                     onSearch = { query ->
                         onSearch(query)
-                        /*if (query.isNotBlank())
+                        if (query.isNotBlank())
                         updateSort(Sorting.relevance)
                     else
-                        updateSort(Sorting.topList)*/
+                        updateSort(Sorting.topList)
                     },
                     onFilterClick = {
                         showFilterSheet = true

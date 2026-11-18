@@ -76,7 +76,7 @@ class HomeViewModel(
     fun triggerSearch(query: String) = savedQueries.set(QueryNames.HOME,query)
 
     fun updateSort(newSort: String) {
-        _activeSort.value = newSort
+        globalFilterRepository.updateSort(newSort)
     }
 
 }

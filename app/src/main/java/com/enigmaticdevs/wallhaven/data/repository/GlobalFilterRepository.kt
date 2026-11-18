@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.enigmaticdevs.wallhaven.data.remote.model.Objects.Sorting
 import com.enigmaticdevs.wallhaven.data.remote.model.Objects.TopRange
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
@@ -26,6 +27,7 @@ data class FilterState(
     val ratio: String = "",
     val resolution: String = "",
     val topRange: String = TopRange.oneYear,
+    val sorting : String = Sorting.topList,
     val isLoaded: Boolean = false //  false until Datastore is emitted once
 )
 
@@ -43,6 +45,8 @@ class GlobalFilterRepository(
         val RATIO = stringPreferencesKey("filter_ratio")
         val RESOLUTION = stringPreferencesKey("filter_resolution")
         val TOP_RANGE = stringPreferencesKey("filter_topRange")
+
+        val SORTING = stringPreferencesKey("filter_sorting")
     }
 
     private val defaults = FilterState()
@@ -55,6 +59,7 @@ class GlobalFilterRepository(
             ratio = p[FilterKeys.RATIO] ?: defaults.ratio,
             resolution = p[FilterKeys.RESOLUTION] ?: defaults.resolution,
             topRange = p[FilterKeys.TOP_RANGE] ?: defaults.topRange,
+            sorting = p[FilterKeys.SORTING] ?: defaults.sorting,
             isLoaded = true
         )
     }.stateIn(
@@ -76,6 +81,8 @@ class GlobalFilterRepository(
     fun updateRatios(ratio: String) = save { it[FilterKeys.RATIO] = ratio }
 
     fun updateTopRange(topRange: String) =  save { it[FilterKeys.TOP_RANGE] = topRange }
+
+    fun updateSort(sorting : String) = save { it[FilterKeys.SORTING] = sorting }
 
     fun updateFilters(
         purity: String, category: String, ratio: String, resolution: String, topRange: String
