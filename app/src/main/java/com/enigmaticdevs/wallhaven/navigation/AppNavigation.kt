@@ -24,6 +24,7 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.enigmaticdevs.wallhaven.LocalToastTrigger
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionCover
+import com.enigmaticdevs.wallhaven.data.remote.model.Tag
 import com.enigmaticdevs.wallhaven.ui.presentation.DynamicToastOverlay
 import com.enigmaticdevs.wallhaven.ui.presentation.FloatingNavBar
 import com.enigmaticdevs.wallhaven.ui.screens.autowallpaper.AutoWallpaperRoute
@@ -32,6 +33,7 @@ import com.enigmaticdevs.wallhaven.ui.screens.collections.CollectionsRoute
 import com.enigmaticdevs.wallhaven.ui.screens.login.WallhavenLoginRoute
 import com.enigmaticdevs.wallhaven.ui.screens.homescreen.HomeScreen
 import com.enigmaticdevs.wallhaven.ui.screens.settings.SettingsScreen
+import com.enigmaticdevs.wallhaven.ui.screens.tagwallpapers.TagWallpapersRoute
 import com.enigmaticdevs.wallhaven.ui.screens.wallpaperdetail.WallpaperDetailScreen
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -60,6 +62,10 @@ sealed interface Screen : NavKey {
 
     @Serializable
     data class CollectionDetail(val item : CollectionCover) : Screen
+    @Serializable
+    data class TagWallpapers(
+        val tag : Tag
+    ) : Screen
 }
 
 @Composable
@@ -144,7 +150,7 @@ fun AppNavigation() {
                     WallpaperDetailScreen(
                         wallpaperId = route.wallpaperId,
                         onBack = { nav.removeLast() },
-                        onTagClick = { nav.switchTopLevel(Screen.Home) }
+                        onTagClick = { nav.add(Screen.TagWallpapers(it)) }
                     )
                 }
                         entry < Screen . WallhavenLogin > {
@@ -153,6 +159,15 @@ fun AppNavigation() {
                         // nav.switchTopLevel(Screen.Home)
                     })
                 }
+                    entry<Screen.TagWallpapers> { route ->
+                        TagWallpapersRoute(
+                            tag = route.tag,
+                            onBack = { nav.removeLast() },
+                            onWallpaperClick = { id ->
+                                nav.add(Screen.WallpaperDetail(id))
+                            }
+                        )
+                    }
         }
         )
 

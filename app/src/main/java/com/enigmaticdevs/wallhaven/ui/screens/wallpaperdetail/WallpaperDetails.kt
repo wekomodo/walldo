@@ -59,6 +59,7 @@ import coil3.request.crossfade
 import coil3.size.Size
 import com.enigmaticdevs.wallhaven.LocalToastTrigger
 import com.enigmaticdevs.wallhaven.R
+import com.enigmaticdevs.wallhaven.data.remote.model.Tag
 import com.enigmaticdevs.wallhaven.data.remote.model.WallpaperDetail
 import com.enigmaticdevs.wallhaven.ui.screens.wallpaperdetail.bottomsheet.CollectionsSheet
 import com.enigmaticdevs.wallhaven.ui.screens.wallpaperdetail.bottomsheet.InfoBottomSheet
@@ -80,7 +81,7 @@ private val TAG = "WallpaperDetailScreen"
 fun WallpaperDetailScreen(
     wallpaperId: String,
     onBack: () -> Unit,
-    onTagClick: () -> Unit,
+    onTagClick: (Tag) -> Unit,
     viewModel: WallpaperDetailViewModel = metroViewModel()
 ) {
     Log.d("$TAG(wallpaperId)", wallpaperId)
@@ -99,10 +100,7 @@ fun WallpaperDetailScreen(
         onFavoriteClick = { showSheet = true },
         wallpaper = wallpaper.value,
         onBack = onBack,
-        onTagClick = { tag ->
-            viewModel.searchTag(tag)
-            onTagClick()
-        },
+        onTagClick = onTagClick,
         onSetAsWallpaperClick = {
             wallpaper.value?.let { w ->
                 if (!isPreparing) scope.launch {
@@ -140,7 +138,7 @@ fun WallpaperDetailScreenContent(
     onFavoriteClick: () -> Unit,
     wallpaper: WallpaperDetail?,
     onBack: () -> Unit,
-    onTagClick: (String) -> Unit,
+    onTagClick: (Tag) -> Unit,
     onSetAsWallpaperClick: () -> Unit
 ) {
     var showInfoSheet by remember { mutableStateOf(false) }

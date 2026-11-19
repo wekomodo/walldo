@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import androidx.paging.map
-import com.enigmaticdevs.wallhaven.data.remote.model.objects.Sorting
 import com.enigmaticdevs.wallhaven.data.remote.model.local.WallhavenAPIparams
 import com.enigmaticdevs.wallhaven.data.repository.GlobalFilterRepository
 import com.enigmaticdevs.wallhaven.data.repository.WallpaperRepository
@@ -16,11 +15,10 @@ import dev.zacsweers.metro.ContributesIntoMap
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metrox.viewmodel.ViewModelKey
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
@@ -33,29 +31,26 @@ import kotlinx.coroutines.flow.stateIn
 class HomeViewModel(
     val globalFilterRepository: GlobalFilterRepository,
     private val repository: WallpaperRepository,
-    private val savedQueries : SavedQueries
+    private val savedQueries: SavedQueries
 
-): ViewModel() {
+) : ViewModel() {
 
     //Search Query State (blank by default
-    val savedQuery : StateFlow<String?> = savedQueries.observe(QueryNames.HOME)
-        .stateIn(viewModelScope, SharingStarted.Eagerly,null)
+    val savedQuery: StateFlow<String?> = savedQueries.observe(QueryNames.HOME)
+        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
     private val query = savedQuery.filterNotNull()
 
     //sort chip State
-    private val _activeSort = MutableStateFlow(Sorting.topList)
-    val activeSort = _activeSort.asStateFlow()
+    /* private val _activeSort = MutableStateFlow(Sorting.topList)
+     val activeSort = _activeSort.asStateFlow()*/
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val wallpapers  = combine(
+    val wallpapers = combine(
         query,
-        _activeSort,
         globalFilterRepository.filters
-    ) { query, sort, filters ->
-        Triple(query, sort, filters)
-    }.flatMapLatest { (query, sort, filterState) ->
+    ) { query, filterState ->
 
-        val params = WallhavenAPIparams(
+        query to WallhavenAPIparams(
             purity = filterState.purity,
             category = filterState.category,
             ratio = filterState.ratio,
@@ -63,14 +58,16 @@ class HomeViewModel(
             topRange = filterState.topRange,
             sorting = filterState.sorting
         )
-        // Triggers the repository automatically whenever any of the 3 states change
-        repository.getWallpapers(params, query)
+    }
+        .distinctUntilChanged()
+        .flatMapLatest { (query, params) ->
+            // Triggers the repository automatically whenever any of the 3 states change
+            repository.getWallpapers(params, query)
+        }.map { pagingData ->
+            pagingData.map { it.toListItem() }
+        }.cachedIn(viewModelScope)
 
-    }.map { pagingData ->
-        pagingData.map { it.toListItem() }
-    }.cachedIn(viewModelScope)
-
-    fun triggerSearch(query: String) = savedQueries.set(QueryNames.HOME,query)
+    fun triggerSearch(query: String) = savedQueries.set(QueryNames.HOME, query)
 
     fun updateSort(newSort: String) {
         globalFilterRepository.updateSort(newSort)

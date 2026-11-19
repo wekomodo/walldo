@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
@@ -31,11 +32,16 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.enigmaticdevs.wallhaven.R
 import com.enigmaticdevs.wallhaven.ui.screens.features.pro.ProViewModel
 import dev.zacsweers.metrox.viewmodel.metroViewModel
 
@@ -188,12 +194,23 @@ private fun FeatureRow(feature: ProFeature) {
 private fun ThankYouDialog(onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Thank you!") },
+        title = { Text(stringResource(R.string.thanks)) },
         text = {
-            Text(
-                "You've upgraded to Walldo Pro. Thanks for supporting the app, " +
-                    "it genuinely helps keep it going."
-            )
+            Row(
+
+            ) {
+                Icon(
+                    modifier = Modifier.size(48.dp).padding(horizontal = 4.dp),
+                    tint = Color.Unspecified,
+                    painter = painterResource(R.drawable.ic_thanks_heart),
+                    contentDescription = stringResource(R.string.thanks)
+                )
+                Text(
+                    "You've upgraded to Walldo Pro. Thanks for supporting the app, " +
+                            "it genuinely helps keep it going."
+                )
+            }
+
         },
         confirmButton = {
             TextButton(onClick = onDismiss) { Text("Close") }

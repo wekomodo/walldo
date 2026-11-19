@@ -2,6 +2,11 @@ package com.enigmaticdevs.wallhaven.ui.screens.collections
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.Constraints
+import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionSyncManager
 import com.enigmaticdevs.wallhaven.data.local.collections.SyncState
 import com.enigmaticdevs.wallhaven.data.remote.model.RemoteCollections
@@ -11,6 +16,7 @@ import com.enigmaticdevs.wallhaven.data.repository.GlobalFilterRepository
 import com.enigmaticdevs.wallhaven.data.repository.SettingsRepository
 import com.enigmaticdevs.wallhaven.data.repository.WallpaperRepository
 import com.enigmaticdevs.wallhaven.ui.screens.collections.components.CreateCollectionRequest
+import com.enigmaticdevs.wallhaven.work.CollectionSyncWorker
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesIntoMap
 import dev.zacsweers.metro.Inject
@@ -35,7 +41,8 @@ class CollectionsViewModel(
     private val repository: WallpaperRepository,
     private val syncManager : CollectionSyncManager,
     private val settings: SettingsRepository,
-    private val globalFilterRepository: GlobalFilterRepository
+    private val globalFilterRepository: GlobalFilterRepository,
+    private val workManager: WorkManager
 ) : ViewModel() {
 
     // Track ongoing progress
@@ -50,7 +57,11 @@ class CollectionsViewModel(
         )
     )
 
-    val syncStates = syncManager.syncState
+  //  val syncStates = syncManager.syncState
+
+    //pull to refresh box
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing = _isRefreshing.asStateFlow()
 
     // Track the final result for error handling
     val lastSyncResult = syncManager.lastResult
@@ -104,6 +115,34 @@ class CollectionsViewModel(
             }.getOrNull() ?: return@launch
             // val result = collectionsRepository.addWallpaper(wallpaper, id)
             // _addResultEvent.send(result)
+        }
+    }
+
+    fun refresh(){
+        if (_isRefreshing.value) return
+        viewModelScope.launch {
+            _isRefreshing.value = true
+            try {
+                syncManager.requestSync()
+                // 2. Enqueue background worker to finish pulling any multi-page collections
+                val request = OneTimeWorkRequestBuilder<CollectionSyncWorker>()
+                    .setConstraints(
+                        Constraints.Builder()
+                            .setRequiredNetworkType(NetworkType.CONNECTED)
+                            .build()
+                    )
+                    .build()
+
+                workManager.enqueueUniqueWork(
+                    "collection_sync",
+                    ExistingWorkPolicy.KEEP,
+                    request
+                )
+            } finally {
+                // Spinner dismisses as soon as the fast phase finishes;
+                // SyncProgressIndicator tracks the remaining pages
+                _isRefreshing.value = false
+            }
         }
     }
 

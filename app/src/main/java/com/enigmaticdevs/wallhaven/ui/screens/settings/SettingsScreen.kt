@@ -102,9 +102,9 @@ fun SettingsScreen(
 
     Scaffold(
         topBar = {
-            PrefTopAppBar("Settings") {
-                onBack()
-            }
+            PrefTopAppBar(
+                title = "Settings",
+                onBack = onBack)
         },
         snackbarHost = {
             SnackbarHost(hostState = snackBarHostState)

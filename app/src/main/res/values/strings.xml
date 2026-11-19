@@ -65,4 +65,5 @@
  <string name="autoWallpaper_select_screen_desc"><![CDATA[Home & LockScreen]]></string>
  <string name="filter_purity">SFW (Safe) • Sketchy (Suggestive) • NSFW (18+)</string>
  <string name="filter_purity_helper_text">SFW (Safe) • Sketchy (Suggestive) • NSFW (18+)</string>
+    <string name="thanks">Thank you!</string>
 </resources>

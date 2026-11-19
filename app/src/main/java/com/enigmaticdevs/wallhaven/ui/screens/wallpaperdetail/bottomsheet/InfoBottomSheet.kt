@@ -26,7 +26,7 @@ import com.enigmaticdevs.wallhaven.data.remote.model.Wallpaper
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InfoBottomSheet(wallpaperInfo: Wallpaper, onDismiss: () -> Unit, onTagClick: (String) -> Unit) {
+fun InfoBottomSheet(wallpaperInfo: Wallpaper, onDismiss: () -> Unit, onTagClick: (Tag) -> Unit) {
     val sheetState = rememberBottomSheetState(
         initialValue = SheetValue.Hidden,
 
@@ -57,7 +57,7 @@ fun BottomSheetContent(
     resolution: String,
     colors: List<String>,
     tags: List<Tag>,
-    onTagClick: (String) -> Unit,
+    onTagClick: (Tag) -> Unit,
     onDismiss: () -> Unit
 ) {
     Column(
@@ -101,7 +101,7 @@ fun BottomSheetContent(
             tags.forEach {
                 AssistChip(
                     onClick = {
-                        onTagClick(it.name)
+                        onTagClick(it)
                         onDismiss()},
                     label = { Text(it.name) },
                     //elevation = AssistChipDefaults.elevatedAssistChipElevation(8.dp)

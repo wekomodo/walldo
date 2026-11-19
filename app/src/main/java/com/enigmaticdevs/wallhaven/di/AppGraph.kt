@@ -6,6 +6,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.ViewModel
+import androidx.work.WorkManager
 import androidx.work.WorkerFactory
 import coil3.ImageLoader
 import com.enigmaticdevs.wallhaven.data.billing.BillingRepository
@@ -59,6 +60,11 @@ interface AppGraph : ViewModelGraph {
     interface Factory {
         fun create(@Provides context: Context, @Provides application: Application): AppGraph
     }
+
+
+    @Provides
+    fun provideWorkManager(application: Application): WorkManager =
+        WorkManager.getInstance(application)
 
     @SingleIn(AppScope::class)
     @Provides

@@ -16,6 +16,7 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Face
+import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
@@ -299,25 +300,16 @@ Column(){
 }
 
 @Composable
-fun PrefTopAppBar(title: String, onBack: () -> Unit){
-
-    TopAppBar(
-        title = {
-            /*Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) { }*/
-            Text(title) },
-        /*navigationIcon = {
-            IconButton(onClick = {onBack()}) {
-                Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Back")
-            }
-        }*/
-    )
-}
-
-@Composable
-fun PrefTopAppBar(title: String, onBack: () -> Unit,actions : NavigationIcon){
+fun PrefTopAppBar(
+    title: String,
+    onBack: () -> Unit,
+    actions : NavigationIcon = NavigationIcon(
+        icon = Icons.Rounded.Home,
+        enabled = false,
+        onClick = {},
+    ),
+    navigationIconEnabled : Boolean = false
+){
 
     TopAppBar(
         title = {
@@ -331,6 +323,12 @@ fun PrefTopAppBar(title: String, onBack: () -> Unit,actions : NavigationIcon){
                 FilledTonalButton(onClick = actions.onClick) {
                     Icon(actions.icon, contentDescription = "add Collection")
                 }
+        },
+        navigationIcon = {
+            if(navigationIconEnabled)
+            IconButton(onClick = {onBack()}) {
+                Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Back")
+            }
         }
     )
 }

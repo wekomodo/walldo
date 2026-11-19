@@ -8,6 +8,7 @@ import com.enigmaticdevs.wallhaven.data.local.collections.CollectionSyncer
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionsDatabase
 import com.enigmaticdevs.wallhaven.data.repository.AutoWallpaperRepository
 import com.enigmaticdevs.wallhaven.data.repository.CollectionsRepository
+import com.enigmaticdevs.wallhaven.data.repository.GlobalFilterRepository
 import com.enigmaticdevs.wallhaven.data.repository.WallpaperRepository
 import com.enigmaticdevs.wallhaven.work.AutoWallpaperWorker
 import com.enigmaticdevs.wallhaven.work.CollectionSyncWorker
@@ -24,6 +25,7 @@ class WalldoWorkerFactory(
     private val wallpaperRepository: WallpaperRepository,
     private val autoWallpaperRepository: AutoWallpaperRepository,
     private val collectionsRepository: CollectionsRepository,
+    private val globalFilterRepository: GlobalFilterRepository
 ) : WorkerFactory() {
 
     override fun createWorker(
@@ -39,6 +41,7 @@ class WalldoWorkerFactory(
             appContext,
             params = workerParameters,
             db = db,
+            globalFilterRepository = globalFilterRepository,
             wallpaperRepository = wallpaperRepository,
             collectionsRepository = collectionsRepository,
             autoWallpaperRepository = autoWallpaperRepository

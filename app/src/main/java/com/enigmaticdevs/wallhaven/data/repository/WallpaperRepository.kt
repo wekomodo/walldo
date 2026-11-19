@@ -1,6 +1,7 @@
 package com.enigmaticdevs.wallhaven.data.repository
 
 import android.util.Log
+import androidx.compose.ui.util.fastRoundToInt
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -12,11 +13,17 @@ import com.enigmaticdevs.wallhaven.data.remote.model.Meta
 import com.enigmaticdevs.wallhaven.data.remote.model.RemoteCollection
 import com.enigmaticdevs.wallhaven.data.remote.model.RemoteCollections
 import com.enigmaticdevs.wallhaven.data.remote.model.Wallpapers
+import com.enigmaticdevs.wallhaven.data.remote.model.objects.Sorting.random
 import com.enigmaticdevs.wallhaven.domain.pagingsource.WallpaperPagingSource
 import com.enigmaticdevs.wallhaven.ui.screens.homescreen.components.TAG
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.flow.Flow
+import java.lang.Math.random
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.onSuccess
+import kotlin.ranges.rangeTo
+import kotlin.runCatching
+import kotlin.to
 
 
 @Inject
@@ -38,6 +45,28 @@ class WallpaperRepository(
                 )
             }).flow
 
+    }
+
+    suspend fun getAutoWallpaperPopular(params : WallhavenAPIparams, page: Int) : Pair<Wallpaper,Int>? {
+        runCatching {
+            wallhavenAPI.getWallpapers(
+                sorting = params.sorting,
+                purity = params.purity,
+                category = params.category,
+                topRange = params.topRange,
+                ratio = params.ratio,
+                resolution = params.resolution,
+                page = page
+            )
+
+        }.onSuccess {
+            val index = (0..23).random()
+            return Pair(it.wallpaperList[index],it.meta.last_page)
+        }.onFailure { exception ->
+            exception.message?.let { Log.e("$TAG Error",it) }
+            return null
+        }
+        return null
     }
 
     suspend fun getWallpaperDetail(id: String): WallpaperDetail? {

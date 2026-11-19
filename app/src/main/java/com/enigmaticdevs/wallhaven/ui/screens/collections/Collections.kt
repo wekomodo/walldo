@@ -21,9 +21,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,33 +55,39 @@ import dev.zacsweers.metrox.viewmodel.metroViewModel
 @Composable
 fun CollectionsRoute(
     onBack: () -> Unit,
-    onCollectionDetail : (CollectionCover) -> Unit,
+    onCollectionDetail: (CollectionCover) -> Unit,
     viewModel: CollectionsViewModel = metroViewModel()
 ) {
     val collections by viewModel.collectionsInfo.collectAsStateWithLifecycle()
     val syncState by viewModel.syncState.collectAsStateWithLifecycle()
     val lastResult by viewModel.lastSyncResult.collectAsStateWithLifecycle()
+    val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
     CollectionsContent(
+        isRefreshing = isRefreshing,
         syncState = syncState,
         lastResult = lastResult,
         collections = collections,
         onClick = onCollectionDetail,
         onAddClick = viewModel::createCollection,
-        onDragDone = viewModel::updateSortOrder
+        onDragDone = viewModel::updateSortOrder,
+        onResync =  viewModel::refresh
     )
 }
 
 @Composable
 fun CollectionsContent(
+    isRefreshing : Boolean,
     syncState: SyncState,
-    lastResult : SyncResult?,
-    collections : List<CollectionCover>?,
-    onClick : (CollectionCover) -> Unit,
-    onAddClick : (CreateCollectionRequest) -> Unit,
-    onDragDone : (List<Long>) -> Unit
+    lastResult: SyncResult?,
+    collections: List<CollectionCover>?,
+    onClick: (CollectionCover) -> Unit,
+    onAddClick: (CreateCollectionRequest) -> Unit,
+    onDragDone: (List<Long>) -> Unit,
+    onResync : () -> Unit
 ) {
-    var showCollectionDialog by  remember  { mutableStateOf(false)}
+    var showCollectionDialog by remember { mutableStateOf(false) }
     var localList by remember { mutableStateOf(collections.orEmpty()) }
+    val state = rememberPullToRefreshState()
     val lazyListState = rememberLazyListState()
     val dragDropState = rememberDragDropState(
         lazyListState = lazyListState,
@@ -98,13 +105,18 @@ fun CollectionsContent(
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { PrefTopAppBar(
-            title = "Collections",
-            onBack = {},
-            actions = NavigationIcon(Icons.Rounded.Add,true, onClick = {showCollectionDialog = true})
-        ) },
+        topBar = {
+            PrefTopAppBar(
+                title = "Collections",
+                onBack = {},
+                actions = NavigationIcon(
+                    Icons.Rounded.Add,
+                    true,
+                    onClick = { showCollectionDialog = true })
+            )
+        },
 
-    ) { paddingValues ->
+        ) { paddingValues ->
 
         Column(
             modifier = Modifier
@@ -112,36 +124,45 @@ fun CollectionsContent(
                 .padding()
                 .padding(paddingValues)
         ) {
-            if(collections.isNullOrEmpty())
+            if (collections.isNullOrEmpty())
                 Text("collections is empty")
-           // val navBarBottomInset = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+            // val navBarBottomInset = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
             SyncProgressIndicator(
                 syncState = syncState,
                 lastResult = lastResult,
             )
-            LazyColumn(
-                state = lazyListState,
-                modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(bottom = 102.dp ) //+ navBarBottomInset)
+            PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                onRefresh = onResync,
+                state = state
             ) {
-                collections?.let {
-                    itemsIndexed(items = localList, key = { _, item -> item.id }) { _, item ->
-                        DraggableItem(dragDropState = dragDropState, key = item.id) { isDragging, handleModifier ->
-                            CollectionItem(
-                                item = item,
-                                onClick = onClick,
-                                modifier = handleModifier
-                            )
+                LazyColumn(
+                    state = lazyListState,
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(bottom = 102.dp) //+ navBarBottomInset)
+                ) {
+                    collections?.let {
+                        itemsIndexed(items = localList, key = { _, item -> item.id }) { _, item ->
+                            DraggableItem(
+                                dragDropState = dragDropState,
+                                key = item.id
+                            ) { isDragging, handleModifier ->
+                                CollectionItem(
+                                    item = item,
+                                    onClick = onClick,
+                                    modifier = handleModifier
+                                )
+                            }
                         }
                     }
-                }
 
+                }
             }
         }
-        if(showCollectionDialog)
+        if (showCollectionDialog)
             CreateCollectionDialog(
-                onConfirm =  onAddClick,
-                onDismiss = {showCollectionDialog = false}
+                onConfirm = onAddClick,
+                onDismiss = { showCollectionDialog = false }
             )
 
 
@@ -151,14 +172,17 @@ fun CollectionsContent(
 
 @Composable
 fun CollectionItem(
-    item : CollectionCover,
-    onClick : (CollectionCover) -> Unit,
+    item: CollectionCover,
+    onClick: (CollectionCover) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
     Box(
-        modifier = Modifier.height(120.dp).fillMaxWidth().padding(8.dp)
-            .clickable{
+        modifier = Modifier
+            .height(120.dp)
+            .fillMaxWidth()
+            .padding(8.dp)
+            .clickable {
                 onClick(item)
             }
     ) {
@@ -189,14 +213,19 @@ fun CollectionItem(
                 Text(
                     text = item.count.toString(),
                     style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.align(Alignment.BottomStart).padding(8.dp)
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(8.dp)
                 )
-                if(item.isSynced)
-                Icon(
-                    painter = painterResource(R.drawable.ic_synced_collections),
-                    contentDescription = stringResource(R.string.synced),
-                    modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp)
-                )
+
+                if (item.isSynced)
+                    Icon(
+                        painter = painterResource(R.drawable.ic_synced_collections),
+                        contentDescription = stringResource(R.string.synced),
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(8.dp)
+                    )
 
                 // Drag handle, drawn last so it sits on top
                 Box(
@@ -219,18 +248,18 @@ fun CollectionItem(
 }
 
 
-
 @Preview
 @Composable
-fun Preview(){
+fun Preview() {
     val item = CollectionCover(
-       name = "walldo",
+        name = "walldo",
         id = 123,
         coverThumbUrl = "",
         isSynced = false,
         count = 45,
         isAutoWallpaper = false
     )
-    CollectionItem(item,
+    CollectionItem(
+        item,
         onClick = {})
 }

@@ -1,6 +1,5 @@
 package com.enigmaticdevs.wallhaven.data.repository
 
-import android.R
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.IOException
 import androidx.datastore.preferences.core.MutablePreferences
@@ -8,6 +7,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.CoroutineScope
@@ -32,7 +32,8 @@ data class AutoWallpaperState(
     val pauseOnLowBattery : Boolean = true,
     val ifLowOnStorage : Boolean = true,
     val screenSelect: String = "both",
-    val lastWallpaperId : String? = null
+    val lastWallpaperId : String? = null,
+    val popularLastPage : Int = 1,
 )
 
 data class Conditions(
@@ -52,11 +53,13 @@ private object AutoWallpaperKeys{
 
     val ORIENTATION_FIX = booleanPreferencesKey("auto_wallpaper_orientation_fix")
 
-    val SCREEN = stringPreferencesKey("autoWallpaper_select_screen")
+    val SCREEN = stringPreferencesKey("auto_wallpaper_select_screen")
 
-    val SOURCE = stringPreferencesKey("autoWallpaper_source")
+    val SOURCE = stringPreferencesKey("auto_wallpaper_source")
 
-    val LAST_WALLPAPER_ID = stringPreferencesKey("autoWallpaper_lastWallpaper")
+    val LAST_WALLPAPER_ID = stringPreferencesKey("auto_wallpaper_last_wallpaper")
+
+    val POPULAR_LAST_PAGE = intPreferencesKey("auto_wallpaper_popular_last_page")
 }
 
 
@@ -83,6 +86,7 @@ class AutoWallpaperRepository(
             screenSelect = it[AutoWallpaperKeys.SCREEN] ?: defaults.screenSelect,
             source = it[AutoWallpaperKeys.SOURCE] ?: defaults.source,
             lastWallpaperId = it[AutoWallpaperKeys.LAST_WALLPAPER_ID] ?: defaults.source,
+            popularLastPage = it[AutoWallpaperKeys.POPULAR_LAST_PAGE] ?: defaults.popularLastPage,
         )
     }.stateIn(
         scope = scope,
@@ -113,6 +117,8 @@ class AutoWallpaperRepository(
     fun updateSource(value : String) = save { it[AutoWallpaperKeys.SOURCE] = value }
 
     fun updateLastWallpaperId(value : String) = save { it[AutoWallpaperKeys.LAST_WALLPAPER_ID] = value }
+
+    fun updatePopularLastPage(value : Int) = save { it[AutoWallpaperKeys.POPULAR_LAST_PAGE] = value }
 
 
 

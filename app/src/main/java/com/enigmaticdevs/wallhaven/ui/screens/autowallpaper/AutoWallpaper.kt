@@ -67,8 +67,8 @@ fun AutoWallpaperRoute(
         onIdleChange = { viewModel.updateOnIdle(!state.onIdle) },
         requireBatteryNotLow = { viewModel.updatePauseOnChargingLow(!state.pauseOnLowBattery) },
         ifLowOnStorage = { viewModel.updateIfLowOnStorage(!state.ifLowOnStorage) },
-        onIntervalSelect = {viewModel.updateInterval(it)},
-        orientationFix = {viewModel.updateOrientationFix(!state.orientationFix)},
+        onIntervalSelect = { viewModel.updateInterval(it) },
+        orientationFix = { viewModel.updateOrientationFix(!state.orientationFix) },
         onScreenSelect = viewModel::updateScreenSelect,
         onSourceSelected = viewModel::updateSource,
         onCollectionSelect = viewModel::updateAutoWallpaperCollection
@@ -80,7 +80,7 @@ fun AutoWallpaperRoute(
 @Composable
 fun AutoWallpaperContent(
     state: AutoWallpaperState,
-    collections : List<CollectionCover>,
+    collections: List<CollectionCover>,
     onBack: () -> Unit,
     onSwitchUpdate: () -> Unit,
     onWifiChange: () -> Unit,
@@ -88,11 +88,11 @@ fun AutoWallpaperContent(
     onIdleChange: () -> Unit,
     requireBatteryNotLow: () -> Unit,
     ifLowOnStorage: () -> Unit,
-    onIntervalSelect : (String) -> Unit,
-    orientationFix : () -> Unit,
-    onScreenSelect : (String) -> Unit,
-    onSourceSelected : (String) -> Unit,
-    onCollectionSelect : (Long) -> Unit
+    onIntervalSelect: (String) -> Unit,
+    orientationFix: () -> Unit,
+    onScreenSelect: (String) -> Unit,
+    onSourceSelected: (String) -> Unit,
+    onCollectionSelect: (Long) -> Unit
 ) {
 
     val snackBarHostState = remember { SnackbarHostState() }
@@ -103,17 +103,22 @@ fun AutoWallpaperContent(
     val activeCollection = collections.firstOrNull { it.isAutoWallpaper }
         ?: collections.firstOrNull()
 
-    val sheetState = rememberBottomSheetState(SheetValue.Hidden , enabledValues = setOf(SheetValue.Hidden,
-        SheetValue.Expanded))
+    val sheetState = rememberBottomSheetState(
+        SheetValue.Hidden, enabledValues = setOf(
+            SheetValue.Hidden,
+            SheetValue.Expanded
+        )
+    )
     LaunchedEffect(Unit) {
         //  viewModel.events.collect { snackBarHostState.showSnackbar(it) }
         //  viewModel.getCurrentKey()
     }
     Scaffold(
         topBar = {
-            PrefTopAppBar("Auto Wallpaper") {
-                onBack()
-            }
+            PrefTopAppBar(
+                "Auto Wallpaper",
+                onBack = onBack
+            )
         },
         snackbarHost = {
             SnackbarHost(hostState = snackBarHostState)
@@ -289,6 +294,7 @@ fun AutoWallpaperContent(
     }
 
 }
+
 @Preview
 @Composable
 fun Preview() {
