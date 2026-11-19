@@ -1,7 +1,9 @@
 package com.enigmaticdevs.wallhaven.data.local.collections
 
 import android.util.Log
+import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -41,6 +43,7 @@ data class SyncState(
  *  - pulls run after a push finished, on their own coroutine, so they never delay a push
  */
 @Inject
+@SingleIn(AppScope::class)
 class CollectionSyncManager(
     private val db: CollectionsDatabase,
     private val syncer: CollectionSyncer,

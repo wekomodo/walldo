@@ -6,22 +6,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -34,26 +29,23 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.enigmaticdevs.wallhaven.R
-import com.enigmaticdevs.wallhaven.data.remote.model.Objects.Sorting
-import com.enigmaticdevs.wallhaven.data.remote.model.Wallpaper
+import com.enigmaticdevs.wallhaven.data.remote.model.objects.Sorting
 import com.enigmaticdevs.wallhaven.data.remote.model.local.WallhavenAPIparams
 import com.enigmaticdevs.wallhaven.domain.pagingsource.WallpaperListItem
-import com.enigmaticdevs.wallhaven.ui.presentation.FloatingNavBar
 import com.enigmaticdevs.wallhaven.ui.screens.homescreen.bottomsheet.FilterBottomSheet
-import com.enigmaticdevs.wallhaven.ui.screens.homescreen.components.WallpaperListScreen
 import com.enigmaticdevs.wallhaven.ui.screens.homescreen.components.SimpleSearchBar
-import com.enigmaticdevs.wallhaven.ui.screens.homescreen.components.SortChipRow
+import com.enigmaticdevs.wallhaven.ui.screens.homescreen.components.SortChipRowWButton
+import com.enigmaticdevs.wallhaven.ui.screens.homescreen.components.WallpaperListScreen
 import dev.zacsweers.metrox.viewmodel.metroViewModel
 import kotlinx.coroutines.flow.filterNotNull
 
@@ -63,10 +55,10 @@ val TAG = "Homescreen"
 @Composable
 fun HomeScreen(
     onPhotoClick: (String) -> Unit,
-    onBack : () -> Unit,
+    onBack: () -> Unit,
     viewModel: HomeViewModel = metroViewModel()
 ) {
-    val currentFilters by viewModel.globalFilterRepository.filters.collectAsState()
+    val currentFilters by viewModel.globalFilterRepository.filters.collectAsStateWithLifecycle()
     val lazyWallpapers = viewModel.wallpapers.collectAsLazyPagingItems()
     val textFieldState = rememberTextFieldState()
     LaunchedEffect(Unit) {
@@ -92,7 +84,7 @@ fun HomeScreen(
         onPhotoClick = onPhotoClick,
         updateSort = { viewModel.updateSort(it) },
         onSearch = { viewModel.triggerSearch(it) },
-       // onOpenDrawer = onOpenDrawer
+        // onOpenDrawer = onOpenDrawer
     )
 
 }
@@ -101,13 +93,13 @@ fun HomeScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreenContent(
-    textFieldState : TextFieldState,
+    textFieldState: TextFieldState,
     activeSort: String,
     wallpapers: LazyPagingItems<WallpaperListItem>,
     onPhotoClick: (String) -> Unit,
     updateSort: (String) -> Unit,
     onSearch: (String) -> Unit,
-   // onOpenDrawer: () -> Unit
+    // onOpenDrawer: () -> Unit
 ) {
 
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
@@ -186,9 +178,9 @@ fun HomeScreenContent(
                     onSearch = { query ->
                         onSearch(query)
                         if (query.isNotBlank())
-                        updateSort(Sorting.relevance)
-                    else
-                        updateSort(Sorting.topList)
+                            updateSort(Sorting.relevance)
+                        else
+                            updateSort(Sorting.topList)
                     },
                     onFilterClick = {
                         showFilterSheet = true
@@ -196,9 +188,17 @@ fun HomeScreenContent(
                 )
 
                 // 2. The Sort Chips
-                SortChipRow(
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+
+                }
+                SortChipRowWButton(
                     currentSort = activeSort,
-                    onSortSelected = { newSort -> updateSort(newSort) }
+                    onSortSelected = { newSort -> updateSort(newSort) },
+                    onFilterClick = {
+                        showFilterSheet = true
+                    }
                 )
 
 

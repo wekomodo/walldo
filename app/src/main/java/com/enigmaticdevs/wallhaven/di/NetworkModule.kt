@@ -8,14 +8,13 @@ import coil3.memory.MemoryCache
 import coil3.network.ktor3.KtorNetworkFetcherFactory
 import com.enigmaticdevs.wallhaven.data.remote.ApiKeyProvider
 import com.enigmaticdevs.wallhaven.data.remote.WallhavenAPI
-import com.enigmaticdevs.wallhaven.data.remote.model.Objects.App
+import com.enigmaticdevs.wallhaven.data.remote.model.objects.App
 import com.enigmaticdevs.wallhaven.data.repository.WallpaperRepository
 import com.enigmaticdevs.wallhaven.di.flag.RateLimit
 import com.enigmaticdevs.wallhaven.di.flag.RateLimiter
 import com.enigmaticdevs.wallhaven.di.flag.savedApiKeyPlugin
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
-import dev.zacsweers.metro.ContributesIntoMap
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.Named
 import dev.zacsweers.metro.Provides

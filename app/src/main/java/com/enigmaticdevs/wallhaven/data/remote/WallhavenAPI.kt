@@ -1,9 +1,7 @@
 package com.enigmaticdevs.wallhaven.data.remote
 
 import com.enigmaticdevs.wallhaven.data.remote.model.AuthenticateAPIkey
-import com.enigmaticdevs.wallhaven.data.remote.model.RemoteCollection
 import com.enigmaticdevs.wallhaven.data.remote.model.RemoteCollections
-import com.enigmaticdevs.wallhaven.data.remote.model.Wallpaper
 import com.enigmaticdevs.wallhaven.data.remote.model.WallpaperDetail
 import com.enigmaticdevs.wallhaven.data.remote.model.Wallpapers
 import com.enigmaticdevs.wallhaven.di.flag.BackgroundRequest
@@ -21,11 +19,11 @@ import io.ktor.http.isSuccess
 
 @Inject
 class WallhavenAPI(
-    private val client : HttpClient
-){
+    private val client: HttpClient
+) {
 
     suspend fun getWallpapers(
-        query : String ="",
+        query: String = "",
         sorting: String,
         purity: String,
         category: String,
@@ -34,8 +32,8 @@ class WallhavenAPI(
         resolution: String,
         page: Int
     ): Wallpapers = client.get("search") {
-        if(query.isNotBlank())
-            parameter("q",query)
+        if (query.isNotBlank())
+            parameter("q", query)
         parameter("sorting", sorting)
         parameter("purity", purity)
         parameter("categories", category)
@@ -56,7 +54,7 @@ class WallhavenAPI(
         resolution: String,
         page: Int
     ): Wallpapers = client.get("search") {
-        parameter("q",query)
+        parameter("q", query)
         parameter("sorting", sorting)
         parameter("purity", purity)
         parameter("categories", category)
@@ -82,13 +80,15 @@ class WallhavenAPI(
         }
     }
 
-    suspend fun fetchCollections() : RemoteCollections = client.get("collections").body()
+    suspend fun fetchCollections(): RemoteCollections = client.get("collections").body()
 
-    suspend fun fetchCollectionWallpapers(id : Long,username : String, page : Int) : Wallpapers = client.get("collections/$username/$id") {
-        expectSuccess = true
-        attributes.put(BackgroundRequest, true)
-        parameter("page",page)
-        parameter("purity","111")
-    }.body()
+    suspend fun fetchCollectionWallpapers(id: Long, username: String, page: Int): Wallpapers =
+        client.get("collections/$username/$id") {
+            expectSuccess = true
+            attributes.put(BackgroundRequest, true)
+            parameter("page", page)
+            parameter("purity", "111")
+        }.body()
 
+    // $username/$id
 }

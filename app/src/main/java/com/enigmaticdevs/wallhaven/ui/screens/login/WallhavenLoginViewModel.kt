@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.enigmaticdevs.wallhaven.data.local.SecureStorage
+import com.enigmaticdevs.wallhaven.data.local.collections.CollectionSyncManager
+import com.enigmaticdevs.wallhaven.data.local.collections.CollectionSyncer
 import com.enigmaticdevs.wallhaven.data.remote.WallhavenWebClient
 import com.enigmaticdevs.wallhaven.data.repository.GlobalFlagsRepository
 import com.enigmaticdevs.wallhaven.data.repository.SettingsRepository
@@ -23,7 +25,8 @@ class WallhavenLoginViewModel(
     private val secureStorage : SecureStorage,
     private val settingsRepository: SettingsRepository,
     private val globalFlagsRepository: GlobalFlagsRepository,
-    private val wallhavenWebClient: WallhavenWebClient
+    private val wallhavenWebClient: WallhavenWebClient,
+    private val collectionSyncManager: CollectionSyncManager
 ) : ViewModel() {
 
     private val _events = Channel<LoginEvent>(Channel.BUFFERED)
@@ -46,6 +49,7 @@ class WallhavenLoginViewModel(
                 globalFlagsRepository.updateLoginStatus(true)
                 settingsRepository.updateApiKey(data.apiKey)
                 settingsRepository.updateUsername(data.username)
+                collectionSyncManager.onLoggedIn()
             }
             else
                 Log.e(TAG,"API Key fetch failed")

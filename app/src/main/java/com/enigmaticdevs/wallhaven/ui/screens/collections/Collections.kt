@@ -23,6 +23,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,12 +40,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.enigmaticdevs.wallhaven.R
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionCover
+import com.enigmaticdevs.wallhaven.data.local.collections.SyncResult
+import com.enigmaticdevs.wallhaven.data.local.collections.SyncState
 import com.enigmaticdevs.wallhaven.ui.presentation.DraggableItem
 import com.enigmaticdevs.wallhaven.ui.presentation.NavigationIcon
 import com.enigmaticdevs.wallhaven.ui.presentation.PrefTopAppBar
 import com.enigmaticdevs.wallhaven.ui.presentation.rememberDragDropState
 import com.enigmaticdevs.wallhaven.ui.screens.collections.components.CreateCollectionDialog
 import com.enigmaticdevs.wallhaven.ui.screens.collections.components.CreateCollectionRequest
+import com.enigmaticdevs.wallhaven.ui.screens.collections.components.SyncProgressIndicator
 import dev.zacsweers.metrox.viewmodel.metroViewModel
 
 @Composable
@@ -54,8 +58,12 @@ fun CollectionsRoute(
     viewModel: CollectionsViewModel = metroViewModel()
 ) {
     val collections by viewModel.collectionsInfo.collectAsStateWithLifecycle()
+    val syncState by viewModel.syncState.collectAsStateWithLifecycle()
+    val lastResult by viewModel.lastSyncResult.collectAsStateWithLifecycle()
     CollectionsContent(
-        collections,
+        syncState = syncState,
+        lastResult = lastResult,
+        collections = collections,
         onClick = onCollectionDetail,
         onAddClick = viewModel::createCollection,
         onDragDone = viewModel::updateSortOrder
@@ -64,6 +72,8 @@ fun CollectionsRoute(
 
 @Composable
 fun CollectionsContent(
+    syncState: SyncState,
+    lastResult : SyncResult?,
     collections : List<CollectionCover>?,
     onClick : (CollectionCover) -> Unit,
     onAddClick : (CreateCollectionRequest) -> Unit,
@@ -105,7 +115,10 @@ fun CollectionsContent(
             if(collections.isNullOrEmpty())
                 Text("collections is empty")
            // val navBarBottomInset = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-
+            SyncProgressIndicator(
+                syncState = syncState,
+                lastResult = lastResult,
+            )
             LazyColumn(
                 state = lazyListState,
                 modifier = Modifier.fillMaxWidth(),
@@ -144,7 +157,7 @@ fun CollectionItem(
 ) {
 
     Box(
-        modifier = Modifier.height(120.dp).fillMaxWidth().padding(4.dp)
+        modifier = Modifier.height(120.dp).fillMaxWidth().padding(8.dp)
             .clickable{
                 onClick(item)
             }

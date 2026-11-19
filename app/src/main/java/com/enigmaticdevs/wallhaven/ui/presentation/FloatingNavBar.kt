@@ -56,7 +56,7 @@ data class NavItem(
 )
 
 private val items = listOf(
-    NavItem("Home", Icons.Rounded.Home) ,
+    NavItem("Explore", Icons.Rounded.Home) ,
     NavItem("Collections", Icons.Default.Favorite),
     NavItem("Auto", Icons.Default.PlayArrow,),
     NavItem("Settings", Icons.Default.Settings),

@@ -140,6 +140,15 @@ class CollectionsRepository(
 
     }
 
+    suspend fun getNextOrderedWallpaper(purity : String, lastWallpaperId : String) {
+        try {
+            dao.getNextOrderedWallpaper(purity,lastWallpaperId)
+        }
+        catch (e : Exception) {
+            Log.e("Database","getNextOrderedWallpaperFailed ${e.localizedMessage}")
+        }
+    }
+
     fun getCollectionInfo(purity : String) : Flow<List<CollectionCover>> = dao.getCollectionsInfo(purity)
 
     /** Call on logout, and whenever the logged-in account changes. Synced collections become local. */

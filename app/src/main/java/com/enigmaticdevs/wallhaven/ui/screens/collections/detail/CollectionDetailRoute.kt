@@ -36,8 +36,9 @@ fun CollectionDetailRoute(
     val wallpapers = viewModel.wallpapersFlow.collectAsLazyPagingItems()
 
     CollectionDetailContent(
-        collection.name,
-        wallpapers
+        collection = collection.name,
+        wallpapers = wallpapers,
+        onWallpaperClick = onWallpaperClick
 
     )
 }
@@ -45,7 +46,8 @@ fun CollectionDetailRoute(
 @Composable
 fun CollectionDetailContent(
     collection: String,
-    wallpapers: LazyPagingItems<WallpaperListItem>
+    wallpapers: LazyPagingItems<WallpaperListItem>,
+    onWallpaperClick: (String) -> Unit
 ) {
     var showFilterSheet by remember { mutableStateOf(false) }
     Scaffold(
@@ -53,7 +55,7 @@ fun CollectionDetailContent(
         topBar = { PrefTopAppBar(title = collection, onBack = {}) },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { showFilterSheet = true}
+                onClick = { showFilterSheet = true }
             ) {
                 Icon(
                     imageVector = Icons.Rounded.Settings,
@@ -68,13 +70,13 @@ fun CollectionDetailContent(
         ) {
             WallpaperListScreen(
                 wallpapers = wallpapers,
-                onPhotoClick = {}
+                onPhotoClick = onWallpaperClick
             ) { }
         }
 
-        if(showFilterSheet)
+        if (showFilterSheet)
             FilterBottomSheet(
-                onDismiss = {showFilterSheet = false }
+                onDismiss = { showFilterSheet = false }
             )
 
     }

@@ -7,6 +7,7 @@ import androidx.work.WorkerParameters
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionSyncer
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionsDatabase
 import com.enigmaticdevs.wallhaven.data.repository.AutoWallpaperRepository
+import com.enigmaticdevs.wallhaven.data.repository.CollectionsRepository
 import com.enigmaticdevs.wallhaven.data.repository.WallpaperRepository
 import com.enigmaticdevs.wallhaven.work.AutoWallpaperWorker
 import com.enigmaticdevs.wallhaven.work.CollectionSyncWorker
@@ -21,7 +22,8 @@ class WalldoWorkerFactory(
     private val syncer: CollectionSyncer,
     private val db: CollectionsDatabase,
     private val wallpaperRepository: WallpaperRepository,
-    private val autoWallpaperRepository: AutoWallpaperRepository
+    private val autoWallpaperRepository: AutoWallpaperRepository,
+    private val collectionsRepository: CollectionsRepository,
 ) : WorkerFactory() {
 
     override fun createWorker(
@@ -35,10 +37,11 @@ class WalldoWorkerFactory(
 
         AutoWallpaperWorker::class.java.name -> AutoWallpaperWorker(
             appContext,
-            workerParameters,
-            db,
-            wallpaperRepository,
-            autoWallpaperRepository
+            params = workerParameters,
+            db = db,
+            wallpaperRepository = wallpaperRepository,
+            collectionsRepository = collectionsRepository,
+            autoWallpaperRepository = autoWallpaperRepository
         )
 
         else -> null

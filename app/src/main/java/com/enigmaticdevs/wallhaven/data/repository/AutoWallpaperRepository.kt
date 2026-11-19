@@ -31,7 +31,8 @@ data class AutoWallpaperState(
     val orientationFix : Boolean = true,
     val pauseOnLowBattery : Boolean = true,
     val ifLowOnStorage : Boolean = true,
-    val screenSelect: String = "both"
+    val screenSelect: String = "both",
+    val lastWallpaperId : String? = null
 )
 
 data class Conditions(
@@ -54,6 +55,8 @@ private object AutoWallpaperKeys{
     val SCREEN = stringPreferencesKey("autoWallpaper_select_screen")
 
     val SOURCE = stringPreferencesKey("autoWallpaper_source")
+
+    val LAST_WALLPAPER_ID = stringPreferencesKey("autoWallpaper_lastWallpaper")
 }
 
 
@@ -78,7 +81,8 @@ class AutoWallpaperRepository(
             ifLowOnStorage = it[AutoWallpaperKeys.STORAGE_LOW] ?: defaults.ifLowOnStorage,
             orientationFix = it[AutoWallpaperKeys.ORIENTATION_FIX] ?: defaults.orientationFix,
             screenSelect = it[AutoWallpaperKeys.SCREEN] ?: defaults.screenSelect,
-            source = it[AutoWallpaperKeys.SOURCE] ?: defaults.source
+            source = it[AutoWallpaperKeys.SOURCE] ?: defaults.source,
+            lastWallpaperId = it[AutoWallpaperKeys.LAST_WALLPAPER_ID] ?: defaults.source,
         )
     }.stateIn(
         scope = scope,
@@ -107,6 +111,8 @@ class AutoWallpaperRepository(
     fun updateScreenSelect(value : String) = save { it[AutoWallpaperKeys.SCREEN] = value }
 
     fun updateSource(value : String) = save { it[AutoWallpaperKeys.SOURCE] = value }
+
+    fun updateLastWallpaperId(value : String) = save { it[AutoWallpaperKeys.LAST_WALLPAPER_ID] = value }
 
 
 

@@ -7,8 +7,8 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
-import com.enigmaticdevs.wallhaven.data.remote.model.Objects.Sorting
-import com.enigmaticdevs.wallhaven.data.remote.model.Objects.TopRange
+import com.enigmaticdevs.wallhaven.data.remote.model.objects.Sorting
+import com.enigmaticdevs.wallhaven.data.remote.model.objects.TopRange
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn

@@ -2,6 +2,8 @@ package com.enigmaticdevs.wallhaven.ui.screens.collections
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.enigmaticdevs.wallhaven.data.local.collections.CollectionSyncManager
+import com.enigmaticdevs.wallhaven.data.local.collections.SyncState
 import com.enigmaticdevs.wallhaven.data.remote.model.RemoteCollections
 import com.enigmaticdevs.wallhaven.data.remote.model.Wallpapers
 import com.enigmaticdevs.wallhaven.data.repository.CollectionsRepository
@@ -31,11 +33,27 @@ import kotlinx.coroutines.launch
 class CollectionsViewModel(
     private val collectionsRepository: CollectionsRepository,
     private val repository: WallpaperRepository,
+    private val syncManager : CollectionSyncManager,
     private val settings: SettingsRepository,
     private val globalFilterRepository: GlobalFilterRepository
 ) : ViewModel() {
 
+    // Track ongoing progress
+    val syncState = syncManager.syncState.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = SyncState(
+            pushing = false,
+            pulling = false,
+            doneCollections = 0,
+            totalCollections = 0
+        )
+    )
 
+    val syncStates = syncManager.syncState
+
+    // Track the final result for error handling
+    val lastSyncResult = syncManager.lastResult
     private val _collections = MutableStateFlow<RemoteCollections?>(null)
     val collections = _collections.asStateFlow()
 

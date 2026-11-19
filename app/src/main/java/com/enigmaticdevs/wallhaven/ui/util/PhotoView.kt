@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredSize
 import android.util.Log
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -63,6 +65,7 @@ fun PhotoView(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun PhotoViewContent(
     model: Any?,
@@ -177,13 +180,13 @@ private fun PhotoViewContent(
         // Drawn after the Image so it sits on top and receives taps
         when {
             state is AsyncImagePainter.State.Error ->
-                ErrorOccurred("Couldn't load image\nTap to retry", onRetry = onRetry)
+                ErrorOccurred("Couldn't load image", onRetry = onRetry)
 
             isLoading && stalled ->
-                ErrorOccurred("Taking too long\nTap to retry", onRetry = onRetry)
+                ErrorOccurred("Taking too long", onRetry = onRetry)
 
             // the blurry thumbnail is only a placeholder, so say the full image is still coming
-            isLoading -> CircularProgressIndicator()
+            isLoading -> LoadingIndicator()
         }
     }
 }

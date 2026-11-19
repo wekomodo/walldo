@@ -16,14 +16,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -176,7 +181,8 @@ fun WallpaperCard(wallpaper: WallpaperListItem, onPhotoClick: (String) -> Unit) 
             )
         }
         IconButton(
-            modifier = Modifier.clip(CircleShape)
+            modifier = Modifier.padding(4.dp).minimumInteractiveComponentSize()
+                .clip(RoundedCornerShape(25))
                 .background(Color.Black.copy(alpha = 0.45f))
                 .align(Alignment.BottomEnd),
             onClick = {
@@ -184,6 +190,7 @@ fun WallpaperCard(wallpaper: WallpaperListItem, onPhotoClick: (String) -> Unit) 
         ) {
             Icon(
                 painter = painterResource(R.drawable.ic_download),
+                tint = MaterialTheme.colorScheme.primaryContainer,
                 contentDescription = "Download Button"
             )
         }

@@ -243,7 +243,7 @@ fun WallpaperDetailScreenContent(
                 val request = remember(wallpaper.data.path, attempt) {
                     ImageRequest.Builder(context)
                         .data(wallpaper.data.path)
-                        .crossfade(false)
+                        .crossfade(true)
                         .size(Size.ORIGINAL)
                         .placeholderMemoryCacheKey(wallpaper.data.id)
                         .listener(

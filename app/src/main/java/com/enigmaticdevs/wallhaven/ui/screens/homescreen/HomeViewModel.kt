@@ -2,11 +2,9 @@ package com.enigmaticdevs.wallhaven.ui.screens.homescreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
-import com.enigmaticdevs.wallhaven.data.remote.model.Objects.Sorting
-import com.enigmaticdevs.wallhaven.data.remote.model.Wallpaper
+import com.enigmaticdevs.wallhaven.data.remote.model.objects.Sorting
 import com.enigmaticdevs.wallhaven.data.remote.model.local.WallhavenAPIparams
 import com.enigmaticdevs.wallhaven.data.repository.GlobalFilterRepository
 import com.enigmaticdevs.wallhaven.data.repository.WallpaperRepository
@@ -18,7 +16,6 @@ import dev.zacsweers.metro.ContributesIntoMap
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metrox.viewmodel.ViewModelKey
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -59,12 +56,12 @@ class HomeViewModel(
     }.flatMapLatest { (query, sort, filterState) ->
 
         val params = WallhavenAPIparams(
-            sorting = sort,
             purity = filterState.purity,
             category = filterState.category,
             ratio = filterState.ratio,
             resolution = filterState.resolution,
-            topRange = filterState.topRange
+            topRange = filterState.topRange,
+            sorting = filterState.sorting
         )
         // Triggers the repository automatically whenever any of the 3 states change
         repository.getWallpapers(params, query)

@@ -1,4 +1,4 @@
-package com.enigmaticdevs.wallhaven.data.remote.model.Objects
+package com.enigmaticdevs.wallhaven.data.remote.model.objects
 
 object Sorting {
 

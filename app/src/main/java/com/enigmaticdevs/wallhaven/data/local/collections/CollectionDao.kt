@@ -20,7 +20,10 @@ data class CollectionCover(
     val count: Int,
     val isAutoWallpaper : Boolean = false,
 )
-
+data class AutoWallpaperCandidate(
+    val wallpaperId: String,
+    val fullUrl: String
+)
 @Dao
 abstract class CollectionDao {
 
@@ -97,6 +100,35 @@ abstract class CollectionDao {
     ORDER BY RANDOM() LIMIT 1
 """)
     abstract suspend fun getNextAutoWallpaperUrl(purityMask: String): String?
+
+    // 1. Get the next wallpaper after `lastWallpaperId` (sorted newest -> oldest)
+    @Query("""
+    SELECT i.wallpaperId, i.fullUrl FROM collection_item i
+    INNER JOIN collection c ON i.collectionId = c.id
+    WHERE c.isAutoWallpaper = 1
+      AND i.fullUrl IS NOT NULL
+      AND (
+          (SUBSTR(:purityMask, 1, 1) = '1' AND i.purity = 'sfw') OR
+          (SUBSTR(:purityMask, 2, 1) = '1' AND i.purity = 'sketchy') OR
+          (SUBSTR(:purityMask, 3, 1) = '1' AND i.purity = 'nsfw') OR
+          i.purity IS NULL
+      )
+      AND (
+          :lastWallpaperId IS NULL
+          OR i.addedAt < (
+              SELECT addedAt FROM collection_item
+              WHERE wallpaperId = :lastWallpaperId AND collectionId = c.id
+              LIMIT 1
+          )
+      )
+    ORDER BY i.addedAt DESC, i.wallpaperId ASC
+    LIMIT 1
+""")
+    abstract suspend fun getNextOrderedWallpaper(
+        purityMask: String,
+        lastWallpaperId: String?
+    ): AutoWallpaperCandidate?
+
 
     // ---- sync progress, used by the manager's indicator (synced collections only; local ones never count)
 
