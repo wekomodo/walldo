@@ -5,7 +5,6 @@ import androidx.datastore.preferences.core.MutablePreferences
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
-import androidx.work.impl.model.Preference
 import com.enigmaticdevs.wallhaven.data.billing.ProEntitlementStore
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.CoroutineScope
@@ -60,11 +59,6 @@ class GlobalFlagsRepository(
 
     override suspend fun markLegacyBillingImported() {
         dataStore.edit { it[GlobalFlagsKeys.LEGACY_BILLING_IMPORTED] = true }
-    }
-
-
-    fun updateProStatus(value : Boolean) = save {
-        it[GlobalFlagsKeys.IS_PRO] = value
     }
 
     private fun save( block : (MutablePreferences) -> Unit) {

@@ -85,7 +85,7 @@ class AutoWallpaperRepository(
             orientationFix = it[AutoWallpaperKeys.ORIENTATION_FIX] ?: defaults.orientationFix,
             screenSelect = it[AutoWallpaperKeys.SCREEN] ?: defaults.screenSelect,
             source = it[AutoWallpaperKeys.SOURCE] ?: defaults.source,
-            lastWallpaperId = it[AutoWallpaperKeys.LAST_WALLPAPER_ID] ?: defaults.source,
+            lastWallpaperId = it[AutoWallpaperKeys.LAST_WALLPAPER_ID] ?: defaults.lastWallpaperId,
             popularLastPage = it[AutoWallpaperKeys.POPULAR_LAST_PAGE] ?: defaults.popularLastPage,
         )
     }.stateIn(
