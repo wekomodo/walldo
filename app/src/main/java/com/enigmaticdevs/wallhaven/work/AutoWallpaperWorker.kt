@@ -2,6 +2,7 @@ package com.enigmaticdevs.wallhaven.work
 
 import android.app.WallpaperManager
 import android.content.Context
+import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionsDatabase
@@ -36,7 +37,6 @@ class AutoWallpaperWorker(
             val autoWallpaperState = autoWallpaperRepository.state.first()
             val targetScreen = autoWallpaperState.screenSelect
             val lastWallpaperId = autoWallpaperState.lastWallpaperId
-            val imageUrl: String = ""
 
             when(autoWallpaperState.source){
                 "popular" -> {
@@ -52,17 +52,29 @@ class AutoWallpaperWorker(
                         ),
                         page = 1
                     )
-
+                    val imageUrl = imageData?.first?.path
+                    setAutoWallpaper(
+                        screen = targetScreen,
+                        context = applicationContext,
+                        imageUrl = imageUrl
+                    )
                 }
                 "collections" -> {
-                    val imageUrl = collectionsRepository.getNextOrderedWallpaper("111","")
+                    Log.d("autowallpaperworker", "lastid : $lastWallpaperId")
+                    val imageData =
+                        collectionsRepository.getNextOrderedWallpaper("111", lastWallpaperId)
+                    autoWallpaperRepository.updateLastWallpaperId(imageData?.wallpaperId)
+                    setAutoWallpaper(
+                        screen = targetScreen,
+                        context = applicationContext,
+                        imageUrl = imageData?.fullUrl
+                    )
                 }
-                else -> {}
             }
-
-            setAutoWallpaper(applicationContext,imageUrl)
+            Log.d("autowallpaperworker", "RAN")
             Result.success()
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             Result.retry()
         }
     }
@@ -71,14 +83,36 @@ class AutoWallpaperWorker(
 }
 
 suspend fun setAutoWallpaper(
+    screen: String,
     context : Context,
-    imageUrl : String,
+    imageUrl: String? = "",
 ){
     // 2. Stream directly into WallpaperManager
+
     val wallpaperManager = WallpaperManager.getInstance(context)
     withContext(Dispatchers.IO) {
         URL(imageUrl).openStream()
     }.use { inputStream ->
-        wallpaperManager.setStream(inputStream)
+        when (screen) {
+            "home" -> {
+                wallpaperManager.setStream(inputStream, null, true, WallpaperManager.FLAG_SYSTEM)
+
+            }
+
+            "lock" -> {
+                wallpaperManager.setStream(inputStream, null, true, WallpaperManager.FLAG_LOCK)
+
+            }
+
+            "both" -> {
+                wallpaperManager.setStream(
+                    inputStream,
+                    null,
+                    true,
+                    WallpaperManager.FLAG_LOCK or WallpaperManager.FLAG_SYSTEM
+                )
+
+            }
+        }
     }
 }

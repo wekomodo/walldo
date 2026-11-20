@@ -73,6 +73,7 @@ class LegacyBillingMigration(
             store.markLegacyBillingImported() // mark first, delete second
             reader.delete()
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             // Leave the file alone and don't mark done, so it retries next start.
             Log.w("LegacyBilling", "Import failed, will retry", e)
         }

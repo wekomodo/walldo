@@ -116,8 +116,16 @@ class AutoWallpaperRepository(
 
     fun updateSource(value : String) = save { it[AutoWallpaperKeys.SOURCE] = value }
 
-    fun updateLastWallpaperId(value : String) = save { it[AutoWallpaperKeys.LAST_WALLPAPER_ID] = value }
-
+    fun updateLastWallpaperId(value: String?) {
+        scope.launch {
+            dataStore.edit {
+                if (!value.isNullOrEmpty())
+                    it[AutoWallpaperKeys.LAST_WALLPAPER_ID] = value
+                else
+                    it.remove(AutoWallpaperKeys.LAST_WALLPAPER_ID)
+            }
+        }
+    }
     fun updatePopularLastPage(value : Int) = save { it[AutoWallpaperKeys.POPULAR_LAST_PAGE] = value }
 
 

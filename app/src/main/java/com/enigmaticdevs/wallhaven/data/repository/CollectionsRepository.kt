@@ -1,8 +1,8 @@
 package com.enigmaticdevs.wallhaven.data.repository
 
 import android.util.Log
+import com.enigmaticdevs.wallhaven.data.local.collections.AutoWallpaperCandidate
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionCover
-import com.enigmaticdevs.wallhaven.data.local.collections.CollectionEntity
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionItemEntity
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionWithCount
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionsDatabase
@@ -140,12 +140,16 @@ class CollectionsRepository(
 
     }
 
-    suspend fun getNextOrderedWallpaper(purity : String, lastWallpaperId : String) {
-        try {
+    suspend fun getNextOrderedWallpaper(
+        purity: String,
+        lastWallpaperId: String?
+    ): AutoWallpaperCandidate? {
+        return try {
             dao.getNextOrderedWallpaper(purity,lastWallpaperId)
         }
         catch (e : Exception) {
             Log.e("Database","getNextOrderedWallpaperFailed ${e.localizedMessage}")
+            return null
         }
     }
 

@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.enigmaticdevs.wallhaven.BuildConfig
 import com.enigmaticdevs.wallhaven.R
 import com.enigmaticdevs.wallhaven.data.repository.FilterState
 import com.enigmaticdevs.wallhaven.ui.presentation.CategoryTitle
@@ -36,7 +37,7 @@ import dev.zacsweers.metrox.viewmodel.metroViewModel
 @Composable
 fun FilterBottomSheet(
     onDismiss: () -> Unit,
-    viewModel : FilterViewModel = metroViewModel()
+    viewModel: FilterViewModel = metroViewModel()
 ) {
     val sheetState = rememberBottomSheetState(
         initialValue = SheetValue.Hidden,
@@ -52,7 +53,7 @@ fun FilterBottomSheet(
         // Text("THIS IS BOTTOM SHEET YEEEHAW")
         FilterBottomSheetContent(
             filterState = filterState,
-            onResolutionChange = viewModel::updateResolutions ,
+            onResolutionChange = viewModel::updateResolutions,
             onRatioChange = viewModel::updateRatios,
             onCategoryChange = viewModel::updateCategory,
             onPurityChange = viewModel::updatePurity,
@@ -73,7 +74,9 @@ fun FilterBottomSheetContent(
     var showRatioDialog by remember { mutableStateOf(false) }
     var showResolutionDialog by remember { mutableStateOf(false) }
     val categories = listOf("General", "Anime", "People")
-    val purity = listOf("SFW", "SKETCHY", "NSFW (API)")
+    val purity = if (BuildConfig.ALLOW_NSFW) listOf("SFW", "SKETCHY", "NSFW (API)")
+    else
+        listOf("SFW", "SKETCHY")
     val currentRatioLabel = ratioOptions.find { it.second == filterState.ratio }?.first ?: "None"
     val currentResolutionLabel =
         resolutionOptions.find { it.second == filterState.resolution }?.first ?: "None"

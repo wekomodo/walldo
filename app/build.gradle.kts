@@ -51,6 +51,19 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
+    }
+
+    flavorDimensions += "distribution"
+    productFlavors {
+        create("playStore") {
+            dimension = "distribution"
+            buildConfigField("boolean", "ALLOW_NSFW", "false")
+        }
+        create("github") {
+            dimension = "distribution"
+            buildConfigField("boolean", "ALLOW_NSFW", "true")
+        }
     }
 }
 

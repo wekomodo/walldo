@@ -99,6 +99,7 @@ class AutoWallpaperViewModel(
         viewModelScope.launch {
             if (globalFlagsRepository.isPro.first()) {
             collectionsRepository.updateAutoWallpaperCollection(value)
+                repository.updateLastWallpaperId(null)
             } else
                 _events.send("Pro")
         }
