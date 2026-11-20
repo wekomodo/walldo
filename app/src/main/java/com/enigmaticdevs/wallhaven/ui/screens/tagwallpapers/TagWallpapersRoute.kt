@@ -16,11 +16,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.enigmaticdevs.wallhaven.LocalToastTrigger
 import com.enigmaticdevs.wallhaven.data.remote.model.Tag
 import com.enigmaticdevs.wallhaven.domain.pagingsource.WallpaperListItem
 import com.enigmaticdevs.wallhaven.ui.presentation.PrefTopAppBar
 import com.enigmaticdevs.wallhaven.ui.screens.homescreen.bottomsheet.FilterBottomSheet
 import com.enigmaticdevs.wallhaven.ui.screens.homescreen.components.WallpaperListScreen
+import com.enigmaticdevs.wallhaven.ui.screens.wallpaperdetail.rememberWallpaperDownloader
 import dev.zacsweers.metrox.viewmodel.metroViewModel
 
 
@@ -52,6 +54,7 @@ fun TagScreenContent(
     onBack: () -> Unit
 ) {
     var showFilterSheet by remember { mutableStateOf(false) }
+    val downloader = rememberWallpaperDownloader(LocalToastTrigger.current)
     Scaffold(
         topBar = {
             PrefTopAppBar(
@@ -81,7 +84,10 @@ fun TagScreenContent(
             WallpaperListScreen(
                 wallpapers = wallpapers,
                 onPhotoClick = onWallpaperClick,
-                onLoadMore = {}
+                onLoadMore = {},
+                onDownloadClick = {
+                    downloader(it)
+                }
             )
         }
         if (showFilterSheet)

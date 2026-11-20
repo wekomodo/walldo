@@ -24,7 +24,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,14 +37,16 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.enigmaticdevs.wallhaven.LocalToastTrigger
 import com.enigmaticdevs.wallhaven.R
-import com.enigmaticdevs.wallhaven.data.remote.model.objects.Sorting
 import com.enigmaticdevs.wallhaven.data.remote.model.local.WallhavenAPIparams
+import com.enigmaticdevs.wallhaven.data.remote.model.objects.Sorting
 import com.enigmaticdevs.wallhaven.domain.pagingsource.WallpaperListItem
 import com.enigmaticdevs.wallhaven.ui.screens.homescreen.bottomsheet.FilterBottomSheet
 import com.enigmaticdevs.wallhaven.ui.screens.homescreen.components.SimpleSearchBar
 import com.enigmaticdevs.wallhaven.ui.screens.homescreen.components.SortChipRowWButton
 import com.enigmaticdevs.wallhaven.ui.screens.homescreen.components.WallpaperListScreen
+import com.enigmaticdevs.wallhaven.ui.screens.wallpaperdetail.rememberWallpaperDownloader
 import dev.zacsweers.metrox.viewmodel.metroViewModel
 import kotlinx.coroutines.flow.filterNotNull
 
@@ -104,6 +105,7 @@ fun HomeScreenContent(
 
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
     var showFilterSheet by remember { mutableStateOf(false) }
+    val downloader = rememberWallpaperDownloader(LocalToastTrigger.current)
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -206,7 +208,10 @@ fun HomeScreenContent(
                 WallpaperListScreen(
                     wallpapers = wallpapers,
                     onPhotoClick = onPhotoClick,
-                    onLoadMore = {}
+                    onLoadMore = {},
+                    onDownloadClick = {
+                        downloader(it)
+                    }
                 )
             }
             if (showFilterSheet)

@@ -61,6 +61,8 @@ import com.enigmaticdevs.wallhaven.LocalToastTrigger
 import com.enigmaticdevs.wallhaven.R
 import com.enigmaticdevs.wallhaven.data.remote.model.Tag
 import com.enigmaticdevs.wallhaven.data.remote.model.WallpaperDetail
+import com.enigmaticdevs.wallhaven.domain.pagingsource.WallpaperListItem
+import com.enigmaticdevs.wallhaven.domain.pagingsource.toListItem
 import com.enigmaticdevs.wallhaven.ui.screens.wallpaperdetail.bottomsheet.CollectionsSheet
 import com.enigmaticdevs.wallhaven.ui.screens.wallpaperdetail.bottomsheet.InfoBottomSheet
 import com.enigmaticdevs.wallhaven.ui.util.DownloadListener
@@ -68,6 +70,7 @@ import com.enigmaticdevs.wallhaven.ui.util.DownloadUtils
 import com.enigmaticdevs.wallhaven.ui.util.PhotoView
 import com.enigmaticdevs.wallhaven.ui.util.downloadWallpaper
 import com.enigmaticdevs.wallhaven.ui.util.rememberDownloadStarter
+import com.enigmaticdevs.wallhaven.ui.util.rememberPermissionUtilsState
 import com.enigmaticdevs.wallhaven.ui.util.setAsWallpaperWithSystem
 import dev.zacsweers.metrox.viewmodel.metroViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -142,36 +145,16 @@ fun WallpaperDetailScreenContent(
     onSetAsWallpaperClick: () -> Unit
 ) {
     var showInfoSheet by remember { mutableStateOf(false) }
-    var currentDownload by remember { mutableLongStateOf(-1L) }
     var showRetry by remember { mutableStateOf(false) }
-    var attempt by remember { mutableIntStateOf(0) }
-    val startDownload = rememberDownloadStarter()
-    val scope = rememberCoroutineScope()
+    val permissionState = rememberPermissionUtilsState()
     val showToast = LocalToastTrigger.current
     val context = LocalContext.current
+    val downloader = rememberWallpaperDownloader(showToast)
+
+    var attempt by remember { mutableIntStateOf(0) }
+    val scope = rememberCoroutineScope()
+
     val clipboard = LocalClipboard.current
-
-    if (currentDownload != -1L) {
-        DownloadListener(currentDownload) { uri ->
-            when {
-                uri == null -> showToast("Download Failed")
-                else -> showToast("Saved to Pictures/Walldo")
-            }
-            currentDownload = -1L
-        }
-    }
-
-    fun runDownload(w: WallpaperDetail) {
-        startDownload {
-            when (val result = downloadWallpaper(context, w.data.path, w.data.id)) {
-                is DownloadUtils.AlreadyDownloaded -> showToast("Already Downloaded")
-                is DownloadUtils.Started -> {
-                    currentDownload = result.id
-                    showToast("Download Started")
-                }
-            }
-        }
-    }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -187,9 +170,14 @@ fun WallpaperDetailScreenContent(
                 },
                 actions = {
                     IconButton(onClick = {
-                        wallpaper?.let {
-                            runDownload(it)
+                        if (permissionState.isGranted) {
+                            wallpaper?.let {
+                                downloader(it.data.toListItem())
+                            }
+                        } else {
+                            permissionState.requestPermission()
                         }
+
                     }) {
                         Icon(
                             painter = painterResource(R.drawable.ic_download),
@@ -314,6 +302,37 @@ fun CenteredLoadingIndicator() {
         ContainedLoadingIndicator(
             modifier = Modifier.align(Alignment.Center)
         )
+    }
+}
+
+@Composable
+fun rememberWallpaperDownloader(
+    showToast: (String) -> Unit,
+): (wallpaper: WallpaperListItem) -> Unit {
+    val context = LocalContext.current
+    var currentDownload by remember { mutableLongStateOf(-1L) }
+    val startDownload = rememberDownloadStarter()
+    if (currentDownload != -1L) {
+        DownloadListener(currentDownload) { uri ->
+            when {
+                uri == null -> showToast("Download Failed")
+                else -> showToast("Saved to Pictures/Walldo")
+            }
+            currentDownload = -1L
+        }
+    }
+    return remember(context, showToast, startDownload) {
+        { wallpaper ->
+            startDownload {
+                when (val result = downloadWallpaper(context, wallpaper.path, wallpaper.id)) {
+                    is DownloadUtils.AlreadyDownloaded -> showToast("Already Downloaded")
+                    is DownloadUtils.Started -> {
+                        currentDownload = result.id
+                        showToast("Download Started")
+                    }
+                }
+            }
+        }
     }
 }
 

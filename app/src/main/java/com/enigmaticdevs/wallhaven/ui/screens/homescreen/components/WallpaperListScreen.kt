@@ -12,17 +12,13 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -51,7 +47,6 @@ import com.enigmaticdevs.wallhaven.R
 import com.enigmaticdevs.wallhaven.domain.pagingsource.WallpaperListItem
 import com.enigmaticdevs.wallhaven.ui.presentation.ErrorOccurred
 import com.enigmaticdevs.wallhaven.ui.util.aspectRatio
-import com.enigmaticdevs.wallhaven.ui.util.rememberDownloadStarter
 import com.enigmaticdevs.wallhaven.ui.util.rememberPermissionUtilsState
 
 
@@ -63,6 +58,7 @@ val TAG = "WallpaperListScreen"
 fun WallpaperListScreen(
     wallpapers: LazyPagingItems<WallpaperListItem>,
     onPhotoClick: (String) -> Unit,
+    onDownloadClick: (WallpaperListItem) -> Unit,
     onLoadMore: () -> Unit
 ) {
     Box(
@@ -99,7 +95,7 @@ fun WallpaperListScreen(
             is LoadState.Loading -> ContainedLoadingIndicator()
             is LoadState.NotLoading -> {
 
-                WallpaperListGrid(wallpapers, onPhotoClick, Modifier)
+                WallpaperListGrid(wallpapers, onPhotoClick, Modifier, onDownloadClick)
             }
         }
     }
@@ -110,7 +106,8 @@ fun WallpaperListScreen(
 fun WallpaperListGrid(
     photos: LazyPagingItems<WallpaperListItem>,
     onPhotoClick: (String) -> Unit,
-    modifier: Modifier
+    modifier: Modifier,
+    onDownloadClick: (WallpaperListItem) -> Unit
 ) {
 
     if (photos.itemCount == 0) {
@@ -141,16 +138,19 @@ fun WallpaperListGrid(
             items(count = photos.itemCount) { index ->
                 val wallpaper = photos[index]
                 if (wallpaper != null) {
-                    WallpaperCard(wallpaper, onPhotoClick)
+                    WallpaperCard(wallpaper, onPhotoClick, onDownloadClick)
                 }
             }
         }
 }
 
 @Composable
-fun WallpaperCard(wallpaper: WallpaperListItem, onPhotoClick: (String) -> Unit) {
+fun WallpaperCard(
+    wallpaper: WallpaperListItem,
+    onPhotoClick: (String) -> Unit,
+    onDownloadClick: (WallpaperListItem) -> Unit
+) {
     val aspectRatio = aspectRatio(wallpaper.dimensionX, wallpaper.dimensionY)
-    val startDownload = rememberDownloadStarter()
     val context = LocalContext.current
     val showToast = LocalToastTrigger.current
     val permissionState = rememberPermissionUtilsState()
@@ -181,11 +181,18 @@ fun WallpaperCard(wallpaper: WallpaperListItem, onPhotoClick: (String) -> Unit) 
             )
         }
         IconButton(
-            modifier = Modifier.padding(4.dp).minimumInteractiveComponentSize()
+            modifier = Modifier
+                .padding(4.dp)
+                .minimumInteractiveComponentSize()
                 .clip(RoundedCornerShape(25))
                 .background(Color.Black.copy(alpha = 0.45f))
                 .align(Alignment.BottomEnd),
             onClick = {
+                if (permissionState.isGranted) {
+                    onDownloadClick(wallpaper)
+                } else {
+                    permissionState.requestPermission()
+                }
             }
         ) {
             Icon(

@@ -16,11 +16,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.enigmaticdevs.wallhaven.LocalToastTrigger
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionCover
 import com.enigmaticdevs.wallhaven.domain.pagingsource.WallpaperListItem
 import com.enigmaticdevs.wallhaven.ui.presentation.PrefTopAppBar
 import com.enigmaticdevs.wallhaven.ui.screens.homescreen.bottomsheet.FilterBottomSheet
 import com.enigmaticdevs.wallhaven.ui.screens.homescreen.components.WallpaperListScreen
+import com.enigmaticdevs.wallhaven.ui.screens.wallpaperdetail.rememberWallpaperDownloader
+import com.enigmaticdevs.wallhaven.ui.util.rememberPermissionUtilsState
 import dev.zacsweers.metrox.viewmodel.metroViewModel
 
 
@@ -49,6 +52,8 @@ fun CollectionDetailContent(
     onWallpaperClick: (String) -> Unit
 ) {
     var showFilterSheet by remember { mutableStateOf(false) }
+    val permissionState = rememberPermissionUtilsState()
+    val downloader = rememberWallpaperDownloader(LocalToastTrigger.current)
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = { PrefTopAppBar(title = collection, onBack = {}) },
@@ -69,7 +74,14 @@ fun CollectionDetailContent(
         ) {
             WallpaperListScreen(
                 wallpapers = wallpapers,
-                onPhotoClick = onWallpaperClick
+                onPhotoClick = onWallpaperClick,
+                onDownloadClick = {
+                    if (permissionState.isGranted) {
+                        downloader(it)
+                    } else {
+                        permissionState.requestPermission()
+                    }
+                }
             ) { }
         }
 
