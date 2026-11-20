@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit
 data class AutoWallpaperState(
     val switch : Boolean = false,
     val source : String = "popular",
-    val interval : String = AutoWallpaperInterval.MINS_15.name,
+    val interval: String = AutoWallpaperInterval.DAY_1.name,
     val onWifi: Boolean = false,
     val onCharging: Boolean = false,
     val onIdle : Boolean = false,
@@ -34,6 +34,7 @@ data class AutoWallpaperState(
     val screenSelect: String = "both",
     val lastWallpaperId : String? = null,
     val popularLastPage : Int = 1,
+    val isLoaded: Boolean = false
 )
 
 data class Conditions(
@@ -87,6 +88,7 @@ class AutoWallpaperRepository(
             source = it[AutoWallpaperKeys.SOURCE] ?: defaults.source,
             lastWallpaperId = it[AutoWallpaperKeys.LAST_WALLPAPER_ID] ?: defaults.lastWallpaperId,
             popularLastPage = it[AutoWallpaperKeys.POPULAR_LAST_PAGE] ?: defaults.popularLastPage,
+            isLoaded = true
         )
     }.stateIn(
         scope = scope,

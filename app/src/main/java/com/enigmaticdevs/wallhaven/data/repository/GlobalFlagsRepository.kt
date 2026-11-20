@@ -5,12 +5,17 @@ import androidx.datastore.preferences.core.MutablePreferences
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import com.enigmaticdevs.wallhaven.BuildConfig
 import com.enigmaticdevs.wallhaven.data.billing.ProEntitlementStore
+import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -27,6 +32,7 @@ private object GlobalFlagsKeys {
     val LEGACY_FAVORITES_IMPORTED = booleanPreferencesKey("legacy_favorites_imported")
 }
 
+@SingleIn(AppScope::class)
 @Inject
 class GlobalFlagsRepository(
     private val dataStore : DataStore<Preferences>,
@@ -38,13 +44,32 @@ class GlobalFlagsRepository(
     }
 
     // Default is false: nobody is pro until Play (or the legacy import) says so.
-    val proStatus: StateFlow<Boolean> = dataStore.data.map { preferences ->
+    // Inside GlobalFlagsRepository
+    private val _billingProStatus = dataStore.data.map { preferences ->
         preferences[GlobalFlagsKeys.IS_PRO] ?: false
     }.stateIn(
         scope = scope,
         started = SharingStarted.Eagerly,
         initialValue = false
     )
+    private val _debugProOverride = MutableStateFlow<Boolean?>(null)
+
+    val proStatus: StateFlow<Boolean> = combine(
+        _billingProStatus,
+        _debugProOverride
+    ) { billingPro, debugOverride ->
+        if (BuildConfig.DEBUG && debugOverride != null) debugOverride else billingPro
+    }.stateIn(
+        scope = scope,
+        started = SharingStarted.Eagerly,
+        initialValue = false
+    )
+
+    fun setDebugProOverride(forcedPro: Boolean?) {
+        if (BuildConfig.DEBUG) {
+            _debugProOverride.value = forcedPro
+        }
+    }
 
     // ---- ProEntitlementStore (used by the billing code) ----
 

@@ -96,14 +96,15 @@ fun FilterBottomSheetContent(
                 text = ResourceString(R.string.filter_resolution_filter),
                 description = ResourceString(R.string.filter_resolution_filter_desc),
                 icon = R.drawable.ic_resolution,
-                onClick = { showResolutionDialog = true }
+                onClick = { showResolutionDialog = true },
             )
             HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
             ClickablePref(
                 text = ResourceString(R.string.filter_ratio_title),
                 description = ResourceString(R.string.filter_ratio_desc),
                 icon = R.drawable.ic_ratio,
-                onClick = { showRatioDialog = true })
+                onClick = { showRatioDialog = true },
+            )
         }
 
         HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)

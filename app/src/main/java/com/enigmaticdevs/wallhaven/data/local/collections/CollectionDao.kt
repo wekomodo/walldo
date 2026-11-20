@@ -347,7 +347,7 @@ abstract class CollectionDao {
                 wallpaperId = wallpaper.id,
                 collectionId = collection.id,
                 thumbUrl = wallpaper.thumbs.large,
-                fullUrl = wallpaper.url,
+                fullUrl = wallpaper.path,
                 dimensionsX = wallpaper.dimension_x,
                 dimensionsY = wallpaper.dimension_y,
                 purity = wallpaper.purity,

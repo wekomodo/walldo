@@ -1,5 +1,11 @@
 package com.enigmaticdevs.wallhaven.ui.screens.autowallpaper
 
+import android.app.StatusBarManager
+import android.content.ComponentName
+import android.content.Context
+import android.graphics.drawable.Icon
+import android.os.Build
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,13 +35,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.enigmaticdevs.wallhaven.R
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionCover
+import com.enigmaticdevs.wallhaven.data.repository.AutoWallpaperInterval
 import com.enigmaticdevs.wallhaven.data.repository.AutoWallpaperState
+import com.enigmaticdevs.wallhaven.service.NextWallpaperTileService
 import com.enigmaticdevs.wallhaven.ui.presentation.CategoryTitle
 import com.enigmaticdevs.wallhaven.ui.presentation.ClickablePref
 import com.enigmaticdevs.wallhaven.ui.presentation.ClickablePrefWithButton
@@ -44,6 +53,7 @@ import com.enigmaticdevs.wallhaven.ui.presentation.SingleSelectDialog
 import com.enigmaticdevs.wallhaven.ui.presentation.UiText
 import com.enigmaticdevs.wallhaven.ui.presentation.UiText.ResourceString
 import com.enigmaticdevs.wallhaven.ui.presentation.asSource
+import com.enigmaticdevs.wallhaven.ui.screens.upgrade.ProDialog
 import com.enigmaticdevs.wallhaven.ui.util.autoWallpaperScreen
 import com.enigmaticdevs.wallhaven.ui.util.autoWallpaperSource
 import com.enigmaticdevs.wallhaven.ui.util.intervalList
@@ -56,13 +66,15 @@ fun AutoWallpaperRoute(
     viewModel: AutoWallpaperViewModel = metroViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val isPro by viewModel.isPro.collectAsStateWithLifecycle()
     val collections by viewModel.collectionsInfo.collectAsStateWithLifecycle()
     AutoWallpaperContent(
         state = state,
         collections = collections,
+        isPro = isPro,
         onBack = onBack,
-        onSwitchUpdate = { viewModel.updateSwitch(!state.switch) },
-        onWifiChange = { viewModel.updateOnWifi(!state.onWifi) },
+        onSwitchUpdate = viewModel::updateSwitch,
+        onWifiChange = viewModel::updateOnWifi,
         onChargingChange = { viewModel.updateOnCharging(!state.onCharging) },
         onIdleChange = { viewModel.updateOnIdle(!state.onIdle) },
         requireBatteryNotLow = { viewModel.updatePauseOnChargingLow(!state.pauseOnLowBattery) },
@@ -71,7 +83,7 @@ fun AutoWallpaperRoute(
         orientationFix = { viewModel.updateOrientationFix(!state.orientationFix) },
         onScreenSelect = viewModel::updateScreenSelect,
         onSourceSelected = viewModel::updateSource,
-        onCollectionSelect = viewModel::updateAutoWallpaperCollection
+        onCollectionSelect = viewModel::updateAutoWallpaperCollection,
     )
 }
 
@@ -81,20 +93,21 @@ fun AutoWallpaperRoute(
 fun AutoWallpaperContent(
     state: AutoWallpaperState,
     collections: List<CollectionCover>,
+    isPro: Boolean,
     onBack: () -> Unit,
-    onSwitchUpdate: () -> Unit,
-    onWifiChange: () -> Unit,
-    onChargingChange: () -> Unit,
-    onIdleChange: () -> Unit,
-    requireBatteryNotLow: () -> Unit,
-    ifLowOnStorage: () -> Unit,
+    onSwitchUpdate: (Boolean) -> Unit,
+    onWifiChange: (Boolean) -> Unit,
+    onChargingChange: (Boolean) -> Unit,
+    onIdleChange: (Boolean) -> Unit,
+    requireBatteryNotLow: (Boolean) -> Unit,
+    ifLowOnStorage: (Boolean) -> Unit,
     onIntervalSelect: (String) -> Unit,
-    orientationFix: () -> Unit,
+    orientationFix: (Boolean) -> Unit,
     onScreenSelect: (String) -> Unit,
     onSourceSelected: (String) -> Unit,
-    onCollectionSelect: (Long) -> Unit
+    onCollectionSelect: (Long) -> Unit,
 ) {
-
+    var showProDialog by remember { mutableStateOf(false) }
     val snackBarHostState = remember { SnackbarHostState() }
     var showIntervalDialog by remember { mutableStateOf(false) }
     var showScreenSelectionDialog by remember { mutableStateOf(false) }
@@ -102,6 +115,7 @@ fun AutoWallpaperContent(
     var showCollectionSheet by remember { mutableStateOf(false) }
     val activeCollection = collections.firstOrNull { it.isAutoWallpaper }
         ?: collections.firstOrNull()
+    val context = LocalContext.current
 
     val sheetState = rememberBottomSheetState(
         SheetValue.Hidden, enabledValues = setOf(
@@ -140,8 +154,15 @@ fun AutoWallpaperContent(
                 onCheckedChange = onSwitchUpdate,
                 isEnabled = true
             )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                ClickablePref(
+                    text = ResourceString(R.string.qs_tile_name),
+                    description = ResourceString(R.string.qs_tile_desc),
+                    icon = R.drawable.wall,
+                    onClick = { requestAddNextWallpaperTile(context) },
+                    enabled = isPro
+                )
             HorizontalDivider()
-
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -160,11 +181,11 @@ fun AutoWallpaperContent(
             CategoryTitle(ResourceString(R.string.Source))
             ClickablePref(
                 text = ResourceString(R.string.wallpaper_source),
-                description = ResourceString(R.string.wallpaper_source_desc),
+                description = ResourceString(R.string.wallpaper_source_desc, state.source),
                 icon = R.drawable.ic_wallpaper_source,
                 onClick = {
                     showAutoWallpaperSourceDialog = true
-                }
+                },
             )
 
             AnimatedVisibility(visible = state.source == "collections") {
@@ -172,17 +193,19 @@ fun AutoWallpaperContent(
                     text = UiText.DynamicString("Selected Collection"),
                     description = UiText.DynamicString(activeCollection?.let { "${it.name} (${it.count} wallpapers)" }
                         ?: "Tap to choose a collection"),
+                    icon = R.drawable.ic_heart_filled,
                     onClick = { showCollectionSheet = true },
-                    icon = R.drawable.ic_heart_filled
                 )
             }
             HorizontalDivider()
             CategoryTitle(ResourceString(R.string.autoWallpaper_category_conditions))
             ClickablePref(
                 text = ResourceString(R.string.interval),
-                description = ResourceString(R.string.interval_desc),
+                description = ResourceString(R.string.interval_desc, intervalList.firstOrNull {
+                    it.second == AutoWallpaperInterval.fromName(state.interval)
+                }?.first ?: "1 Day"),
                 icon = R.drawable.ic_interval,
-                onClick = { showIntervalDialog = true }
+                onClick = { showIntervalDialog = true },
             )
             ClickablePrefWithButton(
                 isChecked = state.onWifi,
@@ -247,18 +270,25 @@ fun AutoWallpaperContent(
             )
             ClickablePref(
                 text = ResourceString(R.string.autoWallpaper_select_screen),
-                description = ResourceString(R.string.autoWallpaper_select_screen_desc),
+                description = ResourceString(
+                    R.string.autoWallpaper_select_screen_desc,
+                    autoWallpaperScreen.firstOrNull {
+                        it.second == state.screenSelect
+                    }?.first ?: "Both"
+                ),
                 icon = R.drawable.ic_select_screen,
-                onClick = { showScreenSelectionDialog = true }
+                onClick = { showScreenSelectionDialog = true },
             )
             if (showIntervalDialog)
                 SingleSelectDialog(
+                    isPro = isPro,
                     currentSelection = state.interval,
                     options = intervalList,
                     onSelection = onIntervalSelect,
                     onDismiss = {
                         showIntervalDialog = false
-                    }
+                    },
+                    onUpgradeClick = { showProDialog = true }
                 )
             if (showScreenSelectionDialog) {
                 SingleSelectDialog(
@@ -280,12 +310,21 @@ fun AutoWallpaperContent(
             }
             if (showCollectionSheet) {
                 CollectionPickerBottomSheet(
+                    isPro = isPro,
                     sheetState = sheetState,
                     collections = collections,
                     selectedCollectionId = activeCollection?.id ?: 0L,
                     onSelectCollection = onCollectionSelect,
                     onDismiss = {
                         showCollectionSheet = false
+                    },
+                    onUpgradeClick = { showProDialog = true }
+                )
+            }
+            if (showProDialog) {
+                ProDialog(
+                    onDismiss = {
+                        showProDialog = false
                     }
                 )
             }
@@ -295,12 +334,52 @@ fun AutoWallpaperContent(
 
 }
 
+fun requestAddNextWallpaperTile(context: Context) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        val statusBarManager = context.getSystemService(StatusBarManager::class.java)
+        statusBarManager?.requestAddTileService(
+            ComponentName(context, NextWallpaperTileService::class.java),
+            "Next Wallpaper",
+            Icon.createWithResource(context, R.drawable.wall),
+            context.mainExecutor
+        ) { resultCode ->
+            // Handle the response callback
+            when (resultCode) {
+                StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_ADDED -> {
+                    // Tile was added successfully!
+                    Toast.makeText(context, "Tile Added", Toast.LENGTH_LONG).show()
+                }
+
+                StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_ALREADY_ADDED -> {
+                    // Tile was already in the active panel
+                    Toast.makeText(context, "It Already exists", Toast.LENGTH_LONG).show()
+                }
+
+                StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_NOT_ADDED -> {
+                    // User declined or cancelled the prompt
+                }
+                /* StatusBarManager.TILE_ADD_REQUEST_RESULT_DIALOG_DISMISSED -> {
+                     // Dialog dismissed without explicit action
+                 }*/
+            }
+        }
+    } else {
+        // Fallback for older versions: Guide user to add it manually
+        Toast.makeText(
+            context,
+            "Please add the tile manually from Quick Settings",
+            Toast.LENGTH_LONG
+        ).show()
+    }
+}
+
 @Preview
 @Composable
 fun Preview() {
     AutoWallpaperContent(
         AutoWallpaperState(),
         collections = listOf(),
+        isPro = false,
         onBack = {},
         onSwitchUpdate = {},
         onWifiChange = {},

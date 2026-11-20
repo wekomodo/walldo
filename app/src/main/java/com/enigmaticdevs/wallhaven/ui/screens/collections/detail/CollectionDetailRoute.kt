@@ -39,7 +39,6 @@ fun CollectionDetailRoute(
         collection = collection.name,
         wallpapers = wallpapers,
         onWallpaperClick = onWallpaperClick
-
     )
 }
 

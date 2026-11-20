@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Face
@@ -25,6 +26,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -40,9 +42,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.max
 import com.enigmaticdevs.wallhaven.data.repository.AutoWallpaperInterval
-import com.enigmaticdevs.wallhaven.ui.theme.ThemeMode
 
 
 sealed interface ImageSource {
@@ -90,12 +90,19 @@ fun CategoryTitle(text: UiText) {
 
 // Clickable Prefs replicated to feel like Old xml Prefs
 @Composable
-fun ClickablePref(text: UiText, description: UiText, icon: Int, onClick: () -> Unit) {
+fun ClickablePref(
+    text: UiText,
+    description: UiText,
+    icon: Int,
+    onClick: () -> Unit,
+    enabled: Boolean = true,
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(enabled = true, onClick = onClick)
-            .padding(8.dp),
+            .clickable(enabled = enabled, onClick = onClick)
+            .padding(8.dp)
+            .alpha(if (enabled) 1f else 0.4f),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
@@ -105,23 +112,38 @@ fun ClickablePref(text: UiText, description: UiText, icon: Int, onClick: () -> U
         )
         Column(
             modifier = Modifier
-                .wrapContentSize()
+                .weight(1f)
                 .padding(start = 8.dp, top = 8.dp)
         ) {
             Text(text = text.asString(), style = MaterialTheme.typography.bodyLarge)
             Text(text = description.asString(), style = MaterialTheme.typography.bodySmall)
 
         }
+        if (!enabled)
+            Surface(
+                modifier = Modifier.padding(end = 4.dp),
+                shape = RoundedCornerShape(6.dp),
+                color = MaterialTheme.colorScheme.primaryContainer
+            ) {
+                Text(
+                    text = "PRO",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                )
+            }
     }
 
 }
 
 @Composable
 fun SingleSelectDialog(
+    isPro: Boolean,
     currentSelection: String,
     options : List<Pair<String, AutoWallpaperInterval>>,
     onSelection: (String) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    onUpgradeClick: () -> Unit
 ) {
    // val themeOptions = ThemeMode.entries
     AlertDialog(
@@ -135,6 +157,7 @@ fun SingleSelectDialog(
             ) {
                 options.forEachIndexed { index, item ->
                     val isSelected = (item.second.name == currentSelection)
+                    val isLocked = !isPro && item.second != AutoWallpaperInterval.DAY_1
                     Row(
                         Modifier
                             .fillMaxWidth()
@@ -142,8 +165,15 @@ fun SingleSelectDialog(
                             .selectable(
                                 selected = currentSelection == item.second.name,
                                 onClick = {
-                                    onSelection(item.second.name)
-                                }),
+                                    if (isPro) {
+                                        onSelection(item.second.name)
+                                        onDismiss()
+                                    } else {
+                                        onDismiss()
+                                        onUpgradeClick()
+                                    }
+                                })
+                            .alpha(if (isLocked) 0.55f else 1f),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         RadioButton(
@@ -155,6 +185,19 @@ fun SingleSelectDialog(
                             text = item.first,
                             style = MaterialTheme.typography.bodyLarge
                         )
+                        if (isLocked) {
+                            Surface(
+                                shape = RoundedCornerShape(6.dp),
+                                color = MaterialTheme.colorScheme.primaryContainer
+                            ) {
+                                Text(
+                                    text = "PRO",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -177,7 +220,7 @@ fun ClickablePrefWithButton(
     text: UiText,
     description: UiText,
     imageSource: ImageSource,
-    onCheckedChange: () -> Unit,
+    onCheckedChange: (Boolean) -> Unit,
     isEnabled : Boolean
 ) {
     val contentAlpha = if (isEnabled) 1f else 0.38f
@@ -190,7 +233,7 @@ fun ClickablePrefWithButton(
         modifier = Modifier
             .fillMaxWidth()
             .alpha(contentAlpha)
-            .clickable(enabled = isEnabled, onClick = onCheckedChange)
+            .clickable(enabled = isEnabled, onClick = { onCheckedChange(!isChecked) })
             .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -214,7 +257,7 @@ fun ClickablePrefWithButton(
             Switch(
                 enabled = isEnabled,
                 checked = isChecked,
-                onCheckedChange = { onCheckedChange() }
+                onCheckedChange = onCheckedChange
             )
         }
     }
@@ -358,7 +401,7 @@ fun SingleSelectDialog(
                             .padding(8.dp)
                             .selectable(
                                 selected = currentValue == it.second,
-                                onClick = { onSelection(it.second)}),
+                                onClick = { onSelection(it.second) }),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         RadioButton(

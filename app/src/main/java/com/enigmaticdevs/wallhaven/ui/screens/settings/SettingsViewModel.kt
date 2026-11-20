@@ -76,6 +76,10 @@ class SettingsViewModel(
     private val TAG = "SettingsViewModel"
     private val cacheSize = MutableStateFlow(0L)
     private val _keyCheck = MutableStateFlow(KeyCheck.Idle)
+
+
+    fun setDebugPro(value: Boolean?) = globalFlagsRepository.setDebugProOverride(value)
+
     val keyCheck: StateFlow<KeyCheck> = _keyCheck.asStateFlow()
     val uiState: StateFlow<SettingsUiState> = combine(
         //group 1

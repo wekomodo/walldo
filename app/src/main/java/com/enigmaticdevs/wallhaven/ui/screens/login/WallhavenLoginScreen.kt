@@ -1,14 +1,16 @@
 package com.enigmaticdevs.wallhaven.ui.screens.login
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.graphics.Bitmap
+import android.net.Uri
 import android.util.Log
 import android.webkit.CookieManager
 import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -19,13 +21,17 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.net.toUri
+import com.enigmaticdevs.wallhaven.BuildConfig
 import com.enigmaticdevs.wallhaven.LocalToastTrigger
 import com.enigmaticdevs.wallhaven.ui.presentation.PrefTopAppBar
 import com.enigmaticdevs.wallhaven.ui.util.WALLHAVEN_UA
@@ -34,9 +40,18 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import org.json.JSONObject
+import org.json.JSONTokener
+import java.io.ByteArrayInputStream
+import java.util.concurrent.atomic.AtomicBoolean
 
 private const val TAG = "WallhavenLogin"
+private const val HOST = "wallhaven.cc"
+private const val LOGIN_URL = "https://$HOST/login"
 
+/* -------------------------------------------------------------------------- */
+/*  Route                                                                     */
+/* -------------------------------------------------------------------------- */
 
 @Composable
 fun WallhavenLoginRoute(
@@ -44,51 +59,93 @@ fun WallhavenLoginRoute(
     viewmodel: WallhavenLoginViewModel = metroViewModel()
 ) {
     val showToast = LocalToastTrigger.current
-    
-    // Listen for events from the ViewModel
-    androidx.compose.runtime.LaunchedEffect(Unit) {
+    LaunchedEffect(Unit) {
         viewmodel.events.collect { event ->
             when (event) {
                 is LoginEvent.Success -> {
                     showToast("Logged in & API Key saved!")
                     onBack()
                 }
-                is LoginEvent.Logout -> {
-                    // Handle logout if needed
-                }
+                is LoginEvent.Logout -> Unit
             }
         }
     }
-
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { PrefTopAppBar("Wallhaven login form", onBack = onBack) },
+        topBar = { PrefTopAppBar("Wallhaven login", onBack = onBack) },
     ) { paddingValues ->
-
         WallhavenLoginScreen(
             paddingValues = paddingValues,
-            onLoginSuccess = { cookies, csrfToken ->
-                viewmodel.onLoginCredentialsReceived(cookies, csrfToken)
-                // We no longer call onBack() or showToast() here! 
-                // We wait for the ViewModel to finish and emit LoginEvent.Success
-            },
+            onLoginSuccess = viewmodel::onLoginCredentialsReceived,
             onBack = onBack
         )
     }
-
 }
 
-fun simulateExpiredSession() {
-    val m = CookieManager.getInstance()
-    listOf("wallhaven_session", "XSRF-TOKEN").forEach {
-        m.setCookie("https://wallhaven.cc", "$it=; Max-Age=0; Path=/")
-    }
-    m.flush()
-    val names = m.getCookie("https://wallhaven.cc")?.split(";")?.map { it.substringBefore("=").trim() }
-    Log.d("Spike", "After simulate: $names")   // wallhaven_session should be gone
+/* -------------------------------------------------------------------------- */
+/*  Navigation / detection rules                                              */
+/* -------------------------------------------------------------------------- */
+
+/** Account creation happens on the website, never inside the app. */
+private val SIGNUP_PATHS = listOf("/join", "/register", "/signup")
+
+/**
+ * Path segments of pages where a session cookie does NOT mean "logged in".
+ * Laravel issues a session cookie to anonymous visitors, so the cookie alone is meaningless.
+ */
+private val AUTH_SEGMENT_PREFIXES =
+    listOf("login", "join", "register", "signup", "forgot", "password", "reset")
+
+private fun isSignupPath(path: String): Boolean =
+    SIGNUP_PATHS.any { path == it || path.startsWith("$it/") }
+
+private fun isAuthPage(path: String): Boolean =
+    path.split('/')
+        .filter { it.isNotEmpty() }
+        .any { seg -> AUTH_SEGMENT_PREFIXES.any { seg.startsWith(it, ignoreCase = true) } }
+
+private fun isAllowedUrl(uri: Uri): Boolean {
+    val host = uri.host ?: return false
+    return uri.scheme == "https" && (host == HOST || host.endsWith(".$HOST"))
 }
 
-private const val HOST = "wallhaven.cc"
+/** Hides signup links so users never hit a dead end. Safe to run repeatedly. */
+private const val HIDE_SIGNUP_JS = """
+(function(){
+  if (document.getElementById('__hide_signup')) return;
+  var s = document.createElement('style');
+  s.id = '__hide_signup';
+  s.textContent = 'a[href*="/join"],a[href*="/register"],a[href*="/signup"]{display:none !important;}';
+  (document.head || document.documentElement).appendChild(s);
+})();
+"""
+
+/**
+ * Returns a JSON string: {"csrf": "...", "loggedIn": true|false}
+ * (log in with Chrome, DevTools, find something that only exists when signed in).
+ */
+private const val PROBE_JS = """
+(function(){
+  var csrf = document.querySelector('meta[name="csrf-token"]');
+  var loggedIn = !!document.querySelector(
+    'a[href$="/logout"], form[action$="/logout"], a[href*="/settings"]'
+  );
+  return JSON.stringify({csrf: csrf ? csrf.content : null, loggedIn: loggedIn});
+})();
+"""
+
+/** Decodes the value evaluateJavascript hands back (a JSON-encoded string containing JSON). */
+private fun parseProbe(raw: String?): JSONObject? {
+    if (raw.isNullOrBlank() || raw == "null") return null
+    return runCatching {
+        val inner = JSONTokener(raw).nextValue() as? String ?: return null
+        JSONObject(inner)
+    }.getOrNull()
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Screen                                                                    */
+/* -------------------------------------------------------------------------- */
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
@@ -99,10 +156,13 @@ fun WallhavenLoginScreen(
 ) {
     var webView by remember { mutableStateOf<WebView?>(null) }
     var isLoading by remember { mutableStateOf(true) }
-    var handled by remember { mutableStateOf(false) }
+    // Not Compose state: it's read from WebView callbacks and shouldn't trigger recomposition.
+    val handled = remember { AtomicBoolean(false) }
+    val currentOnLoginSuccess by rememberUpdatedState(onLoginSuccess)
 
     BackHandler {
-        if (webView?.canGoBack() == true) webView?.goBack() else onBack()
+        val wv = webView
+        if (wv?.canGoBack() == true) wv.goBack() else onBack()
     }
 
     DisposableEffect(Unit) {
@@ -116,9 +176,11 @@ fun WallhavenLoginScreen(
         }
     }
 
-    Box(Modifier
-        .fillMaxSize()
-        .padding(paddingValues)) {
+    Box(
+        Modifier
+            .fillMaxSize()
+            .padding(paddingValues)
+    ) {
         AndroidView(
             modifier = Modifier.fillMaxSize(),
             factory = { context ->
@@ -129,103 +191,136 @@ fun WallhavenLoginScreen(
 
                     settings.apply {
                         userAgentString = WALLHAVEN_UA
-                        javaScriptEnabled = true          // set false if login works without it
+                        javaScriptEnabled = true // needed for the login probe
                         domStorageEnabled = true
                         allowFileAccess = false
+                        allowContentAccess = false
                         setSupportZoom(true)
                         builtInZoomControls = true
-                        allowContentAccess = false
+                        displayZoomControls = false
                         mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
-                        //safeBrowsingEnabled = true
                         setGeolocationEnabled(false)
                     }
 
                     webViewClient = object : WebViewClient() {
-                        // Block top-level navigation away from wallhaven
+
+                        private fun showBlockedToast() {
+                            Toast.makeText(
+                                context,
+                                "Account creation isn't available in this app.",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+
+                        // Block navigation away from wallhaven and into signup pages.
                         override fun shouldOverrideUrlLoading(
-                            view: WebView, request: WebResourceRequest
+                            view: WebView,
+                            request: WebResourceRequest
                         ): Boolean {
-                            val host = request.url.host ?: return true
-                            
-                            // Block account creation within the app to bypass Play Store's account deletion requirement.
-                            // If the user tries to register, redirect them to the system browser instead.
-                            val path = request.url.path ?: ""
-                            if (path.contains("/join") || path.contains("/register")) {
-                                val intent = Intent(Intent.ACTION_VIEW, request.url)
-                                view.context.startActivity(intent)
+                            val url = request.url
+                            if (!isAllowedUrl(url)) return true
+                            if (isSignupPath(url.path.orEmpty())) {
+                                showBlockedToast()
                                 return true
                             }
+                            return false
+                        }
 
-                            val allowed = request.url.scheme == "https" &&
-                                    (host == HOST || host.endsWith(".$HOST"))
-                            return !allowed // true = block
+                        // Backstop for what shouldOverrideUrlLoading can miss (form POSTs, redirects).
+                        override fun shouldInterceptRequest(
+                            view: WebView,
+                            request: WebResourceRequest
+                        ): WebResourceResponse? {
+                            if (request.isForMainFrame && isSignupPath(request.url.path.orEmpty())) {
+                                return WebResourceResponse(
+                                    "text/plain", "utf-8", 403, "Blocked",
+                                    emptyMap(), ByteArrayInputStream(ByteArray(0))
+                                )
+                            }
+                            return null
                         }
 
                         override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
                             isLoading = true
                         }
 
-                        override fun onPageFinished(view: WebView?, url: String?) {
+                        override fun onPageCommitVisible(view: WebView, url: String?) {
+                            view.evaluateJavascript(HIDE_SIGNUP_JS, null)
+                        }
+
+                        override fun onPageFinished(view: WebView, url: String?) {
                             isLoading = false
-                            if (handled || url == null) return
+                            view.evaluateJavascript(HIDE_SIGNUP_JS, null)
 
-                            cookieManager.flush()
-                            val cookies = cookieManager.getCookie(url).orEmpty()
-                            val loggedIn = "wallhaven_session" in cookies &&
-                                    !url.contains("/login")
-                            if (!loggedIn) return
+                            if (handled.get() || url == null) return
+                            // Register / forgot-password / login pages never count as "logged in".
+                            if (isAuthPage(url.toUri().path.orEmpty())) return
 
-                            handled = true
-                            view?.evaluateJavascript(
-                                "document.querySelector('meta[name=\"csrf-token\"]')?.content"
-                            ) { raw ->
-                                val csrf = raw?.trim('"')
-                                    ?.takeIf { it.isNotBlank() && it != "null" }
-                                onLoginSuccess(cookies, csrf)
-                                // Credentials are stored now; we use webview to make further calls
-                                /*cookieManager.removeAllCookies(null)
-                                cookieManager.flush()*/
+                            view.evaluateJavascript(PROBE_JS) { raw ->
+                                if (handled.get()) return@evaluateJavascript
+                                val json = parseProbe(raw) ?: return@evaluateJavascript
+                                if (!json.optBoolean("loggedIn")) return@evaluateJavascript
+
+                                cookieManager.flush()
+                                val cookies = cookieManager.getCookie(url).orEmpty()
+                                if ("wallhaven_session" !in cookies) return@evaluateJavascript
+
+                                // compareAndSet guards against onPageFinished firing twice quickly.
+                                if (!handled.compareAndSet(false, true)) return@evaluateJavascript
+
+                                val csrf = json.optString("csrf")
+                                    .takeIf { it.isNotBlank() && it != "null" }
+                                currentOnLoginSuccess(cookies, csrf)
                             }
                         }
                     }
 
-                    loadUrl("https://$HOST/login")
+                    loadUrl(LOGIN_URL)
                     webView = this
                 }
             }
         )
 
         if (isLoading) {
-            LinearProgressIndicator(Modifier
-                .fillMaxWidth()
-                .align(Alignment.TopCenter))
+            LinearProgressIndicator(
+                Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.TopCenter)
+            )
         }
     }
 }
 
+/* -------------------------------------------------------------------------- */
+/*  Debug-only helpers (move to a debug source set when convenient)           */
+/* -------------------------------------------------------------------------- */
+
+fun simulateExpiredSession() {
+    if (!BuildConfig.DEBUG) return
+    val m = CookieManager.getInstance()
+    listOf("wallhaven_session", "XSRF-TOKEN").forEach {
+        m.setCookie("https://$HOST", "$it=; Max-Age=0; Path=/")
+    }
+    m.flush()
+    val names = m.getCookie("https://$HOST")?.split(";")?.map { it.substringBefore("=").trim() }
+    Log.d(TAG, "After simulate: $names")
+}
 
 @OptIn(DelicateCoroutinesApi::class)
-fun runSpike(label : String) {
+fun runSpike(label: String) {
+    if (!BuildConfig.DEBUG) return
     GlobalScope.launch(Dispatchers.IO) {
-
-        /* val names = CookieManager.getInstance().getCookie("https://wallhaven.cc")
-             ?.split(";")?.map { it.substringBefore("=").trim() }
-         Log.d("Spike", "Before POST: $names")*/
         try {
             simulateExpiredSession()
             val api = WallhavenAccountApi()
             val wallpaperId = "d8vvlo"
             val collectionId = "2298578"
-            //   Log.d("Test", "create -> ${api.createCollection("api-test", isPublic = false)}")
-// find its ID from the official API, then:
-            // Log.d("Test", "add -> ${api.addToCollection(wallpaperId, collectionId)}")
-            // Log.d("Test", "remove -> ${api.removeWallpaper(wallpaperId)}")
-            //   Log.d("Test", "delete -> ${api.deleteCollection(collectionId)}")
-            //  WallhavenSpike().probeDupOrigin()
-            // WallhavenSpike().runWithRetry("spike-test-last")
+            // Log.d(TAG, "create -> ${api.createCollection("api-test", isPublic = false)}")
+            // Log.d(TAG, "add -> ${api.addToCollection(wallpaperId, collectionId)}")
+            // Log.d(TAG, "remove -> ${api.removeWallpaper(wallpaperId)}")
+            // Log.d(TAG, "delete -> ${api.deleteCollection(collectionId)}")
         } catch (e: Throwable) {
-            Log.e("Spike", "Spike failed", e)
+            Log.e(TAG, "Spike failed ($label)", e)
         }
     }
 }
-

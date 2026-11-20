@@ -13,6 +13,7 @@ import com.enigmaticdevs.wallhaven.data.remote.model.RemoteCollections
 import com.enigmaticdevs.wallhaven.data.remote.model.Wallpapers
 import com.enigmaticdevs.wallhaven.data.repository.CollectionsRepository
 import com.enigmaticdevs.wallhaven.data.repository.GlobalFilterRepository
+import com.enigmaticdevs.wallhaven.data.repository.GlobalFlagsRepository
 import com.enigmaticdevs.wallhaven.data.repository.SettingsRepository
 import com.enigmaticdevs.wallhaven.data.repository.WallpaperRepository
 import com.enigmaticdevs.wallhaven.ui.screens.collections.components.CreateCollectionRequest
@@ -42,6 +43,7 @@ class CollectionsViewModel(
     private val syncManager : CollectionSyncManager,
     private val settings: SettingsRepository,
     private val globalFilterRepository: GlobalFilterRepository,
+    private val globalFlagsRepository: GlobalFlagsRepository,
     private val workManager: WorkManager
 ) : ViewModel() {
 
@@ -55,6 +57,12 @@ class CollectionsViewModel(
             doneCollections = 0,
             totalCollections = 0
         )
+    )
+
+    val isPro = globalFlagsRepository.isPro.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = false
     )
 
   //  val syncStates = syncManager.syncState

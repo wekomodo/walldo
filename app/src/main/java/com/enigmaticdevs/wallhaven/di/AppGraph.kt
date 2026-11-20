@@ -14,6 +14,7 @@ import com.enigmaticdevs.wallhaven.data.billing.legacy.LegacyBillingMigration
 import com.enigmaticdevs.wallhaven.data.local.collections.CollectionSyncManager
 import com.enigmaticdevs.wallhaven.data.local.collections.legacy.LegacyFavoritesMigration
 import com.enigmaticdevs.wallhaven.data.repository.GlobalFilterRepository
+import com.enigmaticdevs.wallhaven.data.repository.GlobalFlagsRepository
 import com.enigmaticdevs.wallhaven.ui.screens.login.WallhavenAccountApi
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Binds
@@ -37,6 +38,8 @@ interface AppGraph : ViewModelGraph {
 
 
     val globalFilterRepository: GlobalFilterRepository
+
+    val globalFlagsRepository: GlobalFlagsRepository
     val collectionSyncManager: CollectionSyncManager
     val legacyBillingMigration: LegacyBillingMigration
     val legacyFavoritesMigration : LegacyFavoritesMigration

@@ -47,6 +47,8 @@ class AutoWallpaperViewModel(
 ) : ViewModel() {
 
     val state: StateFlow<AutoWallpaperState> = repository.state
+
+    val isPro = globalFlagsRepository.proStatus
     private val _events = Channel<String>(Channel.BUFFERED)
     val events = _events.receiveAsFlow()
 
@@ -59,7 +61,8 @@ class AutoWallpaperViewModel(
                     orientationFix = false,
                     screenSelect = "",
                     lastWallpaperId = null,
-                    popularLastPage = 0
+                    popularLastPage = 0,
+                    isLoaded = false
                 )
             }
             .distinctUntilChanged()
@@ -124,9 +127,10 @@ class AutoWallpaperViewModel(
             .setRequiresStorageNotLow(s.ifLowOnStorage)
             .build()
         val interval = AutoWallpaperInterval.fromName(s.interval)
+        val intervalInMinutes = interval.timeUnit.toMinutes(interval.value)
         val request = PeriodicWorkRequestBuilder<AutoWallpaperWorker>(
-            repeatInterval = maxOf(interval.value, 15L),
-            repeatIntervalTimeUnit = interval.timeUnit
+            repeatInterval = maxOf(intervalInMinutes, 15L),
+            repeatIntervalTimeUnit = java.util.concurrent.TimeUnit.MINUTES
         )
             .setConstraints(constraints)
             .build()

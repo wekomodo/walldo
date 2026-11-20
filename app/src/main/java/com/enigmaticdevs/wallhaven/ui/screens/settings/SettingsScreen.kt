@@ -53,6 +53,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.enigmaticdevs.wallhaven.BuildConfig
 import com.enigmaticdevs.wallhaven.R
 import com.enigmaticdevs.wallhaven.ui.presentation.CategoryTitle
 import com.enigmaticdevs.wallhaven.ui.presentation.ClickablePref
@@ -104,7 +105,8 @@ fun SettingsScreen(
         topBar = {
             PrefTopAppBar(
                 title = "Settings",
-                onBack = onBack)
+                onBack = onBack
+            )
         },
         snackbarHost = {
             SnackbarHost(hostState = snackBarHostState)
@@ -121,10 +123,11 @@ fun SettingsScreen(
             ClickablePref(
                 text = ResourceString(R.string.upgrade),
                 description = ResourceString(R.string.upgrade_desc),
-                icon = if(!state.isPro)R.drawable.ic_upgrade else R.drawable.ic_logged_in
-            ) {
-                showProStatusDialog = true
-            }
+                icon = if (!state.isPro) R.drawable.ic_upgrade else R.drawable.ic_logged_in,
+                {
+                    showProStatusDialog = true
+                },
+            )
             CategoryTitle(ResourceString(R.string.settings_category_appearance))
             ClickablePrefWithButton(
                 isChecked = state.dynamicColors,
@@ -138,10 +141,11 @@ fun SettingsScreen(
             ClickablePref(
                 text = ResourceString(R.string.theme),
                 description = ResourceString(R.string.theme_desc),
-                icon = R.drawable.ic_theme
-            ) {
-                showThemeDialog = true
-            }
+                icon = R.drawable.ic_theme,
+                {
+                    showThemeDialog = true
+                },
+            )
             HorizontalDivider()
 
             // Account
@@ -149,17 +153,18 @@ fun SettingsScreen(
             ClickablePref(
                 text = if (!state.loginStatus) ResourceString(R.string.login)
                 else
-                    ResourceString(R.string.logout,state.username),
+                    ResourceString(R.string.logout, state.username),
                 description = ResourceString(R.string.login_desc),
                 icon = if (state.loginStatus) R.drawable.ic_logged_in
                 else
-                    R.drawable.ic_logout
-            ) {
-                if (!state.loginStatus)
-                    onWallhavenLoginClick()
-                else
-                    showLogoutDialog = true
-            }
+                    R.drawable.ic_logout,
+                {
+                    if (!state.loginStatus)
+                        onWallhavenLoginClick()
+                    else
+                        showLogoutDialog = true
+                },
+            )
             ClickablePref(
                 text = ResourceString(R.string.apiKey),
                 description = when {
@@ -167,10 +172,11 @@ fun SettingsScreen(
                     state.apiKey.isBlank() -> ResourceString(R.string.apiKey_empty)
                     else -> ResourceString(R.string.apiKey_exists)
                 },
-                icon = R.drawable.ic_api_key
-            ) {
-                showApiKeyDialog = true
-            }
+                icon = R.drawable.ic_api_key,
+                {
+                    showApiKeyDialog = true
+                },
+            )
 
             HorizontalDivider()
 
@@ -179,23 +185,37 @@ fun SettingsScreen(
             ClickablePref(
                 text = ResourceString(R.string.image_cache),
                 description = ResourceString(R.string.image_cache_desc, size),
-                icon = R.drawable.ic_cleaning_services
-            ) {
-                viewModel.clearImageCache()
-                scope.launch {
-                    snackBarHostState.showSnackbar("Cache Cleared")
-                }
-            }
+                icon = R.drawable.ic_cleaning_services,
+                {
+                    viewModel.clearImageCache()
+                    scope.launch {
+                        snackBarHostState.showSnackbar("Cache Cleared")
+                    }
+                },
+            )
             HorizontalDivider()
 
             CategoryTitle(ResourceString(R.string.settings_category_about))
             ClickablePref(
                 text = ResourceString(R.string.app_name),
                 description = ResourceString(R.string.github_repo),
-                icon = R.drawable.wall
-            ) {
-                uriHandler.openUri("https://github.com/wekomodo/walldo")
-            }
+                icon = R.drawable.wall,
+                {
+                    uriHandler.openUri("https://github.com/wekomodo/walldo")
+                },
+            )
+
+            if (BuildConfig.DEBUG)
+                ClickablePrefWithButton(
+                    isChecked = state.isPro,
+                    text = UiText.DynamicString("DEBUG TESTING"),
+                    description = UiText.DynamicString(""),
+                    imageSource = R.drawable.wall.asSource(),
+                    onCheckedChange = {
+                        viewModel.setDebugPro(it)
+                    },
+                    isEnabled = true,
+                )
 
         }
     }
@@ -303,7 +323,7 @@ fun Preview() {
 
 @Composable
 fun ApiKeyDialog(
-    isEnabled : Boolean,
+    isEnabled: Boolean,
     currentKey: String,
     onSave: (String) -> Unit,
     keyCheck: KeyCheck,

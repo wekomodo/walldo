@@ -11,17 +11,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.SheetState
-import androidx.compose.material3.SheetValue
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberBottomSheetScaffoldState
-import androidx.compose.material3.rememberBottomSheetState
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -37,20 +33,22 @@ import com.enigmaticdevs.wallhaven.data.local.collections.CollectionCover
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CollectionPickerBottomSheet(
-    sheetState : SheetState,
+    isPro: Boolean,
+    sheetState: SheetState,
     collections: List<CollectionCover>,
     selectedCollectionId: Long,
     onSelectCollection: (Long) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    onUpgradeClick: () -> Unit
 ) {
 
     LaunchedEffect(Unit) {
         sheetState.expand()
     }
     ModalBottomSheet(
-       onDismissRequest = onDismiss,
+        onDismissRequest = onDismiss,
         sheetState = sheetState,
-    ){
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -72,6 +70,7 @@ fun CollectionPickerBottomSheet(
                 ) { collection ->
                     val isSelected = collection.id == selectedCollectionId
                     val isEnabled = collection.count > 0
+                    val isLocked = !isPro && collection.name != "Favorites"
 
                     Row(
                         modifier = Modifier
@@ -81,12 +80,17 @@ fun CollectionPickerBottomSheet(
                                 enabled = isEnabled,
                                 role = Role.RadioButton,
                                 onClick = {
-                                    onSelectCollection(collection.id)
-                                   // onDismiss()
+                                    if (!isLocked) {
+                                        onSelectCollection(collection.id)
+                                        onDismiss()
+                                    } else {
+                                        onDismiss()
+                                        onUpgradeClick()
+                                    }
                                 }
                             )
                             .padding(horizontal = 24.dp, vertical = 12.dp)
-                            .alpha(if (isEnabled) 1f else 0.4f),
+                            .alpha(if (isEnabled and isLocked) 0.4f else 1f),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         // Small 48.dp cover thumbnail preview
@@ -111,10 +115,23 @@ fun CollectionPickerBottomSheet(
                             )
                             Text(
                                 text = "${collection.count} wallpapers" +
-                                    if (collection.isSynced) " • Synced" else "",
+                                        if (collection.isSynced) " • Synced" else "",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
+                        }
+                        if (isLocked) {
+                            Surface(
+                                shape = RoundedCornerShape(6.dp),
+                                color = MaterialTheme.colorScheme.primaryContainer
+                            ) {
+                                Text(
+                                    text = "PRO",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                )
+                            }
                         }
 
                         RadioButton(

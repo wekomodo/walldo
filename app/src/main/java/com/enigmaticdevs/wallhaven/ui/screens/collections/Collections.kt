@@ -50,6 +50,7 @@ import com.enigmaticdevs.wallhaven.ui.presentation.rememberDragDropState
 import com.enigmaticdevs.wallhaven.ui.screens.collections.components.CreateCollectionDialog
 import com.enigmaticdevs.wallhaven.ui.screens.collections.components.CreateCollectionRequest
 import com.enigmaticdevs.wallhaven.ui.screens.collections.components.SyncProgressIndicator
+import com.enigmaticdevs.wallhaven.ui.screens.upgrade.ProDialog
 import dev.zacsweers.metrox.viewmodel.metroViewModel
 
 @Composable
@@ -62,7 +63,9 @@ fun CollectionsRoute(
     val syncState by viewModel.syncState.collectAsStateWithLifecycle()
     val lastResult by viewModel.lastSyncResult.collectAsStateWithLifecycle()
     val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
+    val isPro by viewModel.isPro.collectAsStateWithLifecycle()
     CollectionsContent(
+        isPro = isPro,
         isRefreshing = isRefreshing,
         syncState = syncState,
         lastResult = lastResult,
@@ -70,22 +73,24 @@ fun CollectionsRoute(
         onClick = onCollectionDetail,
         onAddClick = viewModel::createCollection,
         onDragDone = viewModel::updateSortOrder,
-        onResync =  viewModel::refresh
+        onResync = viewModel::refresh
     )
 }
 
 @Composable
 fun CollectionsContent(
-    isRefreshing : Boolean,
+    isPro: Boolean,
+    isRefreshing: Boolean,
     syncState: SyncState,
     lastResult: SyncResult?,
     collections: List<CollectionCover>?,
     onClick: (CollectionCover) -> Unit,
     onAddClick: (CreateCollectionRequest) -> Unit,
     onDragDone: (List<Long>) -> Unit,
-    onResync : () -> Unit
+    onResync: () -> Unit
 ) {
     var showCollectionDialog by remember { mutableStateOf(false) }
+    var showProDialog by remember { mutableStateOf(false) }
     var localList by remember { mutableStateOf(collections.orEmpty()) }
     val state = rememberPullToRefreshState()
     val lazyListState = rememberLazyListState()
@@ -112,7 +117,12 @@ fun CollectionsContent(
                 actions = NavigationIcon(
                     Icons.Rounded.Add,
                     true,
-                    onClick = { showCollectionDialog = true })
+                    onClick = {
+                        if (isPro)
+                            showCollectionDialog = true
+                        else
+                            showProDialog = true
+                    })
             )
         },
 
@@ -163,6 +173,10 @@ fun CollectionsContent(
             CreateCollectionDialog(
                 onConfirm = onAddClick,
                 onDismiss = { showCollectionDialog = false }
+            )
+        if (showProDialog)
+            ProDialog(
+                onDismiss = { showProDialog = false }
             )
 
 

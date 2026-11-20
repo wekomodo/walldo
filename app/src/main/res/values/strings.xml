@@ -43,10 +43,15 @@
  <string name="low_storage">Require storage not low</string>
  <string name="low_storage_desc">Pauses when device storage is low</string>
  <string name="interval">Interval</string>
- <string name="interval_desc">How often to change the wallpaper</string>
+ <string name="interval_desc">Current Interval : (%1$s)</string>
  <string name="Source">Source</string>
  <string name="wallpaper_source">Wallpaper Source</string>
- <string name="wallpaper_source_desc">Choose which collection or feed to use</string>
+ <string name="wallpaper_source_desc">Current Selection: (%1$s)</string>
+ <string name="autoWallpaper_options">Options</string>
+ <string name="autoWallpaper_device_orientation">Device Orientation Fix</string>
+ <string name="autoWallpaper_device_orientation_desc">"Reschedule if device is in landscape "</string>
+ <string name="autoWallpaper_select_screen">Select Screen</string>
+ <string name="autoWallpaper_select_screen_desc">Current Selection : (%1$s)</string>
 
  <!-- Collections & Account -->
  <string name="new_collection">New Collection</string>
@@ -58,12 +63,9 @@
  <string name="logout_dialog_button">Logout</string>
  <string name="upgrade">Upgrade to Pro!</string>
  <string name="upgrade_desc">Unlocks exclusive features!</string>
-    <string name="autoWallpaper_options">Options</string>
- <string name="autoWallpaper_device_orientation">Device Orientation Fix</string>
- <string name="autoWallpaper_device_orientation_desc">"Reschedule if device is in landscape "</string>
- <string name="autoWallpaper_select_screen">Select Screen</string>
- <string name="autoWallpaper_select_screen_desc"><![CDATA[Home & LockScreen]]></string>
  <string name="filter_purity">SFW (Safe) • Sketchy (Suggestive) • NSFW (18+)</string>
  <string name="filter_purity_helper_text">SFW (Safe) • Sketchy (Suggestive) • NSFW (18+)</string>
-    <string name="thanks">Thank you!</string>
+ <string name="thanks">Thank you!</string>
+ <string name="qs_tile_name">Walldo next!</string>
+ <string name="qs_tile_desc">Click here to add a Quicktile</string>
 </resources>
