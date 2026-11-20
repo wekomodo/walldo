@@ -216,7 +216,7 @@ fun AutoWallpaperContent(
                     else
                         R.drawable.ic_wifi_off.asSource(),
                 onCheckedChange = onWifiChange,
-                isEnabled = state.switch
+                isEnabled = true
             )
             ClickablePrefWithButton(
                 isChecked = state.onCharging,
@@ -226,7 +226,7 @@ fun AutoWallpaperContent(
                 else
                     R.drawable.ic_charging_off.asSource(),
                 onCheckedChange = onChargingChange,
-                isEnabled = state.switch
+                isEnabled = true
             )
             ClickablePrefWithButton(
                 isChecked = state.pauseOnLowBattery,
@@ -236,7 +236,7 @@ fun AutoWallpaperContent(
                 else
                     R.drawable.ic_battery_not_low.asSource(),
                 onCheckedChange = requireBatteryNotLow,
-                isEnabled = state.switch
+                isEnabled = true
             )
             ClickablePrefWithButton(
                 isChecked = state.onIdle,
@@ -246,7 +246,7 @@ fun AutoWallpaperContent(
                 else
                     R.drawable.ic_idle_off.asSource(),
                 onCheckedChange = onIdleChange,
-                isEnabled = state.switch
+                isEnabled = true
             )
             ClickablePrefWithButton(
                 isChecked = state.ifLowOnStorage,
@@ -256,7 +256,7 @@ fun AutoWallpaperContent(
                 else
                     R.drawable.ic_storage_low.asSource(),
                 onCheckedChange = ifLowOnStorage,
-                isEnabled = state.switch
+                isEnabled = true
             )
             HorizontalDivider()
             CategoryTitle(ResourceString(R.string.autoWallpaper_options))

@@ -121,9 +121,11 @@ fun SettingsScreen(
         ) {
             CategoryTitle(ResourceString(R.string.upgrade))
             ClickablePref(
-                text = ResourceString(R.string.upgrade),
-                description = ResourceString(R.string.upgrade_desc),
-                icon = if (!state.isPro) R.drawable.ic_upgrade else R.drawable.ic_logged_in,
+                text = if (!state.isPro) ResourceString(R.string.upgrade) else
+                    ResourceString(R.string.upgraded),
+                description = if (!state.isPro) ResourceString(R.string.upgrade_desc) else
+                    ResourceString(R.string.upgraded_desc),
+                icon = if (!state.isPro) R.drawable.ic_upgrade else R.drawable.ic_thanks_heart,
                 {
                     showProStatusDialog = true
                 },

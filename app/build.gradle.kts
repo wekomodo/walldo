@@ -16,7 +16,7 @@ android {
         applicationId = "com.enigmaticdevs.wallhaven"
         minSdk = 24
         targetSdk = 37
-        versionCode = 27
+        versionCode = 29
         versionName = "1.8.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

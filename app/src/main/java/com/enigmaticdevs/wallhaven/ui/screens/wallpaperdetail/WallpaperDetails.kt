@@ -2,7 +2,6 @@ package com.enigmaticdevs.wallhaven.ui.screens.wallpaperdetail
 
 import android.content.ClipData
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -186,7 +185,7 @@ fun WallpaperDetailScreenContent(
                     }
                     IconButton(onClick = {
                         showInfoSheet = true
-                        Toast.makeText(context, "Info Sheet Shown", Toast.LENGTH_SHORT).show()
+                        // Toast.makeText(context, "Info Sheet Shown", Toast.LENGTH_SHORT).show()
                     }) {
                         Icon(
                             imageVector = Icons.Rounded.Info,

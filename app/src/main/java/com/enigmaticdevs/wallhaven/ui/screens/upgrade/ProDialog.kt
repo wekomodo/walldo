@@ -18,7 +18,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.PlayArrow
-import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -33,8 +32,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -42,6 +39,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.enigmaticdevs.wallhaven.R
+import com.enigmaticdevs.wallhaven.ui.presentation.ImageSource
+import com.enigmaticdevs.wallhaven.ui.presentation.asSource
+import com.enigmaticdevs.wallhaven.ui.presentation.imageSource
 import com.enigmaticdevs.wallhaven.ui.screens.features.pro.ProViewModel
 import dev.zacsweers.metrox.viewmodel.metroViewModel
 
@@ -57,15 +57,32 @@ import dev.zacsweers.metrox.viewmodel.metroViewModel
  * or restore turns into while the dialog is open).
  */
 private data class ProFeature(
-    val icon: ImageVector,
+    val icon: ImageSource,
     val title: String,
     val subtitle: String,
 )
 
 private val proFeatures = listOf(
-    ProFeature(Icons.Rounded.Add, "Your own collections", "Organize wallpapers your way"),
-        ProFeature(Icons.Rounded.Refresh, "wallhaven.cc sync", "Keep collections in sync with your account"),
-    ProFeature(Icons.Rounded.PlayArrow, "Auto-wallpaper playlist", "Rotate through your favorites"),
+    ProFeature(
+        Icons.Rounded.PlayArrow.asSource(),
+        "Auto-wallpaper playlists",
+        "Rotate through any synced or local collection"
+    ),
+    ProFeature(
+        R.drawable.ic_schedule.asSource(),
+        "Faster intervals",
+        "Change wallpapers as often as every 15 minutes"
+    ),
+    ProFeature(
+        R.drawable.wall.asSource(),
+        "Quick Settings tile",
+        "Don't like a wallpaper? Skip it from your shade"
+    ),
+    ProFeature(
+        Icons.Rounded.Add.asSource(),
+        "Unlimited collections",
+        "Create and organize custom collections in-app"
+    ),
 )
 
 
@@ -149,7 +166,9 @@ private fun UpgradeDialog(
             ) {
                 Button(
                     onClick = onUpgrade,
-                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
                 ) {
                     Text(if (price != null) "Upgrade · $price" else "Upgrade")
                 }
@@ -167,6 +186,7 @@ private fun UpgradeDialog(
 
 @Composable
 private fun FeatureRow(feature: ProFeature) {
+    val painter = imageSource(feature.icon)
     Row(verticalAlignment = Alignment.CenterVertically) {
         Surface(
             shape = RoundedCornerShape(12.dp),
@@ -175,7 +195,7 @@ private fun FeatureRow(feature: ProFeature) {
             modifier = Modifier.size(40.dp),
         ) {
             Box(contentAlignment = Alignment.Center) {
-                Icon(feature.icon, contentDescription = null, modifier = Modifier.size(22.dp))
+                Icon(painter = painter, contentDescription = null, modifier = Modifier.size(22.dp))
             }
         }
         Spacer(Modifier.width(14.dp))
@@ -200,7 +220,9 @@ private fun ThankYouDialog(onDismiss: () -> Unit) {
 
             ) {
                 Icon(
-                    modifier = Modifier.size(48.dp).padding(horizontal = 4.dp),
+                    modifier = Modifier
+                        .size(48.dp)
+                        .padding(horizontal = 4.dp),
                     tint = Color.Unspecified,
                     painter = painterResource(R.drawable.ic_thanks_heart),
                     contentDescription = stringResource(R.string.thanks)

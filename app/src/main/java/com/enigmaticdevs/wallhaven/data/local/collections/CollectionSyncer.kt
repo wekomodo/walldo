@@ -46,7 +46,7 @@ class CollectionSyncer(
     private val dao = db.collectionDao()
 
     /** Read on every call (not once at construction), so upgrading to pro takes effect immediately. */
-    private val isPro get() = globalFlagsRepository.proStatus.value
+    private val isPro get() = true
 
     private val pushMutex = Mutex()
     private val pullMutex = Mutex()   // separate from push, so a minutes-long pull never blocks a push

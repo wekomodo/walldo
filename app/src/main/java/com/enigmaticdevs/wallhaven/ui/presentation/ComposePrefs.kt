@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.selection.selectable
@@ -56,6 +57,13 @@ data class NavigationIcon(
     val enabled : Boolean,
     val onClick : () -> Unit
 )
+
+@Composable
+fun imageSource(source: ImageSource) = when (source) {
+    is ImageSource.Vector -> androidx.compose.ui.graphics.vector.rememberVectorPainter(source.imageVector)
+    is ImageSource.Resource -> painterResource(id = source.resId)
+    is ImageSource.CustomPainter -> source.painter
+}
 
 
 fun ImageVector.asSource() = ImageSource.Vector(this)
@@ -106,7 +114,9 @@ fun ClickablePref(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            modifier = Modifier.padding(vertical = 16.dp, horizontal = 8.dp),
+            modifier = Modifier
+                .padding(vertical = 16.dp, horizontal = 8.dp)
+                .size(24.dp),
             painter = painterResource(icon),
             contentDescription = text.asString()
         )
@@ -224,11 +234,7 @@ fun ClickablePrefWithButton(
     isEnabled : Boolean
 ) {
     val contentAlpha = if (isEnabled) 1f else 0.38f
-    val painter = when (imageSource) {
-        is ImageSource.Vector -> androidx.compose.ui.graphics.vector.rememberVectorPainter(imageSource.imageVector)
-        is ImageSource.Resource -> painterResource(id = imageSource.resId)
-        is ImageSource.CustomPainter -> imageSource.painter
-    }
+    val painter = imageSource(imageSource)
     Row(
         modifier = Modifier
             .fillMaxWidth()

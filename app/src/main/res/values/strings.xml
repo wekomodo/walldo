@@ -68,4 +68,6 @@
  <string name="thanks">Thank you!</string>
  <string name="qs_tile_name">Walldo next!</string>
  <string name="qs_tile_desc">Click here to add a Quicktile</string>
+ <string name="upgraded_desc">Thanks for supporting the app!</string>
+ <string name="upgraded">You\'re awesome!</string>
 </resources>
