@@ -63,7 +63,8 @@ fun BottomSheetContent(
     Column(
         modifier = Modifier
             .wrapContentSize()
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
@@ -90,6 +91,11 @@ fun BottomSheetContent(
             text = "Tags",
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding()
+        )
+        Text(
+            text = "(Click on tag chip to see more)",
+            style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
